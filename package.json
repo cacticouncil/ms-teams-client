@@ -1,0 +1,19 @@
+{
+  "name": "ms-teams-electron",
+  "version": "1.0.0",
+  "description": "",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron ."
+  },
+  "author": "Adithya Haridas",
+  "license": "MIT",
+  "devDependencies": {
+    "electron": "^12.0.0",
+    "eslint": "^7.21.0"
+  },
+  "dependencies": {
+    "atob": "^2.1.2",
+    "axios": "^0.21.1"
+  }
+}

@@ -1,0 +1,7 @@
+# node modules
+node_modules/
+
+# local only files
+*.local
+*.local.json
+*.local.js
