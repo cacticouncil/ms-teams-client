@@ -1,4 +1,3 @@
-const fs = require('fs')
 const axios = require('axios').default
 const { loadCredentials } = require('./credentials')
 
@@ -21,7 +20,10 @@ if (require.main === module) {
       if (index !== 0) console.log()
       console.log(`${index + 1}. ${team.displayName}`)
       console.log(`       Description: ${team.description}`)
-      console.log(`       Channels: [${team.channels.map(c => c.displayName).join(', ')}]`)
+      console.log('       Channels:')
+      team.channels.forEach((channel, index) => {
+        console.log(`           ${index + 1}. ${channel.displayName} (id: ${channel.id})`)
+      })
     })
   })
 }
