@@ -4,7 +4,7 @@ This is a tool to help reverse engineer the Microsoft Teams web client.
 
 ## Usage
 
-This is a very manual process >:\)
+This is a very manual process
 
 ### Step 1
 
