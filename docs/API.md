@@ -2,13 +2,13 @@
 
 > Each table is sorted by HTTP protocol ([**GET**](#get)</a>, [**POST**](#post), **PUT**, **DELETE**, **PATCH**).
 
-## <u>GET</u> {#get}
+## <u>GET</u>
 | **Host**                    | **Endpoint**                                            | **Description**                                | **Query Parameters**                               | **Authorization**              |
 | --------------------------- | ------------------------------------------------------- | ---------------------------------------------- | -------------------------------------------------- | ------------------------------ |
 | https://teams.microsoft.com | `/api/csa/api/v2/teams/${teamId}/channels/${channelId}` | This is used to fetch channel messages.        | `filterSystemMessage=true`, `pageSize={number}`    | **Bearer** `{chatSvcAggToken}` |
 | https://teams.microsoft.com | `/api/csa/api/v1/teams/users/me`                        | Fetch all available "teams" for a single user. | `isPrefetch=false`, `enableMembershipSummary=true` | **Bearer** `{chatSvcAggToken}` |
 <br><br/>
-## <u>POST</u> {#post}
+## <u>POST</u>
 | **Host**                                | **Endpoint**                                                                                                | **Description**                                                                                                                             | Authentication                                   |
 | --------------------------------------- | ----------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------ |
 | https://amer.ng.msg.teams.microsoft.com | `/v1/users/ME/conversations/${sampleChannelId}/messages`                                                    | This is used to send a normal message in a target channel.                                                                                  | `skypeToken=${credentials.authSkype.skypeToken}` |
