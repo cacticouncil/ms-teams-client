@@ -5,3 +5,8 @@ node_modules/
 *.local
 *.local.json
 *.local.js
+
+# debug stuff
+*.har
+yarn.lock
+
