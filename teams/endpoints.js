@@ -29,6 +29,10 @@ async function getEndpoints() {
   }
 }
 
+module.exports = {
+  getEndpoints
+}
+
 if (require.main === module) {
   getEndpoints().then(console.log)
 }
