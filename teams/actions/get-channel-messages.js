@@ -1,10 +1,10 @@
 const axios = require('axios').default
 const htmlparser = require('htmlparser2')
-const { loadCredentials } = require('./credentials')
+const { loadCredentials } = require('../credentials')
 
 const url = (teamId, channelId) => `https://teams.microsoft.com/api/csa/api/v2/teams/${teamId}/channels/${channelId}?filterSystemMessage=true&pageSize=5`
 
-async function getChannelMessages (teamId, channelId) {
+async function getChannelMessages(teamId, channelId) {
   const credentials = loadCredentials()
   const response = await axios.get(url(teamId, channelId), {
     headers: {
@@ -32,7 +32,7 @@ if (require.main === module) {
             case 'RichText/Html': {
               text = []
               const parser = new htmlparser.Parser({
-                ontext (piece) {
+                ontext(piece) {
                   text.push(piece)
                 }
               })
