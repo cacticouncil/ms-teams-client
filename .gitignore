@@ -7,6 +7,6 @@ node_modules/
 *.local.js
 
 # debug stuff
-*.har
+# *.har
 yarn.lock
-
+har/
