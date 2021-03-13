@@ -5,7 +5,7 @@ const { loadCredentials } = require('../credentials')
 
 const url = (sampleChannelId, messageId) => `https://amer.ng.msg.teams.microsoft.com/v1/users/ME/conversations/${sampleChannelId};${messageId}/messages`
 
-async function sendMessageToChannel(text, channelId, messageId) {
+async function sendReplyMessage(text, channelId, messageId) {
   const credentials = loadCredentials()
 
   // plug 768076545871816000 into clientmessageid if you want to edit a message
@@ -27,6 +27,6 @@ if (require.main === module) {
   const sampleChannelId = `19:a0b9b7ae437c4d22b69a575393a55bdb@thread.tacv2`
   const messageId = `messageid=1615603467529`
   const text = 'This response was reverse engineered!'
-  sendMessageToChannel(text, sampleChannelId, messageId)
+  sendReplyMessage(text, sampleChannelId, messageId)
     .then(response => console.log(response)).catch(err => console.log(err))
 }
