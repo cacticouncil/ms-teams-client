@@ -1,5 +1,5 @@
 const axios = require('axios').default
-const { loadCredentials } = require('./credentials')
+const { loadCredentials } = require('../credentials')
 
 // TODO: figure out what "003e8b17-0deb-4e57-a3d8-147e845a34bc" is
 const url = 'https://amer.ng.msg.teams.microsoft.com/v2/users/ME/endpoints/003e8b17-0deb-4e57-a3d8-147e845a34bc'
