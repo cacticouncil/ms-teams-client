@@ -4,7 +4,8 @@
   "description": "",
   "main": "dist/index.js",
   "scripts": {
-    "start": "electron ."
+    "start": "electron .",
+    "build": "babel src --out-dir dist"
   },
   "author": "Adithya Haridas",
   "license": "MIT",
