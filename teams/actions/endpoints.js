@@ -23,10 +23,7 @@ async function getEndpoints() {
     }
   })
 
-  return {
-    longPollUrl: response.data.subscriptions.find((subscription) => subscription.channelType === 'HttpLongPoll').longPollUrl,
-    _raw: response.data
-  }
+  return response.data
 }
 
 module.exports = {
