@@ -1,14 +1,8 @@
-const axios = require('axios').default
-const { sendMessage } = require('./send-message')
-//   let response;
-//   // i would really prefer if we just didnt have to do this, so we need to figure out how to order the ids
-//   // TODO: determine 'owner' of DM (?), assume first id is the DM initiator
-//   try {
-//     response = await axios.post(url(channelId, senderId, receiverId), payload, headers)
-//   } catch (err) {
-//     response = await axios.post(url(channelId, receiverId, senderId), payload, headers)
-//   }
-function sendDirectMessage(text, senderId, receiverId) {
+import { sendMessage } from './send-message'
+
+export function sendDirectMessage(text, senderId, receiverId) {
+  // i would really prefer if we just didnt have to do this, so we need to figure out how to order the ids
+  // TODO: determine 'owner' of DM (?), assume first id is the DM initiator
   const params = `19:${receiverId}_${senderId}@unq.gbl.spaces`
   return sendMessage(text, params)
 }

@@ -11,7 +11,7 @@ This is a very manual process
 Run the electron app to kick start login process.
 
 ```sh
-npm start
+npm run login
 ```
 
 This will navigate to the Microsoft Teams web app. Once the appropriate tokens have been detected, the app will close automatically.
@@ -20,9 +20,12 @@ Upon exit, a file should be generated: `ms-teams-credentials.local.json`. This c
 
 ### Step 2
 
-Run an action file (located in the `teams` folder)
+Build, if needed, then run an action file.
 
 ```sh
+# Build for first use or source code changes
+npm run build
+
 # Ex: List teams
-node teams/list-teams.js
+node dist/private-api/list-teams.js
 ```

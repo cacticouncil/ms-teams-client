@@ -1,9 +1,9 @@
-const axios = require('axios').default
-const { loadCredentials } = require('../credentials')
+import axios from 'axios'
+import { loadCredentials } from '../credentials'
 
 const url = 'https://teams.microsoft.com/api/csa/api/v1/teams/users/me?isPrefetch=false&enableMembershipSummary=true'
 
-async function getTeamsList() {
+export async function getTeamsList() {
   const credentials = loadCredentials()
   const response = await axios.get(url, {
     headers: {

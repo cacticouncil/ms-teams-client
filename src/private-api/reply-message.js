@@ -1,7 +1,7 @@
-const axios = require('axios').default
-const { sendMessage } = require('./send-message')
+import axios from 'axios'
+import { sendMessage } from './send-message'
 
-function sendReplyMessage(text, channelId, messageId){
+export function sendReplyMessage(text, channelId, messageId){
   const params = `${channelId};${messageId}`
   return sendMessage(text, params)
 }

@@ -1,10 +1,10 @@
-const axios = require('axios').default
-const htmlparser = require('htmlparser2')
-const { loadCredentials } = require('../credentials')
+import axios from 'axios'
+import htmlparser from 'htmlparser2'
+import { loadCredentials } from '../credentials'
 
 const url = (teamId, channelId) => `https://teams.microsoft.com/api/csa/api/v2/teams/${teamId}/channels/${channelId}?filterSystemMessage=true&pageSize=5`
 
-async function getChannelMessages(teamId, channelId) {
+export async function getChannelMessages(teamId, channelId) {
   const credentials = loadCredentials()
   const response = await axios.get(url(teamId, channelId), {
     headers: {
