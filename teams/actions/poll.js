@@ -1,10 +1,10 @@
 const axios = require('axios').default
 const { loadCredentials } = require('../credentials')
-const { getEndpoints } = require('./poll-endpoints')
+const { getPollingEndpoint } = require('./poll-endpoints')
 
 async function poll(next = null) {
   const credentials = loadCredentials()
-  const url = next || (await getEndpoints()).subscriptions.find((subscription) => subscription.channelType === 'HttpLongPoll').longPollUrl
+  const url = next || (await getPollingEndpoint()).subscriptions.find((subscription) => subscription.channelType === 'HttpLongPoll').longPollUrl
 
   const response = await axios.get(url, {
     headers: {

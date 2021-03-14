@@ -15,7 +15,7 @@ const payload = {
   ]
 }
 
-async function getEndpoints() {
+async function getPollingEndpoint() {
   const credentials = loadCredentials()
   const response = await axios.put(url, payload, {
     headers: {
@@ -27,7 +27,7 @@ async function getEndpoints() {
 }
 
 module.exports = {
-  getEndpoints
+  getPollingEndpoint
 }
 
 if (require.main === module) {
