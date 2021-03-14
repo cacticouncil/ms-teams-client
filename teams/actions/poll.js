@@ -1,6 +1,6 @@
 const axios = require('axios').default
 const { loadCredentials } = require('../credentials')
-const { getEndpoints } = require('./endpoints')
+const { getEndpoints } = require('./poll-endpoints')
 
 async function poll(next = null) {
   const credentials = loadCredentials()
