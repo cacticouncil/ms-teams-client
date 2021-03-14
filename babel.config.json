@@ -1,0 +1,13 @@
+{
+  "presets": [
+    [
+      "@babel/env",
+      {
+        "targets": {
+          "node": "10.9.0"
+        },
+        "modules": "cjs"
+      }
+    ]
+  ]
+}
