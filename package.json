@@ -6,7 +6,8 @@
   "private": true,
   "scripts": {
     "build": "babel src --out-dir dist",
-    "login": "electron dev-login.js"
+    "login": "electron dev-login.js",
+    "test": "jest"
   },
   "contributors": [
     "Adithya Haridas",
