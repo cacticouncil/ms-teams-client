@@ -5,7 +5,7 @@ const url = 'https://teams.microsoft.com/api/csa/api/v1/teams/users/me?isPrefetc
 
 async function getTeamsList() {
   const credentials = loadCredentials()
-  const response = await axios.get(URL, {
+  const response = await axios.get(url, {
     headers: {
       Authorization: `Bearer ${credentials.chatSvcAggToken.token}`
     }

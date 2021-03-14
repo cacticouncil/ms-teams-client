@@ -1,6 +1,6 @@
 # Teams API Documentation
 
-> Each table is sorted by HTTP protocol ([**GET**](#get)</a>, [**POST**](#post), **PUT**, **DELETE**, **PATCH**).
+> Each table is sorted by HTTP protocol ([**GET**](#get), [**POST**](#post), **PUT**, **DELETE**, **PATCH**).
 
 ## <u>GET</u>
 | **Host**                    | **Endpoint**                                            | **Description**                                | **Query Parameters**                               | **Authorization**              |
