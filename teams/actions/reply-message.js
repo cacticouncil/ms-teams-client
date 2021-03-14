@@ -3,8 +3,7 @@ const { sendMessage } = require('./send-message')
 
 function sendReplyMessage(text, channelId, messageId){
   const params = `${channelId};${messageId}`
-  sendMessage(text, params)
-    .then(response => console.log(response)).catch(err => console.log(err))
+  return sendMessage(text, params)
 }
 
 if (require.main === module) {
@@ -12,4 +11,5 @@ if (require.main === module) {
   const messageId = `messageid=1615603467529`
   const text = 'This response was reverse engineered!'
   sendReplyMessage(text, sampleChannelId, messageId)
+    .then(response => console.log(response)).catch(err => console.log(err))
 }

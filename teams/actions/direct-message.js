@@ -8,10 +8,9 @@ const { sendMessage } = require('./send-message')
 //   } catch (err) {
 //     response = await axios.post(url(channelId, receiverId, senderId), payload, headers)
 //   }
-function sendDirectMessage(text, sampleChannelId, senderId, receiverId) {
-  const params = `${sampleChannelId}:${receiverId}_${senderId}@unq.gbl.spaces`
-  sendMessage(text, params)
-    .then(response => console.log(response)).catch(err => console.log(err))
+function sendDirectMessage(text, senderId, receiverId) {
+  const params = `19:${receiverId}_${senderId}@unq.gbl.spaces`
+  return sendMessage(text, params)
 }
 
 if (require.main === module) {
@@ -19,7 +18,7 @@ if (require.main === module) {
   // accurately reflects their purpose once we figure out why their order matters
   const senderId = "bd54250d-7a64-410a-aec9-aed8352723cc" // jon's id
   const receiverId = "227bf089-261b-463e-847d-51eb93c467f6" // blake's id
-  const sampleChannelId = "19"
   const text = 'This DM was reverse engineered!'
-  sendDirectMessage(text, sampleChannelId, senderId, receiverId)
+  sendDirectMessage(text, senderId, receiverId)
+    .then(response => console.log(response)).catch(err => console.log(err))
 }
