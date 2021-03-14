@@ -1,11 +1,11 @@
 const axios = require('axios').default
-const { loadCredentials } = require('./credentials')
+const { loadCredentials } = require('../credentials')
 
-const URL = 'https://teams.microsoft.com/api/csa/api/v1/teams/users/me?isPrefetch=false&enableMembershipSummary=true'
+const url = 'https://teams.microsoft.com/api/csa/api/v1/teams/users/me?isPrefetch=false&enableMembershipSummary=true'
 
-async function getTeamsList () {
+async function getTeamsList() {
   const credentials = loadCredentials()
-  const response = await axios.get(URL, {
+  const response = await axios.get(url, {
     headers: {
       Authorization: `Bearer ${credentials.chatSvcAggToken.token}`
     }
