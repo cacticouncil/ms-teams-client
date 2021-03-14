@@ -1,3 +1,6 @@
+// TODO: remove this file
+// Currently kept for compatiblity
+
 const fs = require('fs')
 const path = require('path')
 
