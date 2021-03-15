@@ -1,8 +1,9 @@
 const axios = require('axios').default
 const { loadCredentials } = require('../credentials')
+const { v4: uuid } = require('uuid')
 
-// TODO: figure out what "003e8b17-0deb-4e57-a3d8-147e845a34bc" is
-const url = 'https://amer.ng.msg.teams.microsoft.com/v2/users/ME/endpoints/003e8b17-0deb-4e57-a3d8-147e845a34bc'
+// didn't know what guid they wanted... so did the next best thing
+const url = () => `https://amer.ng.msg.teams.microsoft.com/v2/users/ME/endpoints/${uuid()}`
 
 const payload = {
   startingTimeSpan: 0,
@@ -17,7 +18,7 @@ const payload = {
 
 async function getPollingEndpoint() {
   const credentials = loadCredentials()
-  const response = await axios.put(url, payload, {
+  const response = await axios.put(url(), payload, {
     headers: {
       Authentication: `skypetoken=${credentials.authSkype.skypeToken}`
     }
@@ -31,5 +32,5 @@ module.exports = {
 }
 
 if (require.main === module) {
-  getEndpoints().then(console.log)
+  getPollingEndpoint().then(console.log)
 }
