@@ -4,7 +4,33 @@ Throught this reverse engineering effort, we have found multiple tokens in use b
 
 ## Skype Token
 
-Ah yes. It wouldn't be the Microsoft Way&trade; without pushing Skype into random stuff.
+This token is provided in a JWT format.
+
+### Example payload
+
+```json
+{
+  "iat": 1615856732,
+  "exp": 1615943131,
+  "skypeid": "<uuid>",
+  "scp": 780,
+  "csi": "1615856431",
+  "tid": "<uuid>",
+  "rgn": "amer"
+}
+```
+
+Typical usage of this token is through the `Authentication` header, as shown below:
+
+```js
+Authentication: `skypetoken=${token}`
+```
+
+### Currently known uses
+
+1. Sending any type of chat messages
+2. Polling for events
 
 ## Chat Service Token
+
 Known in code as `chatSvcAggToken` (we have yet to figure out what `Agg` is).
