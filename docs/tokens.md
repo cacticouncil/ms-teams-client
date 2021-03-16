@@ -28,8 +28,9 @@ Authentication: `skypetoken=${token}`
 
 ### Currently known uses
 
-1. Sending any type of chat messages
-2. Polling for events
+1. Sending any type of chat messages ([source](/teams/actions/send-message.js))
+2. Retrieving polling endpoint ([source](/teams/actions/poll-endpoints.js))
+3. Polling for events ([source](/teams/actions/poll.js))
 
 ## Chat Service Token
 
