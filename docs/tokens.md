@@ -2,7 +2,12 @@
 
 Throught this reverse engineering effort, we have found multiple tokens in use by the Microsoft Teams webapp. However, there are only a few that are required for basic operation.
 
-## Skype Token
+## Table of contents
+
+1. [Skype token](#skype-token)
+2. [Chat service token](#chat-service-token)
+
+## Skype token
 
 This token is provided in a JWT format.
 
@@ -34,13 +39,13 @@ Authentication: `skypetoken=${token}`
 2. Retrieving polling endpoint ([source](/teams/actions/poll-endpoints.js))
 3. Polling for events ([source](/teams/actions/poll.js))
 
-## Chat Service Token
+## Chat service token
 
 Known in code as `chatSvcAggToken` (we have yet to figure out what `Agg` stands for). This token is also in a JWT format.
 
-### Example Payload
+### Example payload
 
-```json
+```jsonc
 {
   "aud": "https://chatsvcagg.teams.microsoft.com",
   "iss": "https://sts.windows.net/<uuid>/",
