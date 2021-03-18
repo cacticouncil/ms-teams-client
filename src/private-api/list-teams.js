@@ -14,6 +14,8 @@ async function getTeamsList() {
   return response.data
 }
 
+module.exports = { getTeamsList }
+
 if (require.main === module) {
   getTeamsList().then(response => {
     response.teams.forEach((team, index) => {
