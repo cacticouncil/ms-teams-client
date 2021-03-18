@@ -1,6 +1,6 @@
 # Tokens
 
-Throught this reverse engineering effort, we have found multiple tokens in use by the Microsoft Teams webapp. However, there are only a few that are required for basic operation.
+Through this reverse engineering effort, we have found multiple tokens in use by the Microsoft Teams webapp. However, there are only a few that are required for basic operation.
 
 ## Table of contents
 
