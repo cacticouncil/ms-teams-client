@@ -54,7 +54,7 @@ module.exports = {
   // forceCoverageMatch: [],
 
   // A path to a module which exports an async function that is triggered once before all test suites
-  globalSetup: '<rootDir>/tests/setup',
+  // globalSetup: '',
 
   // A path to a module which exports an async function that is triggered once after all test suites
   // globalTeardown: undefined,
@@ -119,7 +119,7 @@ module.exports = {
   // rootDir: undefined,
 
   // A list of paths to directories that Jest should use to search for files in
-  roots: ['<rootDir>/tests'],
+  roots: ['<rootDir>/tests/unit'],
 
   // Allows you to use a custom runner instead of Jest's default test runner
   // runner: "jest-runner",
