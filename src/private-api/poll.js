@@ -15,19 +15,19 @@ async function poll(next = null) {
   return response.data
 }
 
+function __pollLoop(next = null) {
+  poll(next).then(response => {
+    console.log(new Date().toISOString())
+    console.log(response)
+    __pollLoop(response.next)
+  })
+}
+
 if (require.main === module) {
   process.on('SIGINT', () => {
-    console.log("\nSIGINT: stopping...")
+    console.log('\nSIGINT: stopping...')
     process.exit(0)
   })
 
-  function pollLoop(next = null) {
-    poll(next).then(response => {
-      console.log(new Date().toISOString())
-      console.log(response)
-      pollLoop(response.next)
-    })
-  }
-
-  pollLoop()
+  __pollLoop()
 }

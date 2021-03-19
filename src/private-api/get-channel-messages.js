@@ -16,7 +16,7 @@ async function getChannelMessages(teamId, channelId) {
 }
 
 if (require.main === module) {
-  const sampleChannelId = `19:e6d413c6361f49feae894f81f0a85264@thread.tacv2`
+  const sampleChannelId = '19:e6d413c6361f49feae894f81f0a85264@thread.tacv2'
 
   getChannelMessages(sampleChannelId, sampleChannelId)
     .then(response => {
@@ -25,27 +25,27 @@ if (require.main === module) {
         replyChain.messages.forEach(msg => {
           let text
           switch (msg.messageType) {
-            case 'Text': {
-              text = msg.content
-              break
-            }
-            case 'RichText/Html': {
-              text = []
-              const parser = new htmlparser.Parser({
-                ontext(piece) {
-                  text.push(piece)
-                }
-              })
-              parser.write(msg.content)
-              parser.end()
-              text = text.join('')
-              break
-            }
-            default: {
-              text = `Unknown message type (${msg.messageType}): ${msg.content}`
-            }
+          case 'Text': {
+            text = msg.content
+            break
           }
-          if (msg.properties.deletetime) text = "[deleted message]"
+          case 'RichText/Html': {
+            text = []
+            const parser = new htmlparser.Parser({
+              ontext(piece) {
+                text.push(piece)
+              }
+            })
+            parser.write(msg.content)
+            parser.end()
+            text = text.join('')
+            break
+          }
+          default: {
+            text = `Unknown message type (${msg.messageType}): ${msg.content}`
+          }
+          }
+          if (msg.properties.deletetime) text = '[deleted message]'
 
           console.log(`[${msg.composeTime}] ${msg.imDisplayName}: ${text}`)
         })
