@@ -1,1 +1,1 @@
-module.exports = "Placeholder"
+module.exports = 'Placeholder'
