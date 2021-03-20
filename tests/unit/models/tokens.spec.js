@@ -14,11 +14,11 @@ describe('tokens', () => {
   })
 
   it('caches tokens', () => {
-    expect(tokens.require('foobar')).toBe('1234')
+    expect(tokens.get('foobar')).toBe('1234')
   })
 
   it('throws error if invalid key', () => {
-    expect(() => tokens.require('foobaz')).toThrow()
+    expect(() => tokens.get('foobaz')).toThrow()
   })
 
   it('throws if token expired', () => {
@@ -29,6 +29,6 @@ describe('tokens', () => {
       }
     })
 
-    expect(() => tokens.require('foobar')).toThrow()
+    expect(() => tokens.get('foobar')).toThrow()
   })
 })

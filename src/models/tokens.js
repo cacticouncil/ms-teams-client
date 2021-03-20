@@ -28,7 +28,7 @@ class Tokens {
    * @returns {string} Token, if cached
    * @throws if token does not exist or is expired
    */
-  require (key) {
+  get (key) {
     if (!this.tokenCache[key]) throw new InvalidTokenError(key)
 
     const obj = this.tokenCache[key]
