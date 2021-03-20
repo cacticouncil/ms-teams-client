@@ -1,4 +1,4 @@
-const { default: Tokens } = require('@/models/tokens')
+const { Tokens } = require('@/models/tokens')
 
 describe('tokens', () => {
   /** @type {Tokens} */

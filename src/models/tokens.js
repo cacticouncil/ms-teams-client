@@ -47,6 +47,6 @@ class InvalidTokenError extends Error {
 }
 
 module.exports = {
-  default: Tokens,
+  Tokens,
   InvalidTokenError
 }
