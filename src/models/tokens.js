@@ -1,5 +1,5 @@
 /**
- * @typedef {Object} Token Expected format for token
+ * @typedef {object} Token Expected format for token
  * @property {string} token
  * @property {string} exp
  */
@@ -8,6 +8,9 @@
  * Class that contains cache of tokens
  */
 class Tokens {
+  /**
+   * @param {Record<string, Token>} tokens tokens
+   */
   constructor (tokens) {
     /** @type {Record<string, Token>} */
     this.tokenCache = {}
@@ -16,7 +19,7 @@ class Tokens {
   }
 
   setTokens (tokens) {
-    this.tokenCache = { ...this.tokenCache, tokens }
+    this.tokenCache = { ...this.tokenCache, ...tokens }
   }
 
   /**
