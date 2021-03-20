@@ -1,8 +1,11 @@
 {
+  "typeAcquisition": {
+    "include": ["jest"]
+  },
   "compilerOptions": {
     "baseUrl": "../../",
     "paths": {
-      "@/*": [ "src/*" ]
+      "@/*": ["src/*"]
     }
   }
 }
