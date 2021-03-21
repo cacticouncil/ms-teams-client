@@ -1,14 +1,13 @@
 const axios = require('axios').default
-const { loadCredentials } = require('../credentials')
 const { getPollingEndpoint } = require('./poll-endpoints')
 
-async function poll(next = null) {
-  const credentials = loadCredentials()
-  const url = next || (await getPollingEndpoint()).subscriptions.find((subscription) => subscription.channelType === 'HttpLongPoll').longPollUrl
+async function poll(options) {
+  const { next = null, tokens } = options
+  const url = next || (await getPollingEndpoint({ tokens })).subscriptions.find((subscription) => subscription.channelType === 'HttpLongPoll').longPollUrl
 
   const response = await axios.get(url, {
     headers: {
-      Authentication: `skypetoken=${credentials.authSkype.skypeToken}`
+      Authentication: `skypetoken=${tokens.get('skypeToken')}`
     }
   })
 
@@ -31,3 +30,5 @@ if (require.main === module) {
 
   __pollLoop()
 }
+
+module.exports = { poll }
