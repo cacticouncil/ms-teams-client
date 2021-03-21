@@ -30,7 +30,3 @@ async function getPollingEndpoint(options = {}) {
 module.exports = {
   getPollingEndpoint
 }
-
-if (require.main === module) {
-  getPollingEndpoint().then(console.log)
-}

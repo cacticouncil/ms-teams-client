@@ -14,21 +14,4 @@ async function poll(options) {
   return response.data
 }
 
-function __pollLoop(next = null) {
-  poll(next).then(response => {
-    console.log(new Date().toISOString())
-    console.log(response)
-    __pollLoop(response.next)
-  })
-}
-
-if (require.main === module) {
-  process.on('SIGINT', () => {
-    console.log('\nSIGINT: stopping...')
-    process.exit(0)
-  })
-
-  __pollLoop()
-}
-
 module.exports = { poll }
