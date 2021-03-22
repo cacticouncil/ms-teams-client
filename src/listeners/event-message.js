@@ -44,6 +44,7 @@ function handleMessageNotification(event) {
 
 //whenever a message is updated, such as editing/reacting/deleting/undoing/creating polls/poll voting/pinning
 function handleMessageUpdate(event) {
+  client.emit('')
   console.log('Message was updated boi or edited')
 }
 
