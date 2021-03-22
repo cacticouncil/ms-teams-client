@@ -6,24 +6,24 @@ class Poller {
    *
    * @param {import('./client').Client} client Client instance
    */
-  constructor (client) {
+  constructor(client) {
     this.client = client
     this.stop = true
   }
 
-  start () {
+  start() {
     if (!this.stop) return
     this.stop = false
     this.__poll()
   }
 
-  stop () {
+  stop() {
     this.stop = true
   }
 
-  __poll() {
+  __poll(next = null) {
     if (this.stop) return
-    poll({ tokens: this.client.tokens })
+    poll({ next, tokens: this.client.tokens })
       .catch(error => {
         console.log('hello world', error)
         if (error && ((error.response && error.response.status === 401) || error instanceof InvalidTokenError)) {
@@ -40,6 +40,7 @@ class Poller {
             }
             default: {
               this.client.emit('event-unknown', event)
+              break
             }
           }
           // this.client.emit('poll', event)
