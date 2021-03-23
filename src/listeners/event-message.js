@@ -1,9 +1,11 @@
-function handler(event) {
+function handler(event, client) {
   console.log('\n====================START HANDLE MESSAGE====================')
+  console.log('Resource Type:', event.resourceType)
   // console.log('EVENT:', event)
   switch (event.resourceType) {
     case 'ConversationUpdate': {
-      handleReply(event)
+      client.emit('reply-message', event)
+      // handleReply(event)
       break
     }
     case 'NewMessage': {
@@ -11,15 +13,18 @@ function handler(event) {
 
       if (threadType === 'topic') {
         console.log('in topic')
-        handleNewMessage(event)
+        client.emit('new-message', event)
+        // handleNewMessage(event)
       } else if (threadType === 'streamofnotifications') {
         console.log('in notificationstream')
-        handleMessageNotification(event)
+        client.emit('message-notification-stream', event)
+        // handleMessageNotification(event)
       }
       break
     }
     case 'MessageUpdate': {
-      handleMessageUpdate(event)
+      client.emit('update-message', event)
+      // handleMessageUpdate(event)
       break
     }
     default: {
@@ -33,7 +38,7 @@ function handler(event) {
 //for example, a notification might come back as resourceType=NewMessage but have threadtype=streamofnotifications
 //while a regular will have the same resourceType but threadtype=topic
 
-// resourceType = NewMessage
+/* // resourceType = NewMessage
 function handleNewMessage(event) {
   console.log('User', event.resource.imdisplayname, 'sent a new message:', event.resource.content)
 }
@@ -51,8 +56,15 @@ function handleMessageUpdate(event) {
 // resourceType = ConversationUpdate
 function handleReply(event) {
   console.log('User', event.resource.imdisplayname, 'sent a new reply:', event.resource.content)
-}
+} */
 
 module.exports = {
   handler
 }
+
+
+
+// creating new message is resourceType NewMessage
+// then new message is also treated as ConversationUpdate somehow
+
+// conversation update resource types may have different payloads
