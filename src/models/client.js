@@ -20,9 +20,8 @@ class Client extends EventEmitter {
   constructor(options = {}) {
     super()
     const { tokens } = options
-    // console.log(tokens.)
-    // console.log('OPTIONS', tokens)
-    if (!(tokens && tokens.skypeToken && tokens.chatSvcAggToken)) throw new InvalidClientCredentialsException('Missing credentials. Cannot build Client object without ClientOptions containing skypeToken and chatSvcToken.')
+    
+    if (!(tokens && tokens.skypeToken && tokens.chatSvcAggToken)) throw new InvalidClientCredentialsError('Missing credentials. Cannot build Client object without ClientOptions containing skypeToken and chatSvcToken.')
 
     /** @type {Tokens} */
     this.tokens = new Tokens({
@@ -40,10 +39,8 @@ class Client extends EventEmitter {
   }
 }
 
-class InvalidClientCredentialsException extends Error {
-  constructor(msg) {
-    super(msg)
-  }
+class InvalidClientCredentialsError extends Error {
+  
 }
 
 function getExpirationFromJWT(jwtToken) {
@@ -53,5 +50,5 @@ function getExpirationFromJWT(jwtToken) {
 
 module.exports = {
   Client,
-  InvalidClientCredentialsException
+  InvalidClientCredentialsError
 }
