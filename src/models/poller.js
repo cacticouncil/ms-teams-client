@@ -35,7 +35,6 @@ class Poller {
         if (response.eventMessages) response.eventMessages.forEach((event) => {
           switch (event.type) {
             case 'EventMessage': {
-              this.client.emit('event-message', event)
               eventMessageHandler(event, this.client)
               break
             }
