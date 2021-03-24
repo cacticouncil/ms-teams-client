@@ -1,5 +1,6 @@
 const { poll } = require('../private-api')
 const { InvalidTokenError } = require('./tokens')
+const { handler: eventMessageHandler } = require('../listeners/event-message')
 
 class Poller {
   /**
@@ -25,7 +26,6 @@ class Poller {
     if (this.stop) return
     poll({ next, tokens: this.client.tokens })
       .catch(error => {
-        console.log('hello world', error)
         if (error && ((error.response && error.response.status === 401) || error instanceof InvalidTokenError)) {
           this.client.emit('refresh-required')
           setTimeout(this.__poll, 5000)
@@ -36,6 +36,7 @@ class Poller {
           switch (event.type) {
             case 'EventMessage': {
               this.client.emit('event-message', event)
+              eventMessageHandler(event, this.client)
               break
             }
             default: {
@@ -43,7 +44,6 @@ class Poller {
               break
             }
           }
-          // this.client.emit('poll', event)
         })
 
         return response.next
