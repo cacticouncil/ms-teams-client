@@ -34,8 +34,6 @@ class Tokens {
     const obj = this.tokenCache[key]
 
     // expiration check
-    // console.log('EXPIRATION DATE: ' + obj.exp)
-    // console.log('\nNEW DATE: ' + new Date())
     if (new Date(obj.exp) < new Date()) throw new InvalidTokenError(key)
 
     return obj.token

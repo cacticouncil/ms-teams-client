@@ -1,30 +1,21 @@
 function handler(event, client) {
-  console.log('\n====================START HANDLE MESSAGE====================')
-  console.log('Resource Type:', event.resourceType)
-  // console.log('EVENT:', event)
   switch (event.resourceType) {
     case 'ConversationUpdate': {
       client.emit('reply-message', event)
-      // handleReply(event)
       break
     }
     case 'NewMessage': {
       const threadType = event.resource.threadtype
 
       if (threadType === 'topic') {
-        console.log('in topic')
         client.emit('new-message', event)
-        // handleNewMessage(event)
       } else if (threadType === 'streamofnotifications') {
-        console.log('in notificationstream')
         client.emit('message-notification-stream', event)
-        // handleMessageNotification(event)
       }
       break
     }
     case 'MessageUpdate': {
       client.emit('update-message', event)
-      // handleMessageUpdate(event)
       break
     }
     default: {
@@ -32,39 +23,8 @@ function handler(event, client) {
       break
     }
   }
-  console.log('====================END HANDLE MESSAGE====================\n')
 }
-//threadtype might be a good way to differentiate between poll responses that come back with the same resourceType, but do different things
-//for example, a notification might come back as resourceType=NewMessage but have threadtype=streamofnotifications
-//while a regular will have the same resourceType but threadtype=topic
-
-/* // resourceType = NewMessage
-function handleNewMessage(event) {
-  console.log('User', event.resource.imdisplayname, 'sent a new message:', event.resource.content)
-}
-
-function handleMessageNotification(event) {
-  console.log('You received a message notification! Ding!')
-}
-
-//whenever a message is updated, such as editing/reacting/deleting/undoing/creating polls/poll voting/pinning
-function handleMessageUpdate(event) {
-  client.emit('')
-  console.log('Message was updated boi or edited')
-}
-
-// resourceType = ConversationUpdate
-function handleReply(event) {
-  console.log('User', event.resource.imdisplayname, 'sent a new reply:', event.resource.content)
-} */
 
 module.exports = {
   handler
 }
-
-
-
-// creating new message is resourceType NewMessage
-// then new message is also treated as ConversationUpdate somehow
-
-// conversation update resource types may have different payloads
