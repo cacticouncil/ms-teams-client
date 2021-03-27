@@ -11,14 +11,14 @@ class Tokens {
   /**
    * @param {Record<string, Token>} tokens tokens
    */
-  constructor (tokens) {
+  constructor(tokens) {
     /** @type {Record<string, Token>} */
     this.tokenCache = {}
 
     this.setTokens(tokens)
   }
 
-  setTokens (tokens) {
+  setTokens(tokens) {
     this.tokenCache = { ...this.tokenCache, ...tokens }
   }
 
@@ -28,7 +28,7 @@ class Tokens {
    * @returns {string} Token, if cached
    * @throws if token does not exist or is expired
    */
-  get (key) {
+  get(key) {
     if (!this.tokenCache[key]) throw new InvalidTokenError(key)
 
     const obj = this.tokenCache[key]
@@ -41,7 +41,7 @@ class Tokens {
 }
 
 class InvalidTokenError extends Error {
-  constructor (key) {
+  constructor(key) {
     super(`Token "${key}" is invalid`)
   }
 }

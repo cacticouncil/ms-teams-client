@@ -25,25 +25,25 @@ if (require.main === module) {
         replyChain.messages.forEach(msg => {
           let text
           switch (msg.messageType) {
-          case 'Text': {
-            text = msg.content
-            break
-          }
-          case 'RichText/Html': {
-            text = []
-            const parser = new htmlparser.Parser({
-              ontext(piece) {
-                text.push(piece)
-              }
-            })
-            parser.write(msg.content)
-            parser.end()
-            text = text.join('')
-            break
-          }
-          default: {
-            text = `Unknown message type (${msg.messageType}): ${msg.content}`
-          }
+            case 'Text': {
+              text = msg.content
+              break
+            }
+            case 'RichText/Html': {
+              text = []
+              const parser = new htmlparser.Parser({
+                ontext(piece) {
+                  text.push(piece)
+                }
+              })
+              parser.write(msg.content)
+              parser.end()
+              text = text.join('')
+              break
+            }
+            default: {
+              text = `Unknown message type (${msg.messageType}): ${msg.content}`
+            }
           }
           if (msg.properties.deletetime) text = '[deleted message]'
 

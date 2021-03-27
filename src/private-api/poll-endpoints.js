@@ -1,5 +1,4 @@
 const axios = require('axios').default
-const { loadCredentials } = require('../credentials')
 const { v4: uuid } = require('uuid')
 
 // didn't know what guid they wanted... so did the next best thing
@@ -16,11 +15,12 @@ const payload = {
   ]
 }
 
-async function getPollingEndpoint() {
-  const credentials = loadCredentials()
+async function getPollingEndpoint(options = {}) {
+  const { tokens } = options
+
   const response = await axios.put(url(), payload, {
     headers: {
-      Authentication: `skypetoken=${credentials.authSkype.skypeToken}`
+      Authentication: `skypetoken=${tokens.get('skypeToken')}`
     }
   })
 
@@ -29,8 +29,4 @@ async function getPollingEndpoint() {
 
 module.exports = {
   getPollingEndpoint
-}
-
-if (require.main === module) {
-  getPollingEndpoint().then(console.log)
 }

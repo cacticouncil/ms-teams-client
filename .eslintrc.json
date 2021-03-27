@@ -11,7 +11,10 @@
     "rules": {
         "indent": [
             "error",
-            2
+            2,
+            {
+                "SwitchCase": 1
+            }
         ],
         "quotes": [
             "error",
@@ -20,6 +23,8 @@
         "semi": [
             "error",
             "never"
-        ]
+        ],
+        "no-trailing-spaces": ["error"],
+        "eol-last": ["error"]
     }
 }
