@@ -25,7 +25,6 @@
   "dependencies": {
     "atob": "^2.1.2",
     "axios": "^0.21.1",
-    "htmlparser2": "^6.0.1",
     "uuid": "^8.3.2"
   }
 }
