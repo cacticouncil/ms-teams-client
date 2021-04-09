@@ -1,28 +1,27 @@
-# MS Teams Electron
+# MS Teams Client
 
-This is a tool to help reverse engineer the Microsoft Teams web client.
+This library helps interact with Microsoft Teams via undocumented APIs.
 
-## Usage
+## Installation
 
-This is a very manual process
-
-### Step 1
-
-Run the electron app to kick start login process.
+This is not published on npm or any other package registry. Therefore, you must clone this repository to your computer and installing using a file path instead of a package name.
 
 ```sh
-npm start
+# Step 1 - clone the repository
+git clone https://github.com/cacticouncil/ms-teams-client.git
+
+# Step 2 - navigate to your project
+cd my_project
+
+# Step 3 - install into project
+npm install /path/to/ms-teams-client
 ```
 
-This will navigate to the Microsoft Teams web app. Once the appropriate tokens have been detected, the app will close automatically.
+## Local development
 
-Upon exit, a file should be generated: `ms-teams-credentials.local.json`. This contains the local storage of the web app.
-
-### Step 2
-
-Run an action file (located in the `teams` folder)
+This library does not support retrieving the required tokens for use. However, for local development, you can use the [dev-login.js](/tests/dev-login.js) script to retrieve the credentials via a small Electron app. This will output credentials to the file `ms-teams-credentials.local.json`, which you can load into tests for real API calls.
 
 ```sh
-# Ex: List teams
-node teams/list-teams.js
+# This will launch the dev-login.js script
+npm run login
 ```
