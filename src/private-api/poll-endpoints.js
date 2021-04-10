@@ -15,6 +15,12 @@ const payload = {
   ]
 }
 
+/**
+ * Get the polling endpoint
+ * @param {object} options options
+ * @param {object} options.tokens Tokens instance
+ * @returns {Promise<any>} api response
+ */
 async function getPollingEndpoint(options = {}) {
   const { tokens } = options
 
@@ -27,6 +33,4 @@ async function getPollingEndpoint(options = {}) {
   return response.data
 }
 
-module.exports = {
-  getPollingEndpoint
-}
+module.exports = { getPollingEndpoint }

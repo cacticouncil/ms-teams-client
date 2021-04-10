@@ -18,6 +18,10 @@ class Tokens {
     this.setTokens(tokens)
   }
 
+  /**
+   * Set new tokens to cache
+   * @param {Record<string, Token>} tokens New tokens
+   */
   setTokens(tokens) {
     this.tokenCache = { ...this.tokenCache, ...tokens }
   }

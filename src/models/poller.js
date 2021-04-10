@@ -12,16 +12,26 @@ class Poller {
     this.stop = true
   }
 
+  /**
+   * Start the poller. The poller will not stop until `stop()` is explicitly called.
+   */
   start() {
     if (!this.stop) return
     this.stop = false
     this.__poll()
   }
 
+  /**
+   * Stop the poller
+   */
   stop() {
     this.stop = true
   }
 
+  /**
+   * Internal poll function.
+   * @param {string} next next url
+   */
   __poll(next = null) {
     if (this.stop) return
     poll({ next, tokens: this.client.tokens })
@@ -53,6 +63,4 @@ class Poller {
   }
 }
 
-module.exports = {
-  Poller
-}
+module.exports = { Poller }

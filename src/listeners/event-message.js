@@ -1,3 +1,6 @@
+/**
+ * TODO: This needs better documentation!!
+ */
 function handler(event, client) {
   switch (event.resourceType) {
     case 'ConversationUpdate': {

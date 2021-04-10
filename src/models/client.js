@@ -48,6 +48,10 @@ class Client extends EventEmitter {
     })
   }
 
+  /**
+   * Get teams in current account
+   * @returns {Promise<any>} api response for teams
+   */
   fetchTeams () {
     return getTeamsList({ tokens: this.tokens })
   }
@@ -55,6 +59,7 @@ class Client extends EventEmitter {
   /**
    * Fetch information about multiple users
    * @param {string[]} users user ids
+   * @returns {Promise<any>} api response for users
    */
   fetchUsers (userIds = []) {
     return getUsers({ tokens: this.tokens, userIds })
