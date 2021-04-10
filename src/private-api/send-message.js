@@ -3,7 +3,14 @@ const { loadCredentials } = require('../credentials')
 
 const url = (params) => `https://amer.ng.msg.teams.microsoft.com/v1/users/ME/conversations/${params}/messages`
 
+/**
+ * Send message
+ * @param {string} text message
+ * @param {object} params chat id
+ * @returns {Promise<any>} api response
+ */
 async function sendMessage(text, params) {
+  // TODO: Get rid of this!!
   const credentials = loadCredentials()
   const payload = {
     content: text,
@@ -25,13 +32,4 @@ async function sendMessage(text, params) {
   return `Your message was successfully sent as: ${text}`
 }
 
-if (require.main === module) {
-  const sampleChannelId = '19:a0b9b7ae437c4d22b69a575393a55bdb@thread.tacv2'
-  const text = 'This message was reverse engineered!'
-  sendMessage(text, sampleChannelId)
-    .then(response => console.log(response)).catch(err => console.log(err))
-}
-
-module.exports = {
-  sendMessage
-}
+module.exports = { sendMessage }
