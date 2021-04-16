@@ -8,13 +8,7 @@ function handler(event, client) {
       break
     }
     case 'NewMessage': {
-      const threadType = event.resource.threadtype
-
-      if (threadType === 'topic') {
-        client.emit('new-message', event)
-      } else if (threadType === 'streamofnotifications') {
-        client.emit('message-notification-stream', event)
-      }
+      client.emit('new-message', event)
       break
     }
     case 'MessageUpdate': {
@@ -22,7 +16,7 @@ function handler(event, client) {
       break
     }
     default: {
-      console.log('Unknown resource type')
+      console.log(`Unknown resource type: ${event.resourceType}`)
       break
     }
   }
