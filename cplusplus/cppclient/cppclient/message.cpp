@@ -13,19 +13,21 @@ int main() {
 
 	readCredentials(skypeToken, chatSvcAggToken);
 
+	//John/Olga channel
 	std::string channelId = "19:0MaeOcpNpAX-HchAP2Z8xnw6j_QYsq6htWoAsD94QxY1@thread.tacv2";
 
-	fetchTeams(chatSvcAggToken);
+	//fetchTeams(chatSvcAggToken);
 	fetchChannelMessages(chatSvcAggToken, channelId, channelId, 5);
 	
 	//sendChannelMessage("changing last message user...", skypeToken, channelId);
 
+	//last top-level message in channel
 	std::string messageId = "1632939393328";
-	sendReplyMessage("testing reply message...", skypeToken, channelId, messageId);
+	sendReplyMessage("new test reply message", skypeToken, channelId, messageId);
 
-	//John
+	//John id
 	std::string senderUserId = "fdb3a4e9-675d-497e-acfe-4fd208f8ad89";
-	//Olga
+	//Olga id
 	std::string receiverUserId = "7b30ff05-51b2-490a-b28b-2d8ac36cad8e";
 	//sendDirectMessage("testing DM...", skypeToken, senderUserId, receiverUserId);
 
@@ -39,7 +41,7 @@ void testConnectionAPI() {
 	std::cout << r.text << std::endl;
 }
 
-//temp function to acquire credentials after login (ms-teams-credentials.local.json processed via Python to extract tokens from json)
+//temp function to acquire credentials after login (ms-teams-credentials.local.json processed via Python to extract tokens from json [THIS IS VERY TEMPORARY])
 //reads credentials from local text file and save to string buffers (FILE FORMAT [.TXT]: skypeToken\nchatSvcToken)
 //if 4xx error when querying API endpoints, user not authenticated and must fetch new credentials from login
 void readCredentials(std::string& skypeToken,std::string& chatSvcAggToken) {
