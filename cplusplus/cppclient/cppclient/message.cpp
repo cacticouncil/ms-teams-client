@@ -127,7 +127,7 @@ void sendChannelMessage(std::string text, std::string& skypeToken, std::string& 
 }
 
 //reply to message in channel
-//currently returning code 400 w/ {"errorCode":201,"message":"The resource URL is misformatted."}
+//NOTE: existing JS reply API params incorrect -> requires ${receiverId};messageid=${senderId}
 void sendReplyMessage(std::string text, std::string& skypeToken, std::string& channelId, std::string& messageId) {
 	std::string params = channelId + ";" + "messageid=" + messageId;
 	sendMessage(text, skypeToken, params);
