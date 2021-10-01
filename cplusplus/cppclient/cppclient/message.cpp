@@ -16,10 +16,10 @@ int main() {
 	//John/Olga channel
 	std::string channelId = "19:0MaeOcpNpAX-HchAP2Z8xnw6j_QYsq6htWoAsD94QxY1@thread.tacv2";
 
-	//fetchTeams(chatSvcAggToken);
+	fetchTeams(chatSvcAggToken);
 	fetchChannelMessages(chatSvcAggToken, channelId, channelId, 5);
 	
-	//sendChannelMessage("changing last message user...", skypeToken, channelId);
+	sendChannelMessage("channel message", skypeToken, channelId);
 
 	//last top-level message in channel
 	std::string messageId = "1632939393328";
@@ -29,7 +29,7 @@ int main() {
 	std::string senderUserId = "fdb3a4e9-675d-497e-acfe-4fd208f8ad89";
 	//Olga id
 	std::string receiverUserId = "7b30ff05-51b2-490a-b28b-2d8ac36cad8e";
-	//sendDirectMessage("testing DM...", skypeToken, senderUserId, receiverUserId);
+	sendDirectMessage("testing DM...", skypeToken, senderUserId, receiverUserId);
 
 	return 0;
 }
