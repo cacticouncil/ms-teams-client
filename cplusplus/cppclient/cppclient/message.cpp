@@ -16,20 +16,25 @@ int main() {
 	//John/Olga channel
 	std::string channelId = "19:0MaeOcpNpAX-HchAP2Z8xnw6j_QYsq6htWoAsD94QxY1@thread.tacv2";
 
-	fetchTeams(chatSvcAggToken);
-	fetchChannelMessages(chatSvcAggToken, channelId, channelId, 5);
+	auto res = fetchTeams(chatSvcAggToken);
+	writeResponseFile(res,"teams-info.txt");
+	res = fetchChannelMessages(chatSvcAggToken, channelId, channelId, 5);
+	writeResponseFile(res, "msg-info.txt");
 	
-	sendChannelMessage("channel message", skypeToken, channelId);
+	res = sendChannelMessage("channel message", skypeToken, channelId);
+	writeResponseConsole(res);
 
 	//last top-level message in channel
 	std::string messageId = "1632939393328";
-	sendReplyMessage("new test reply message", skypeToken, channelId, messageId);
+	res = sendReplyMessage("new test reply message", skypeToken, channelId, messageId);
+	writeResponseConsole(res);
 
 	//John id
 	std::string senderUserId = "fdb3a4e9-675d-497e-acfe-4fd208f8ad89";
 	//Olga id
 	std::string receiverUserId = "7b30ff05-51b2-490a-b28b-2d8ac36cad8e";
-	sendDirectMessage("testing DM...", skypeToken, senderUserId, receiverUserId);
+	res = sendDirectMessage("testing DM...", skypeToken, senderUserId, receiverUserId);
+	writeResponseConsole(res);
 
 	return 0;
 }
@@ -54,90 +59,81 @@ void readCredentials(std::string& skypeToken,std::string& chatSvcAggToken) {
 	}
 }
 
-//fetch list of teams for current user (w/ additional info) and print code to stdout
-//if success code, write response text to file, else write reason to stdout
-void fetchTeams(std::string& chatSvcAggToken) {
+//fetch list of teams for current user (w/ additional info) and return async response object
+cpr::AsyncResponse fetchTeams(std::string& chatSvcAggToken) {
 	cpr::AsyncResponse fr = cpr::GetAsync(
 		cpr::Url{ "https://teams.microsoft.com/api/csa/api/v1/teams/users/me?isPrefetch=false&enableMembershipSummary=true" },
 		cpr::Bearer{ chatSvcAggToken }
 	);
 
-	cpr::Response r = fr.get();
-	std::cout << "Code: " << r.status_code << std::endl;
-
-	if (r.status_code >= 400) {
-		std::cout << r.reason << std::endl;
-	}
-	else if (r.status_code >= 200 && r.status_code < 300) {
-		std::ofstream teamFile("teams-info.txt");
-		if (teamFile.is_open()) {
-			teamFile << r.text;
-			
-			teamFile.close();
-		}
-	}
+	return fr;
 }
 
-//fetch list of messages in channel and print code to stdout
+//fetch list of messages in channel and return async response object
 //pageSize determines max number of messages returned (I think)
-//if success code, write response text to file, else write reason to stdout
-void fetchChannelMessages(std::string& chatSvcAggToken, std::string& teamId, std::string& channelId, int pageSize) {
+cpr::AsyncResponse fetchChannelMessages(std::string& chatSvcAggToken, std::string& teamId, std::string& channelId, int pageSize) {
 	cpr::AsyncResponse fr = cpr::GetAsync(
 		cpr::Url{ "https://teams.microsoft.com/api/csa/api/v2/teams/" + teamId + "/channels/" + channelId },
 		cpr::Parameters{ {"pageSize",std::to_string(pageSize)},{"filterSystemMessage",teamId==channelId ? "true" : ""}},
 		cpr::Bearer{ chatSvcAggToken }
 	);
 
-	cpr::Response r = fr.get();
-	std::cout << "Code: " << r.status_code << std::endl;
-
-	if (r.status_code >= 400) {
-		std::cout << r.reason << std::endl;
-	}
-	else if (r.status_code >= 200 && r.status_code < 300) {
-		std::ofstream msgFile("message-info.txt");
-		if (msgFile.is_open()) {
-			msgFile << r.text;
-
-			msgFile.close();
-		}
-	}
+	return fr;
 }
 
-//send message (destination determined by params string [printed to stdout])
-//print response and status code (and reason if 4xx error) to stdout
-void sendMessage(std::string text, std::string& skypeToken, std::string& params){
-	std::cout << "Params: " << params << std::endl;
-
+//send message (destination determined by params string) and return async response object
+cpr::AsyncResponse sendMessage(std::string text, std::string& skypeToken, std::string& params){
 	cpr::AsyncResponse fr = cpr::PostAsync(
 		cpr::Url{ "https://amer.ng.msg.teams.microsoft.com/v1/users/ME/conversations/" + params + "/messages" },
 		cpr::Payload{ {"content",text},{"messagetype","Text"},{"contenttype","text"},{"asmreferences","[]"},{"properties","{importance:'',subject:null}"} },
 		cpr::Header{ {"Authentication","skypetoken=" + skypeToken} }
 	);
 
-	cpr::Response r = fr.get();
-	std::cout << "Code: " << r.status_code << " Text: " << r.text << std::endl;
-
-	if (r.status_code >= 400) {
-		std::cout << r.reason << std::endl;
-	}
+	return fr;
 }
 
 //send message in channel
-void sendChannelMessage(std::string text, std::string& skypeToken, std::string& channelId) {
-	sendMessage(text, skypeToken, channelId);
+cpr::AsyncResponse sendChannelMessage(std::string text, std::string& skypeToken, std::string& channelId) {
+	return sendMessage(text, skypeToken, channelId);
 }
 
 //reply to message in channel
 //NOTE: existing JS reply API params incorrect -> requires ${receiverId};messageid=${senderId}
-void sendReplyMessage(std::string text, std::string& skypeToken, std::string& channelId, std::string& messageId) {
+cpr::AsyncResponse sendReplyMessage(std::string text, std::string& skypeToken, std::string& channelId, std::string& messageId) {
 	std::string params = channelId + ";" + "messageid=" + messageId;
-	sendMessage(text, skypeToken, params);
+	return sendMessage(text, skypeToken, params);
 }
 
 //send direct message to user
 //NOTE: DM CHAT MUST ALREADY BE CREATED (receiver and user based on initial message)
-void sendDirectMessage(std::string text, std::string& skypeToken, std::string& senderUserId, std::string& receiverUserId) {
+cpr::AsyncResponse sendDirectMessage(std::string text, std::string& skypeToken, std::string& senderUserId, std::string& receiverUserId) {
 	std::string params = "19:" + receiverUserId + "_" + senderUserId + "@unq.gbl.spaces";
-	sendMessage(text, skypeToken, params);
+	return sendMessage(text, skypeToken, params);
+}
+
+//resolve async request and write response text to file specified by filename param
+//print code (and reason if failure) to console
+void writeResponseFile(cpr::AsyncResponse& fr, std::string filename) {
+	cpr::Response r = fr.get();
+	std::cout << "Code: " << r.status_code << std::endl;
+	if (r.status_code >= 400) {
+		std::cout << r.reason << std::endl;
+	}
+	else if (r.status_code >= 200 && r.status_code < 300) {
+		std::ofstream responseFile(filename);
+		if (responseFile.is_open()) {
+			responseFile << r.text;
+			responseFile.close();
+		}
+	}
+}
+
+//resolve async request and write code and response to console
+//write reason to console if failure
+void writeResponseConsole(cpr::AsyncResponse& fr) {
+	cpr::Response r = fr.get();
+	std::cout << "Code: " << r.status_code << " Text: " << r.text << std::endl;
+	if (r.status_code >= 400) {
+		std::cout << r.reason << std::endl;
+	}
 }
