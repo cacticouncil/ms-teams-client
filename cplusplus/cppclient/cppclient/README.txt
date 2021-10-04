@@ -9,3 +9,5 @@ sendMessage: generalized function for sending a message (asyncronous - returns A
 - sendDirectMessage: send a direct message to another user (DM CHAT MUST ALREADY BE CREATED)
 writeResponseFile: resolves AsyncResponse and writes text to specified file
 writeResponseConsole: resolves AsyncResponse and writes text to console
+
+fetchCredentials: python fetchCredentials.py
