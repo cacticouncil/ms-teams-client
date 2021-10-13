@@ -1,5 +1,6 @@
 #include <string>
 #include <fstream>
+#include <iostream>
 
 #include <libsoup/soup.h>
 
@@ -16,8 +17,9 @@ int main(){
 
     SoupSession *session = soup_session_new();
 
-    std::string msgtext = "Souptest";
-    sendChannelMessage(session,msgtext,skypeToken,channelId);
+    fetchTeamsSync(session,chatSvcAggToken);
+    //std::string msgtext = "Souptest";
+    //sendChannelMessage(session,msgtext,skypeToken,channelId);
 
     return 0;
 }
@@ -30,6 +32,44 @@ void readCredentials(std::string &skypeToken,std::string &chatSvcAggToken) {
 
 		credFile.close();
 	}
+}
+
+void fetchTeamsSync(SoupSession *session, std::string &chatSvcAggToken){
+    SoupMessage *msg = soup_message_new(SOUP_METHOD_GET,"https://teams.microsoft.com/api/csa/api/v1/teams/users/me?isPrefetch=false&enableMembershipSummary=true");
+
+    std::string tokenstr = "Bearer " + chatSvcAggToken;
+    soup_message_headers_append(msg->request_headers,"Authorization",tokenstr.c_str());
+
+    GError *error = NULL;
+    GInputStream *stream = soup_session_send(session,msg,NULL,&error);
+
+    void *resbuff = malloc(8192);
+    g_input_stream_read(stream,resbuff,8192,NULL,&error);
+
+    if (error) {
+        g_printerr ("ERROR: %s\n", error->message);
+        g_error_free (error);
+    }
+    else{
+        g_print("Success! Code: %d\n",msg->status_code);
+
+        g_print("Response Buffer: %s\n",(char*)resbuff);
+
+        g_input_stream_close(stream,NULL,&error);
+        g_object_unref (msg);
+        g_object_unref (session);
+    }
+
+    free(resbuff);
+}
+
+void fetchTeams(SoupSession *session, std::string &chatSvcAggToken){
+    SoupMessage *msg = soup_message_new(SOUP_METHOD_GET,"https://teams.microsoft.com/api/csa/api/v1/teams/users/me?isPrefetch=false&enableMembershipSummary=true");
+
+    std::string tokenstr = "Bearer " + chatSvcAggToken;
+    soup_message_headers_append(msg->request_headers,"Authorization",tokenstr.c_str());
+
+    soup_session_send_async(session,msg,NULL,sendMessageCallback,NULL);
 }
 
 void sendMessage(SoupSession *session, std::string &text, std::string &skypeToken, std::string &params){
@@ -51,18 +91,19 @@ void sendMessage(SoupSession *session, std::string &text, std::string &skypeToke
 }
 
 void sendMessageCallback(GObject *obj, GAsyncResult *res, gpointer user_data){
-	GError *error = NULL;
+	std::cout << "Callback" << std::endl;
+    
+    GError *error = NULL;
     GInputStream *stream = soup_session_send_finish (SOUP_SESSION (obj), res, &error);
 
     if (error) {
         g_printerr ("ERROR: %s\n", error->message);
+        g_error_free (error);
     }
     else{
         g_print("Success!");
+        g_input_stream_close(stream,NULL,&error);
     }
-
-    g_error_free (error);
-    g_input_stream_close(stream,NULL,&error);
 }
 
 void sendChannelMessage(SoupSession *session, std::string &text, std::string &skypeToken, std::string &channelId){
