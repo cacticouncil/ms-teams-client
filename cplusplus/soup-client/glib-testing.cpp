@@ -9,32 +9,35 @@ int main(){
 
     //libsoup test
     SoupSession *session = soup_session_new ();
-    SoupMessageHeaders *response_headers;
-    const char *content_type;
-    SoupMessage *msg = soup_message_new (SOUP_METHOD_GET, "https://upload.wikimedia.org/wikipedia/commons/5/5f/BBB-Bunny.png");
-    GError *error = NULL;
+    //SoupMessageHeaders *response_headers;
     
-    GInputStream *stream;
-    stream = soup_session_send(session,msg,NULL,&error);
+    SoupMessage *msg = soup_message_new (SOUP_METHOD_GET, "https://upload.wikimedia.org/wikipedia/commons/5/5f/BBB-Bunny.png");
+    
+    //GInputStream *stream;
+    GError *error = NULL;
+    GInputStream *stream = soup_session_send(session,msg,NULL,&error);
 
     if (error) {
         g_printerr ("Failed to download: %s\n", error->message);
         g_error_free (error);
+        g_input_stream_close(stream,NULL,&error);
         g_object_unref (msg);
         g_object_unref (session);
         return 1;
     }
 
-    response_headers = msg->response_headers;
-    content_type = soup_message_headers_get_content_type (response_headers,NULL);
+    //response_headers = msg->response_headers;
+    //const char *content_type;
+    const char *content_type = soup_message_headers_get_content_type (msg->response_headers,NULL);
 
     // content_type = "image/png"
     // bytes contains the raw data that can be used elsewhere
-    GBytes *bytes = g_input_stream_read_bytes(stream,8192,NULL,&error);
+    GBytes *bytes = g_input_stream_read_bytes(stream,8192,NULL,NULL);
+    g_input_stream_close(stream,NULL,NULL);
     g_print ("Downloaded %zu bytes of type %s\n",
              g_bytes_get_size (bytes), content_type);
+    delete[] content_type;
 
-    g_input_stream_close(stream,NULL,&error);
     g_bytes_unref (bytes);
     g_object_unref (msg);
     g_object_unref (session);
