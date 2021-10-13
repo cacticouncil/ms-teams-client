@@ -39,7 +39,7 @@ void sendMessage(SoupSession *session, std::string &text, std::string &skypeToke
 
     //set message request payload
     //std::string payload = "{content:" + text + ",messagetype:Text,cotenttype:text,asmreferences:[],properties:{importance:'',subject:null}}";
-    std::string payload = soup_form_encode("content",text,"messagetype","Text","contenttype","text","asmreferences","[]","properties","{importance:'',subject:null}");
+    std::string payload = soup_form_encode("content",text,"messagetype","Text","contenttype","text","asmreferences","[]","properties","{importance:'',subject:null}",NULL);
     soup_message_set_request(msg,"application/x-www-form-urlencoded",SOUP_MEMORY_COPY, payload.c_str(), strlen(payload.c_str()));
 
     //set request auth header token
