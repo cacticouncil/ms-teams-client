@@ -17,13 +17,12 @@ function createWindow() {
   })
 
   // Clear cache to force login screen (to get id_token)
-  win.webContents.session.clearCache()
-  win.webContents.session.clearAuthCache()
+  win.webContents.session.clearCache(()=>{})
+  win.webContents.session.clearAuthCache({})
   win.webContents.session.clearStorageData()
 
   // Pretend to be standard Chrome browser (otherwise, MS Teams will run Electron-specific code and fail to start)
   win.webContents.userAgent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.72 Safari/537.36'
-
   win.loadURL('https://teams.microsoft.com')
 
   win.webContents.on('will-redirect', (_, url) => {

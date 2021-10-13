@@ -9,7 +9,7 @@ int main(){
     std::string skypeToken;
 	std::string chatSvcAggToken;
 
-	readCredentials(skypeToken, chatSvcAggToken);
+    readCredentials(skypeToken, chatSvcAggToken);
 
     //John/Olga channel
 	std::string channelId = "19:0MaeOcpNpAX-HchAP2Z8xnw6j_QYsq6htWoAsD94QxY1@thread.tacv2";
