@@ -4,7 +4,8 @@
 		{
 			"label": "dir",
 			"type": "shell",
-			"command": "mkdir output"
+			"command": "mkdir",
+			"args": ["-p","output"]
 		},
 		{
 			"type": "cppbuild",
