@@ -12,7 +12,7 @@ data = json.load(file)
 file.close()
 
 cpppath = input("Enter path to c++ Teams client directory: ")
-file = open(cpppath + "/ms-teams-credentials.local.txt","w")
+file = open(cpppath + "/cplusplus/soup-client/ms-teams-credentials.local.txt","w")
 file.write(data["authSkype"]["skypeToken"] + "\n" + data["chatSvcAggToken"]["token"])
 file.close()
 
