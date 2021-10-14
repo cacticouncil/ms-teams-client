@@ -2,6 +2,11 @@
 	"version": "2.0.0",
 	"tasks": [
 		{
+			"label": "dir",
+			"type": "shell",
+			"command": "mkdir output"
+		},
+		{
 			"type": "cppbuild",
 			"label": "C/C++: g++ build active file",
 			"command": "/usr/bin/g++",
@@ -9,7 +14,7 @@
 				"-g",
 				"${file}",
 				"-o",
-				"${fileDirname}/${fileBasenameNoExtension}",
+				"${fileDirname}/output/${fileBasenameNoExtension}",
 				"$(pkg-config", "--cflags", "--libs", "libsoup-2.4", "glib-2.0)"
 			],
 			"options": {
@@ -19,7 +24,8 @@
 				"$gcc"
 			],
 			"group": "build",
-			"detail": "compiler: /usr/bin/g++"
+			"detail": "compiler: /usr/bin/g++",
+			"dependsOn":["dir"]
 		}
 	]
 }
