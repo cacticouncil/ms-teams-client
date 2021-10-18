@@ -22,13 +22,19 @@ int main(){
     //message id
     std::string messageId = "1634591623619";
 
+    //John id
+	std::string senderUserId = "fdb3a4e9-675d-497e-acfe-4fd208f8ad89";
+	//Olga id
+	std::string receiverUserId = "7b30ff05-51b2-490a-b28b-2d8ac36cad8e";
+
     SoupSession *session = soup_session_new();
 
     //fetchTeamsSync(session,chatSvcAggToken);
-    std::string msgtext = "Async reply test";
+    std::string msgtext = "dm test";
     //sendMessageSync(session,msgtext,skypeToken,channelId);
     //sendChannelMessage(session,loop,msgtext,skypeToken,channelId);
-    sendReplyMessage(session,loop,msgtext,skypeToken,channelId,messageId);
+    //sendReplyMessage(session,loop,msgtext,skypeToken,channelId,messageId);
+    sendDirectMessage(session,loop,msgtext,skypeToken,senderUserId,receiverUserId);
 
     g_main_loop_run(loop);
 
@@ -157,5 +163,10 @@ void sendChannelMessage(SoupSession *session, GMainLoop *loop, std::string &text
 
 void sendReplyMessage(SoupSession *session, GMainLoop *loop, std::string &text, std::string &skypeToken, std::string &channelId, std::string &messageId){
     std::string params = channelId + ";" + "messageid=" + messageId;
+    sendMessage(session,loop,text,skypeToken,params);
+}
+
+void sendDirectMessage(SoupSession *session, GMainLoop *loop, std::string &text, std::string &skypeToken, std::string &senderUserId, std::string &receiverUserId){
+    std::string params = "19:" + receiverUserId + "_" + senderUserId + "@unq.gbl.spaces";
     sendMessage(session,loop,text,skypeToken,params);
 }

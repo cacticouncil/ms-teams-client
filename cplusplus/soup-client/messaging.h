@@ -10,3 +10,4 @@ void sendMessage(SoupSession *session, GMainLoop *loop, std::string &text, std::
 void queueMessageCallback(SoupSession *session, SoupMessage *msg, gpointer user_data);
 void sendChannelMessage(SoupSession *session, GMainLoop *loop, std::string &text, std::string &skypeToken, std::string &channelId);
 void sendReplyMessage(SoupSession *session, GMainLoop *loop, std::string &text, std::string &skypeToken, std::string &channelId, std::string &messageId);
+void sendDirectMessage(SoupSession *session, GMainLoop *loop, std::string &text, std::string &skypeToken, std::string &senderUserId, std::string &receiverUserId);
