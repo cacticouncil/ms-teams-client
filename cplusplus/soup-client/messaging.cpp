@@ -11,14 +11,16 @@ int main(){
 	std::string chatSvcAggToken;
 
     readCredentials(skypeToken, chatSvcAggToken);
+    skypeToken.erase(skypeToken.size()-1,1);
 
     //John/Olga channel
 	std::string channelId = "19:0MaeOcpNpAX-HchAP2Z8xnw6j_QYsq6htWoAsD94QxY1@thread.tacv2";
 
     SoupSession *session = soup_session_new();
 
-    fetchTeamsSync(session,chatSvcAggToken);
-    //std::string msgtext = "Souptest";
+    //fetchTeamsSync(session,chatSvcAggToken);
+    std::string msgtext = "Souptest";
+    sendMessageSync(session,msgtext,skypeToken,channelId);
     //sendChannelMessage(session,msgtext,skypeToken,channelId);
 
     return 0;
@@ -70,6 +72,42 @@ void fetchTeams(SoupSession *session, std::string &chatSvcAggToken){
     soup_message_headers_append(msg->request_headers,"Authorization",tokenstr.c_str());
 
     soup_session_send_async(session,msg,NULL,sendMessageCallback,NULL);
+}
+
+void sendMessageSync(SoupSession *session, std::string &text, std::string &skypeToken, std::string &params){
+    //initialize soup message with url and method
+    std::string url = "https://amer.ng.msg.teams.microsoft.com/v1/users/ME/conversations/" + params + "/messages";
+    SoupMessage *msg = soup_message_new(SOUP_METHOD_POST,url.c_str());
+
+    std::string payload = "{'content':'"+text+"','messagetype':'Text','contenttype':'text','asmreferences':[],'properties':{'importance':'','subject':null}}";
+    //char *payload = soup_form_encode("content",text,"messagetype","Text","contenttype","text","asmreferences","[]","properties","{importance:'',subject:null}",NULL);
+    //soup_message_set_request(msg,"application/x-www-form-urlencoded",SOUP_MEMORY_COPY, payload, strlen(payload));
+    soup_message_set_request(msg,"application/json",SOUP_MEMORY_COPY,payload.c_str(),strlen(payload.c_str()));
+
+    std::string tokenstr = "skypetoken=" + skypeToken;
+    soup_message_headers_append(msg->request_headers,"Authentication",tokenstr.c_str());
+
+    GError *error = NULL;
+    GInputStream *stream = soup_session_send(session,msg,NULL,&error);
+
+    void *resbuff = malloc(8192);
+    g_input_stream_read(stream,resbuff,8192,NULL,&error);
+
+    if (error) {
+        g_printerr ("ERROR: %s\n", error->message);
+        g_error_free (error);
+    }
+    else{
+        g_print("Success! Code: %d\n",msg->status_code);
+
+        g_print("Response Buffer: %s\n",(char*)resbuff);
+
+        g_input_stream_close(stream,NULL,&error);
+        g_object_unref (msg);
+        g_object_unref (session);
+    }
+
+    free(resbuff);
 }
 
 void sendMessage(SoupSession *session, std::string &text, std::string &skypeToken, std::string &params){
