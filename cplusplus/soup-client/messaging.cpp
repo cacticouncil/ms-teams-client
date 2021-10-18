@@ -19,12 +19,16 @@ int main(){
     //John/Olga channel
 	std::string channelId = "19:0MaeOcpNpAX-HchAP2Z8xnw6j_QYsq6htWoAsD94QxY1@thread.tacv2";
 
+    //message id
+    std::string messageId = "1634591623619";
+
     SoupSession *session = soup_session_new();
 
     //fetchTeamsSync(session,chatSvcAggToken);
-    std::string msgtext = "Async test";
+    std::string msgtext = "Async reply test";
     //sendMessageSync(session,msgtext,skypeToken,channelId);
-    sendChannelMessage(session,loop,msgtext,skypeToken,channelId);
+    //sendChannelMessage(session,loop,msgtext,skypeToken,channelId);
+    sendReplyMessage(session,loop,msgtext,skypeToken,channelId,messageId);
 
     g_main_loop_run(loop);
 
@@ -149,4 +153,9 @@ void queueMessageCallback(SoupSession *session, SoupMessage *msg, gpointer user_
 
 void sendChannelMessage(SoupSession *session, GMainLoop *loop, std::string &text, std::string &skypeToken, std::string &channelId){
     sendMessage(session,loop,text,skypeToken,channelId);
+}
+
+void sendReplyMessage(SoupSession *session, GMainLoop *loop, std::string &text, std::string &skypeToken, std::string &channelId, std::string &messageId){
+    std::string params = channelId + ";" + "messageid=" + messageId;
+    sendMessage(session,loop,text,skypeToken,params);
 }
