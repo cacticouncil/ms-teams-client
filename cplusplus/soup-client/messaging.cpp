@@ -14,13 +14,17 @@ int main(){
 
     //John/Olga channel
 	std::string channelId = "19:0MaeOcpNpAX-HchAP2Z8xnw6j_QYsq6htWoAsD94QxY1@thread.tacv2";
-
+    GMainLoop *loop = g_main_loop_new (NULL, FALSE);
     SoupSession *session = soup_session_new();
 
-    fetchTeamsSync(session,chatSvcAggToken);
+
+   // fetchTeamsSync(session,chatSvcAggToken);
+    fetchTeams(session,chatSvcAggToken, loop);
+
     //std::string msgtext = "Souptest";
     //sendChannelMessage(session,msgtext,skypeToken,channelId);
-
+	g_main_loop_run (loop);
+	g_main_loop_unref (loop);
     return 0;
 }
 
@@ -63,13 +67,13 @@ void fetchTeamsSync(SoupSession *session, std::string &chatSvcAggToken){
     free(resbuff);
 }
 
-void fetchTeams(SoupSession *session, std::string &chatSvcAggToken){
+void fetchTeams(SoupSession *session, std::string &chatSvcAggToken, GMainLoop* loop_param){ //gpointer
     SoupMessage *msg = soup_message_new(SOUP_METHOD_GET,"https://teams.microsoft.com/api/csa/api/v1/teams/users/me?isPrefetch=false&enableMembershipSummary=true");
 
     std::string tokenstr = "Bearer " + chatSvcAggToken;
     soup_message_headers_append(msg->request_headers,"Authorization",tokenstr.c_str());
-
-    soup_session_send_async(session,msg,NULL,sendMessageCallback,NULL);
+    std::cout<<"Inside fetchTeams, right before calling Async \n";
+    soup_session_send_async(session,msg,NULL,sendMessageCallback,loop_param);
 }
 
 void sendMessage(SoupSession *session, std::string &text, std::string &skypeToken, std::string &params){
@@ -92,7 +96,8 @@ void sendMessage(SoupSession *session, std::string &text, std::string &skypeToke
 
 void sendMessageCallback(GObject *obj, GAsyncResult *res, gpointer user_data){
 	std::cout << "Callback" << std::endl;
-    
+	GMainLoop *loop = (GMainLoop *) user_data;
+
     GError *error = NULL;
     GInputStream *stream = soup_session_send_finish (SOUP_SESSION (obj), res, &error);
 
@@ -104,6 +109,7 @@ void sendMessageCallback(GObject *obj, GAsyncResult *res, gpointer user_data){
         g_print("Success!");
         g_input_stream_close(stream,NULL,&error);
     }
+	g_main_loop_quit(loop);
 }
 
 void sendChannelMessage(SoupSession *session, std::string &text, std::string &skypeToken, std::string &channelId){
@@ -120,3 +126,18 @@ void sendChannelMessage(SoupSession *session, std::string &text, std::string &sk
 
 	return fr;
 } */
+
+/*
+
+//fetch list of messages in channel and return async response object
+//pageSize determines max number of messages returned (I think)
+cpr::AsyncResponse fetchChannelMessages(std::string& chatSvcAggToken, std::string& teamId, std::string& channelId, int pageSize) {
+	cpr::AsyncResponse fr = cpr::GetAsync(
+		cpr::Url{ "https://teams.microsoft.com/api/csa/api/v2/teams/" + teamId + "/channels/" + channelId },
+		cpr::Parameters{ {"pageSize",std::to_string(pageSize)},{"filterSystemMessage",teamId==channelId ? "true" : ""}},
+		cpr::Bearer{ chatSvcAggToken }
+	);
+
+	return fr;
+}
+*/
