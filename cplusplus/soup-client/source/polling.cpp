@@ -3,7 +3,7 @@
 
 #include <libsoup/soup.h>
 
-#include "polling.h"
+#include "../include/polling.h"
 
 //fetches the initial endpoint for polling
 void fetchPollingEndpoint(SoupSession *session, GMainLoop *loop, std::string &skypeToken){

@@ -2,7 +2,7 @@
 
 #include <libsoup/soup.h>
 
-#include "messaging.h"
+#include "../include/messaging.h"
 
 //send a message synchronously
 void sendMessageSync(SoupSession *session, std::string &text, std::string &skypeToken, std::string &params){

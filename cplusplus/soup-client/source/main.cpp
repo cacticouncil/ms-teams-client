@@ -4,9 +4,9 @@
 
 #include <libsoup/soup.h>
 
-#include "test.h"
-#include "polling.h"
-#include "messaging.h"
+#include "../include/test.h"
+#include "../include/polling.h"
+#include "../include/messaging.h"
 
 int main(){
     return testPolling();
