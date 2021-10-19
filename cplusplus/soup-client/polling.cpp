@@ -74,8 +74,7 @@ void pollEndpointCallback(SoupSession *session, SoupMessage *msg, gpointer user_
 void poll(SoupSession *session, GMainLoop *loop, std::string &skypeToken, std::string &endpointUrl){
     SoupMessage *msg = soup_message_new(SOUP_METHOD_GET,endpointUrl.c_str());
 
-     //set request auth header token
-    //std::string tokenstr = "skypetoken=" + skypeToken;
+    //set request auth header token
     soup_message_headers_append(msg->request_headers,"Authentication",skypeToken.c_str());
 
     //send async message request
@@ -91,7 +90,9 @@ void pollCallback(SoupSession *session, SoupMessage *msg, gpointer user_data){
     }
 
     std::string skypeToken = soup_message_headers_get_one(msg->request_headers,"Authentication");
-    std::string endpointUrl = soup_uri_get_path(soup_message_get_uri(msg));
+    std::cout << std::endl << skypeToken << std::endl;
+    std::string endpointUrl = soup_uri_to_string(soup_message_get_uri(msg),false);
+    std::cout << std::endl << "url: " << endpointUrl << std::endl;
     poll(session,(GMainLoop *)user_data,skypeToken,endpointUrl);
     
     //GMainLoop *loop = (GMainLoop *)user_data;
