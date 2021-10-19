@@ -89,12 +89,12 @@ void pollCallback(SoupSession *session, SoupMessage *msg, gpointer user_data){
         g_printerr("ERROR: Code: %d\n",msg->status_code);
     }
 
-    std::string skypeToken = soup_message_headers_get_one(msg->request_headers,"Authentication");
+    /* std::string skypeToken = soup_message_headers_get_one(msg->request_headers,"Authentication");
     std::cout << std::endl << skypeToken << std::endl;
     std::string endpointUrl = soup_uri_to_string(soup_message_get_uri(msg),false);
     std::cout << std::endl << "url: " << endpointUrl << std::endl;
-    poll(session,(GMainLoop *)user_data,skypeToken,endpointUrl);
+    poll(session,(GMainLoop *)user_data,skypeToken,endpointUrl); */
     
-    //GMainLoop *loop = (GMainLoop *)user_data;
-    //g_main_loop_quit(loop);
+    GMainLoop *loop = (GMainLoop *)user_data;
+    g_main_loop_quit(loop);
 }
