@@ -6,7 +6,7 @@
 
 #include "messaging.h"
 
-int main(){
+/* int main(){
     std::string skypeToken;
 	std::string chatSvcAggToken;
 
@@ -42,7 +42,7 @@ int main(){
     g_object_unref(session);
 
     return 0;
-}
+} */
 
 void readCredentials(std::string &skypeToken,std::string &chatSvcAggToken) {
 	std::ifstream credFile("ms-teams-credentials.local.txt");
