@@ -13,16 +13,17 @@ int main(){
     readCredentials(skypeToken, chatSvcAggToken);
     //remove new line from skypeToken
     skypeToken.erase(skypeToken.size()-1,1);
-
-    fetchPollingEndpoint(nullptr,nullptr,skypeToken);
-    /* GMainLoop *loop = g_main_loop_new(NULL,false);
+    
+    GMainLoop *loop = g_main_loop_new(NULL,false);
 
     SoupSession *session = soup_session_new();
+
+    fetchPollingEndpoint(session,loop,skypeToken);
 
     g_main_loop_run(loop);
 
     g_main_loop_unref(loop);
-    g_object_unref(session); */
+    g_object_unref(session);
 
     return 0;
 }
