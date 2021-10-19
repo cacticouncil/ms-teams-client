@@ -52,14 +52,10 @@ void fetchPollingEndpoint(SoupSession *session, GMainLoop *loop, std::string &sk
 void pollEndpointCallback(SoupSession *session, SoupMessage *msg, gpointer user_data){
     if(msg->status_code >= 200 && msg->status_code < 300){
         g_print("Response: %s\n",msg->response_body->data);
-        //g_print("Auth Header: %s\n",soup_message_headers_get_one(msg->request_headers,"Authentication"));
     }
     else{
         g_printerr("ERROR: Code: %d\n",msg->status_code);
     }
-
-    /* std::smatch match;
-	regex expression("go#id_token=([^&]*)"); */
 
     std::cmatch match;
     std::regex expr("\"longPollUrl\":\"([^\"]*)\"");
@@ -67,12 +63,12 @@ void pollEndpointCallback(SoupSession *session, SoupMessage *msg, gpointer user_
     if(std::regex_search(msg->response_body->data,match,expr)){
         std::string skypeToken = soup_message_headers_get_one(msg->request_headers,"Authentication");
         std::string endpointUrl = match[1];
-        std::cout << std::endl << "endpointUrl: " << endpointUrl << std::endl << std::endl;;
+        std::cout << std::endl << "endpointUrl: " << endpointUrl << std::endl << std::endl;
         poll(session,(GMainLoop *)user_data,skypeToken,endpointUrl);
     }
 
-    GMainLoop *loop = (GMainLoop *)user_data;
-    g_main_loop_quit(loop);
+    //GMainLoop *loop = (GMainLoop *)user_data;
+    //g_main_loop_quit(loop);
 }
 
 void poll(SoupSession *session, GMainLoop *loop, std::string &skypeToken, std::string &endpointUrl){
@@ -94,6 +90,10 @@ void pollCallback(SoupSession *session, SoupMessage *msg, gpointer user_data){
         g_printerr("ERROR: Code: %d\n",msg->status_code);
     }
 
-    GMainLoop *loop = (GMainLoop *)user_data;
-    g_main_loop_quit(loop);
+    std::string skypeToken = soup_message_headers_get_one(msg->request_headers,"Authentication");
+    std::string endpointUrl = soup_uri_get_path(soup_message_get_uri(msg));
+    poll(session,(GMainLoop *)user_data,skypeToken,endpointUrl);
+    
+    //GMainLoop *loop = (GMainLoop *)user_data;
+    //g_main_loop_quit(loop);
 }
