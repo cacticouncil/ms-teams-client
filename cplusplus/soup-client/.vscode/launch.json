@@ -9,7 +9,7 @@
             "type": "cppdbg",
             "request": "launch",
             //"program": "${fileDirname}/output/${fileBasenameNoExtension}",
-            "program": "${fileDirname}/output/teams-client",
+            "program": "${workspaceFolder}/output/teams-client",
             "args": [],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",

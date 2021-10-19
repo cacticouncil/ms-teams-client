@@ -2,7 +2,7 @@
 
 #include <libsoup/soup.h>
 
-#include "fetch.h"
+#include "../include/fetch.h"
 
 //synchronously fetch teams data
 void fetchTeamsSync(SoupSession *session, std::string &chatSvcAggToken){
