@@ -1,5 +1,6 @@
 #include <string>
 #include <iostream>
+#include <fstream>
 
 #include <libsoup/soup.h>
 
@@ -11,6 +12,18 @@ int main(){
     return testPolling();
 }
 
+//read auth creds from local file
+void readCredentials(std::string &skypeToken,std::string &chatSvcAggToken) {
+	std::ifstream credFile("ms-teams-credentials.local.txt");
+	if (credFile.is_open()) {
+		getline(credFile, skypeToken);
+		getline(credFile, chatSvcAggToken);
+
+		credFile.close();
+	}
+}
+
+//test polling system
 int testPolling(){
     std::string skypeToken;
 	std::string chatSvcAggToken;
@@ -33,6 +46,7 @@ int testPolling(){
     return 0;
 }
 
+//test message sending
 int testMessaging(){
     std::string skypeToken;
 	std::string chatSvcAggToken;
@@ -56,7 +70,6 @@ int testMessaging(){
 
     SoupSession *session = soup_session_new();
 
-    //fetchTeamsSync(session,chatSvcAggToken);
     std::string msgtext = "dm test";
     //sendMessageSync(session,msgtext,skypeToken,channelId);
     //sendChannelMessage(session,loop,msgtext,skypeToken,channelId);
@@ -71,6 +84,7 @@ int testMessaging(){
     return 0;
 }
 
+//libsoup/glib hello world
 int testSoup(){
     //glib Hello World
     GString* my_string = g_string_new("This Hello world is %d chars long\n");
