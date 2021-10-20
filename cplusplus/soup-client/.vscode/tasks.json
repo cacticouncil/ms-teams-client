@@ -18,7 +18,7 @@
 				"-o",
 				//"${fileDirname}/output/${fileBasenameNoExtension}",
 				"${workspaceFolder}/output/teams-client",
-				"$(pkg-config", "--cflags", "--libs", "libsoup-2.4", "glib-2.0)"
+				"$(pkg-config", "--cflags", "--libs", "json-glib-1.0", "libsoup-2.4", "glib-2.0)"
 			],
 			"options": {
 				"cwd": "${fileDirname}"
