@@ -6,7 +6,8 @@
                 "${workspaceFolder}/**",
                 "/usr/include/glib-2.0",
                 "/usr/lib/x86_64-linux-gnu/glib-2.0/include",
-                "/usr/include/libsoup-2.4"
+                "/usr/include/libsoup-2.4",
+                "/usr/include/json-glib-1.0"
             ],
             "defines": [],
             "compilerPath": "/usr/bin/g++",

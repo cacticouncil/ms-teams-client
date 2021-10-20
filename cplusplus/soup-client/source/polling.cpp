@@ -2,6 +2,7 @@
 #include <regex>
 
 #include <libsoup/soup.h>
+#include <json-glib/json-glib.h>
 
 #include "../include/polling.h"
 
