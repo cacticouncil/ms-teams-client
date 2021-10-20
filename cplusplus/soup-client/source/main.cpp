@@ -7,9 +7,11 @@
 #include "../include/test.h"
 #include "../include/polling.h"
 #include "../include/messaging.h"
+#include "../include/fetch.h"
 
 int main(){
-    return testPolling();
+    //return testPolling();
+    return testFetching();
 }
 
 //read auth creds from local file
@@ -31,7 +33,7 @@ int testPolling(){
     readCredentials(skypeToken, chatSvcAggToken);
     //remove new line from skypeToken
     skypeToken.erase(skypeToken.size()-1,1);
-    
+
     GMainLoop *loop = g_main_loop_new(NULL,false);
 
     SoupSession *session = soup_session_new();
@@ -94,9 +96,9 @@ int testSoup(){
     //libsoup test
     SoupSession *session = soup_session_new ();
     //SoupMessageHeaders *response_headers;
-    
+
     SoupMessage *msg = soup_message_new (SOUP_METHOD_GET, "https://upload.wikimedia.org/wikipedia/commons/5/5f/BBB-Bunny.png");
-    
+
     //GInputStream *stream;
     GError *error = NULL;
     GInputStream *stream = soup_session_send(session,msg,NULL,&error);
@@ -125,6 +127,27 @@ int testSoup(){
     g_bytes_unref (bytes);
     g_object_unref (msg);
     g_object_unref (session);
+
+    return 0;
+}
+
+//testing fetchTeams Async
+int testFetching(){
+    std::string skypeToken;
+    std::string chatSvcAggToken;
+    readCredentials(skypeToken, chatSvcAggToken);
+
+    //John/Olga channel
+    std::string channelId = "19:0MaeOcpNpAX-HchAP2Z8xnw6j_QYsq6htWoAsD94QxY1@thread.tacv2";
+
+    GMainLoop *loop = g_main_loop_new (NULL, FALSE);
+    SoupSession *session = soup_session_new();
+
+//  fetchTeamsSync(session,chatSvcAggToken); //Sync Version
+    fetchTeams(session,chatSvcAggToken, loop);
+    g_main_loop_run (loop);
+  //  g_main_loop_quit (loop); //for when testing the Sync Version
+    g_main_loop_unref (loop);
 
     return 0;
 }
