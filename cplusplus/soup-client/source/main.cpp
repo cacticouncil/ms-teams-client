@@ -1,3 +1,4 @@
+#include <json-glib/json-glib.h>
 #include <string>
 #include <iostream>
 #include <fstream>
@@ -11,7 +12,8 @@
 
 int main(){
     //return testPolling();
-    return testFetching();
+    //return  testFetching(); //testFetching();
+    return  testFetchChannelMessage();
 }
 
 //read auth creds from local file
@@ -150,4 +152,25 @@ int testFetching(){
     g_main_loop_unref (loop);
 
     return 0;
+}
+
+int testFetchChannelMessage(){
+    std::cout <<"Starting the test"<<std::endl;
+
+    std::string skypeToken;
+    std::string chatSvcAggToken;
+    readCredentials(skypeToken, chatSvcAggToken);
+    
+	//John/Olga channel
+	std::string channelId = "19:0MaeOcpNpAX-HchAP2Z8xnw6j_QYsq6htWoAsD94QxY1@thread.tacv2";
+    GMainLoop* loop = g_main_loop_new(NULL, FALSE);
+    SoupSession *session = soup_session_new();
+
+	fetchChannelMessages(chatSvcAggToken, channelId, channelId, 5,loop, session);
+//void fetchChannelMessages(std::string& chatSvcAggToken, std::string& teamId, std::string& channelId, int pageSize, GMainLoop* loop, SoupSession* session);
+    g_main_loop_run (loop);
+    g_main_loop_unref (loop);
+
+    return 0;
+
 }

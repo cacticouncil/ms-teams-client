@@ -6,3 +6,4 @@ int testPolling();
 int testMessaging();
 int testSoup();
 int testFetching();
+int testFetchChannelMessage();
