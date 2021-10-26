@@ -1,40 +1,83 @@
-#include <json-glib/json-glib.h>
 #include <string>
 #include <iostream>
 #include <fstream>
 
 #include <libsoup/soup.h>
 
+#include <json-glib/json-glib.h>
+
 #include "../include/test.h"
 #include "../include/polling.h"
 #include "../include/messaging.h"
 #include "../include/fetch.h"
+#include "../include/admin.h"
 
 int main(){
     //return testPolling();
-    //return  testFetching(); //testFetching();
-    return  testFetchChannelMessage();
+    //return  testFetching();
+    //return testFetchChannelMessage();
+    //return testMessaging();
+    return  testCreateTeam();
+    //return testCred();
 }
 
 //read auth creds from local file
-void readCredentials(std::string &skypeToken,std::string &chatSvcAggToken) {
-	std::ifstream credFile("ms-teams-credentials.local.txt");
-	if (credFile.is_open()) {
-		getline(credFile, skypeToken);
-		getline(credFile, chatSvcAggToken);
+bool readCredentials(std::string &skypeToken,std::string &chatSvcAggToken,std::string &skypeSpacesToken) {
+    std::string credFilename = "ms-teams-credentials.local.json";
 
-		credFile.close();
-	}
+    JsonParser *parser = json_parser_new();
+    GError *err;
+
+    if(json_parser_load_from_file(parser,credFilename.c_str(),&err)){
+        JsonReader *reader = json_reader_new(json_parser_get_root(parser));
+
+        json_reader_read_member(reader,"authSkype");
+        json_reader_read_member(reader,"skypeToken");
+        skypeToken = json_reader_get_string_value(reader);
+
+        json_reader_set_root(reader,json_parser_get_root(parser));
+        json_reader_read_member(reader,"chatSvcAggToken");
+        json_reader_read_member(reader,"token");
+        chatSvcAggToken = json_reader_get_string_value(reader);
+
+        json_reader_set_root(reader,json_parser_get_root(parser));
+        json_reader_read_member(reader,"skypeSpacesToken");
+        json_reader_read_member(reader,"token");
+        skypeSpacesToken = json_reader_get_string_value(reader);
+
+        g_object_unref(reader);
+        g_object_unref(parser);
+        return true;
+    }
+    else{
+        g_print ("Unable to parse '%s': %s\n", credFilename.c_str(), err->message);
+        g_error_free (err);
+        g_object_unref (parser);
+        return false;
+    }
+}
+
+int testCred(){
+    std::string skypeToken;
+	std::string chatSvcAggToken;
+    std::string skypeSpacesToken;
+
+    bool status = readCredentials(skypeToken, chatSvcAggToken, skypeSpacesToken);
+    if(status){
+        std::cout << "<<<" << skypeToken << ">>>\n";
+        std::cout << "\n<<<" << chatSvcAggToken << ">>>\n";
+
+        return 0;
+    }
+    return 1;
 }
 
 //test polling system
 int testPolling(){
     std::string skypeToken;
 	std::string chatSvcAggToken;
-
-    readCredentials(skypeToken, chatSvcAggToken);
-    //remove new line from skypeToken
-    skypeToken.erase(skypeToken.size()-1,1);
+    std::string skypeSpacesToken;
+    readCredentials(skypeToken, chatSvcAggToken, skypeSpacesToken);
 
     GMainLoop *loop = g_main_loop_new(NULL,false);
 
@@ -54,10 +97,8 @@ int testPolling(){
 int testMessaging(){
     std::string skypeToken;
 	std::string chatSvcAggToken;
-
-    readCredentials(skypeToken, chatSvcAggToken);
-    //remove new line from skypeToken
-    skypeToken.erase(skypeToken.size()-1,1);
+    std::string skypeSpacesToken;
+    readCredentials(skypeToken, chatSvcAggToken, skypeSpacesToken);
 
     GMainLoop *loop = g_main_loop_new(NULL,false);
 
@@ -74,11 +115,11 @@ int testMessaging(){
 
     SoupSession *session = soup_session_new();
 
-    std::string msgtext = "dm test";
+    std::string msgtext = "testing credentials via json lib";
     //sendMessageSync(session,msgtext,skypeToken,channelId);
-    //sendChannelMessage(session,loop,msgtext,skypeToken,channelId);
+    sendChannelMessage(session,loop,msgtext,skypeToken,channelId);
     //sendReplyMessage(session,loop,msgtext,skypeToken,channelId,messageId);
-    sendDirectMessage(session,loop,msgtext,skypeToken,senderUserId,receiverUserId);
+    //sendDirectMessage(session,loop,msgtext,skypeToken,senderUserId,receiverUserId);
 
     g_main_loop_run(loop);
 
@@ -137,7 +178,8 @@ int testSoup(){
 int testFetching(){
     std::string skypeToken;
     std::string chatSvcAggToken;
-    readCredentials(skypeToken, chatSvcAggToken);
+    std::string skypeSpacesToken;
+    readCredentials(skypeToken, chatSvcAggToken, skypeSpacesToken);
 
     //John/Olga channel
     std::string channelId = "19:0MaeOcpNpAX-HchAP2Z8xnw6j_QYsq6htWoAsD94QxY1@thread.tacv2";
@@ -159,7 +201,8 @@ int testFetchChannelMessage(){
 
     std::string skypeToken;
     std::string chatSvcAggToken;
-    readCredentials(skypeToken, chatSvcAggToken);
+    std::string skypeSpacesToken;
+    readCredentials(skypeToken, chatSvcAggToken, skypeSpacesToken);
     
 	//John/Olga channel
 	std::string channelId = "19:0MaeOcpNpAX-HchAP2Z8xnw6j_QYsq6htWoAsD94QxY1@thread.tacv2";
@@ -173,4 +216,27 @@ int testFetchChannelMessage(){
 
     return 0;
 
+}
+
+int testCreateTeam(){
+    std::string skypeToken;
+    std::string chatSvcAggToken;
+    std::string skypeSpacesToken;
+    readCredentials(skypeToken, chatSvcAggToken, skypeSpacesToken);
+
+    GMainLoop* loop = g_main_loop_new(NULL, FALSE);
+    SoupSession *session = soup_session_new();
+
+    std::string teamId = "19:0MaeOcpNpAX-HchAP2Z8xnw6j_QYsq6htWoAsD94QxY1@thread.tacv2";
+    std::string name = "TestTeam";
+    std::string description = "";
+	createTeam(session,loop,skypeSpacesToken,name,description);
+    //createChannel(session,loop,chatSvcAggToken,teamId,name,description);
+
+    g_main_loop_run (loop);
+
+    g_main_loop_unref (loop);
+    g_object_unref(session);
+
+    return 0;
 }
