@@ -4,17 +4,15 @@
 
 #include "../include/admin.h"
 
-//ERROR: Code: 401
-//Response: {errorCode: AcquireTokenReauthRequired}
-//possible different bearer token; browser uses different bearer tokens for fetching Teams data than creating Teams
 //added skypeSpacesToken to login/credentials
+//name and description currently inoperable
 void createTeam(SoupSession *session, GMainLoop *loop, std::string &skypeSpacesToken, std::string &name, std::string &description){
     //initialize soup message with url and method
     std::string url = "https://teams.microsoft.com/api/mt/part/amer-02/beta/teams/create";
     SoupMessage *msg = soup_message_new(SOUP_METHOD_POST,url.c_str());
 
     //set message request payload
-    std::string payload = "{\"alias\":\""+name+"\",\"displayName\":\""+name+"\",\"displayNamePrefix\":null,\"displayNameSuffix\":null,\"description\":\""+description+"\",\"validationRequired\":false,\"isTenantWide\":false,\"accessType\":1}";
+    std::string payload = "{\"alias\":\"ZestyTeam\",\"displayName\":\"ZestyTeam\",\"displayNamePrefix\":null,\"displayNameSuffix\":null,\"description\":\"\",\"validationRequired\":false,\"isTenantWide\":false,\"accessType\":1}";
     soup_message_set_request(msg,"application/json",SOUP_MEMORY_COPY,payload.c_str(),strlen(payload.c_str()));
 
     //auth
@@ -38,6 +36,7 @@ void createTeamCallback(SoupSession *session, SoupMessage *msg, gpointer user_da
     g_main_loop_quit(loop);
 }
 
+//not functional atm
 void createChannel(SoupSession *session, GMainLoop *loop, std::string &skypeSpacesToken, std::string &teamId, std::string &name, std::string &description){
     std::string url = "https://teams.microsoft.com/api/mt/part/amer-02/beta/teams/"+teamId+"/channels";
     SoupMessage *msg = soup_message_new(SOUP_METHOD_POST,url.c_str());

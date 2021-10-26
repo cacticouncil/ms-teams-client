@@ -229,7 +229,7 @@ int testCreateTeam(){
 
     std::string teamId = "19:0MaeOcpNpAX-HchAP2Z8xnw6j_QYsq6htWoAsD94QxY1@thread.tacv2";
     std::string name = "TestTeam";
-    std::string description = "";
+    std::string description = "Test Description";
 	createTeam(session,loop,skypeSpacesToken,name,description);
     //createChannel(session,loop,chatSvcAggToken,teamId,name,description);
 
