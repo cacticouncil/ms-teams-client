@@ -91,13 +91,13 @@ void createTeamCallback(SoupSession *session, SoupMessage *msg, gpointer user_da
     g_main_loop_quit(loop);
 }
 
-//not functional atm
-void createChannel(SoupSession *session, GMainLoop *loop, std::string &skypeSpacesToken, std::string &teamId, std::string &name, std::string &description){
+//Error 401 {"errorCode":"UnauthorizedAccess"}
+void createChannel(SoupSession *session, GMainLoop *loop, std::string &skypeSpacesToken, std::string &teamId, std::string &name){
     std::string url = "https://teams.microsoft.com/api/mt/part/amer-02/beta/teams/"+teamId+"/channels";
     SoupMessage *msg = soup_message_new(SOUP_METHOD_POST,url.c_str());
 
     //set message request payload
-    std::string payload = "{\"displayName\":\"Test Channel\",\"description\":\"\",\"groupId\":\"3c0db051-2932-4bac-8fff-38a23e2febe2\"}";
+    std::string payload = "{\"displayName\":\""+name+"\",\"description\":\"\",\"groupId\":\"3c0db051-2932-4bac-8fff-38a23e2febe2\"}";
     soup_message_set_request(msg,"application/json",SOUP_MEMORY_COPY,payload.c_str(),strlen(payload.c_str()));
 
     //auth

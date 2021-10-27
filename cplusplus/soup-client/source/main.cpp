@@ -228,11 +228,11 @@ int testCreateTeam(){
     SoupSession *session = soup_session_new();
 
     std::string teamId = "19:0MaeOcpNpAX-HchAP2Z8xnw6j_QYsq6htWoAsD94QxY1@thread.tacv2";
-    std::string name = "API Team Test";
-    std::string description = "Test Description";
-    createTeamName(session,loop,skypeSpacesToken,name);
+    //19:0MaeOcpNpAX-HchAP2Z8xnw6j_QYsq6htWoAsD94QxY1@thread.tacv2
+    std::string name = "Fresh Channel";
+    //createTeamName(session,loop,skypeSpacesToken,name);
 	//createTeam(session,loop,skypeSpacesToken,name,description);
-    //createChannel(session,loop,chatSvcAggToken,teamId,name,description);
+    createChannel(session,loop,skypeSpacesToken,teamId,name);
 
     g_main_loop_run (loop);
 
