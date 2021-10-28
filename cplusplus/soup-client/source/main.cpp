@@ -1,5 +1,4 @@
 #include <json-glib/json-glib.h>
-#include <string>
 #include <iostream>
 #include <fstream>
 
@@ -10,10 +9,19 @@
 #include "../include/messaging.h"
 #include "../include/fetch.h"
 
-int main(){
+int main(int argc, char *argv[]){
     //return testPolling();
-    //return  testFetching(); //testFetching();
-    return  testFetchChannelMessage();
+    //return  testFetching();
+    //return  testFetchChannelMessage();
+    //"fetchChannelMessagesInfo.txt"
+    /*   if (argc < 2)
+    {
+      g_print ("Usage: test <filename.json>\n");
+      return EXIT_FAILURE;
+    }
+    */
+    std::string filename = "fetchTeamsInfo.txt";
+    return testingJson(filename);
 }
 
 //read auth creds from local file
@@ -173,4 +181,31 @@ int testFetchChannelMessage(){
 
     return 0;
 
+}
+
+int testingJson(std::string filename){
+    JsonParser *parser;
+    JsonNode *root;
+    GError *error;
+    parser = json_parser_new ();
+
+    error = NULL;
+    json_parser_load_from_file (parser,filename.c_str(), &error);
+    if (error){
+        g_print ("Unable to parse `%s': %s\n", filename.c_str(), error->message);
+        g_error_free (error);
+        g_object_unref (parser);
+        return EXIT_FAILURE;
+    }
+
+    g_print("Got past error section just fine");
+    root = json_parser_get_root (parser);
+    JsonReader *reader = json_reader_new (root);
+    //reader->parent_instance.qdata;
+
+    /* manipulate the object tree and then exit */
+
+    g_object_unref (parser);
+    
+    return 0;
 }
