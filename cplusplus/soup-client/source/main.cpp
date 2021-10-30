@@ -20,8 +20,10 @@ int main(int argc, char *argv[]){
       return EXIT_FAILURE;
     }
     */
-    std::string filename = "fetchTeamsInfo.txt";
-    return testingJson(filename);
+    // std::string filename = "fetchTeamsInfo.txt";
+    // return testingJson(filename);
+
+    return testingFetchUsers();
 }
 
 //read auth creds from local file
@@ -182,7 +184,7 @@ int testFetchChannelMessage(){
     return 0;
 
 }
-
+//Did not turn out super useful to test here
 int testingJson(std::string filename){
     JsonParser *parser;
     JsonNode *root;
@@ -207,5 +209,28 @@ int testingJson(std::string filename){
 
     g_object_unref (parser);
     
+    return 0;
+}
+
+int testingFetchUsers(){ 
+    std::string skypeToken;
+    std::string chatSvcAggToken;
+    readCredentials(skypeToken, chatSvcAggToken);
+
+	std::string JohnId = "fdb3a4e9-675d-497e-acfe-4fd208f8ad89";
+	std::string OlgaId = "7b30ff05-51b2-490a-b28b-2d8ac36cad8e";
+    
+    std::vector<std::string> userIds;
+    userIds.push_back(JohnId);
+    userIds.push_back(OlgaId);
+
+    GMainLoop *loop = g_main_loop_new (NULL, FALSE);
+    SoupSession *session = soup_session_new();
+
+    fetchUsersInfo(session,chatSvcAggToken, loop, userIds);
+
+    g_main_loop_run (loop);
+    g_main_loop_unref (loop);
+  
     return 0;
 }

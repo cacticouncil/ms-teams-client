@@ -9,3 +9,4 @@ int testSoup();
 int testFetching();
 int testFetchChannelMessage();
 int testingJson(std::string filename);
+int testingFetchUsers();
