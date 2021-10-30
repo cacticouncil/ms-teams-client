@@ -1,2 +1,3 @@
-*.local.txt
+*.txt
+*.json
 /output

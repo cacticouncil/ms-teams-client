@@ -1,13 +1,17 @@
 import os
 import json
 
-jspath = input("Enter path to ms-teams-client directory [or l to select local file]: ")
-if jspath != "l":
-    os.system("cd " + jspath + " && npm run login")
+jspath = input("Enter path to ms-teams-client directory: ")
+os.system("cd " + jspath + " && npm run login")
+""" if jspath != "l":
+    
 else:
-    jspath = "."
+    jspath = "." """
 
-file = open(jspath + "/ms-teams-credentials.local.json","r")
+""" cpppath = input("Enter absolute path to C++ soup-client Teams directory: ")
+os.system("cp ms-teams-credentials.local.json " + cpppath + "/ms-teams-credentials.local.json")
+ """
+""" file = open(jspath + "/ms-teams-credentials.local.json","r")
 data = json.load(file)
 file.close()
 
@@ -17,7 +21,7 @@ file.write(data["authSkype"]["skypeToken"] + "\n" + data["chatSvcAggToken"]["tok
 file.close()
 
 print("skypeToken:",data["authSkype"]["skypeToken"])
-print("chatToken:",data["chatSvcAggToken"]["token"])
+print("\nchatToken:",data["chatSvcAggToken"]["token"]) """
 
 #export PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 #sudo apt-get install libgtk-3.0

@@ -51,6 +51,9 @@ function createWindow() {
       details.chatSvcAggToken = JSON.parse(token)
 
       // add more required tokens here...
+      token = result[`ts.${details.oid}.cache.token.https://api.spaces.skype.com`]
+      if (!token) return
+      details.skypeSpacesToken = JSON.parse(token)
 
       // write credentials to file and exit
       // this implementation should be changed soon, but for reverse engineering, this is fine
