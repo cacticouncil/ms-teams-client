@@ -1,5 +1,3 @@
-#include <string>
-
 #include <libsoup/soup.h>
 
 #include "../include/fetch.h"
@@ -42,7 +40,7 @@ void fetchTeams(SoupSession *session, std::string &chatSvcAggToken, GMainLoop* l
     SoupMessage *msg = soup_message_new(SOUP_METHOD_GET,"https://teams.microsoft.com/api/csa/api/v1/teams/users/me?isPrefetch=false&enableMembershipSummary=true");
 
     std::string tokenstr = "Bearer " + chatSvcAggToken;
-    std::cout<<"Inside fetchTeams, right before calling Async \n"; //Debug Statement
+
     soup_message_headers_append(msg->request_headers,"Authorization",tokenstr.c_str());
     soup_session_queue_message(session,msg,fetchTeamsCallback,loop);
 }
@@ -50,24 +48,14 @@ void fetchTeams(SoupSession *session, std::string &chatSvcAggToken, GMainLoop* l
 
 void fetchTeamsCallback(SoupSession *session, SoupMessage *msg, gpointer user_data){
 
-    if (msg->status_code >= 200 && msg->status_code < 300){
-        g_print("Response: %s\n",msg->response_body->data);
-
-	std::ofstream responseFile("fetchTeamsInfo.txt");
-	if (responseFile.is_open()) {
-		responseFile << msg->response_body->data;
-		responseFile.close();
-	}
-    }
-    else{
-        g_printerr("ERROR: Code: %d\n",msg->status_code);
-    }
+    displayResponseInfo( msg, "fetchTeamsInfo.local.json");
 
     GMainLoop *loop = (GMainLoop *) user_data;
     g_main_loop_quit(loop);
 }
 
-//Async fetch channel messages
+//This function is used to obtain the messages associated with a specific team channel
+//This can be used to figure out which is the latest message int eh channel etc?
 void fetchChannelMessages(std::string& chatSvcAggToken, std::string& teamId, std::string& channelId, int pageSize, GMainLoop* loop, SoupSession* session){
     //formulating the url
     std::string url = "https://teams.microsoft.com/api/csa/api/v2/teams/" + teamId + "/channels/" + channelId;
@@ -88,25 +76,16 @@ void fetchChannelMessages(std::string& chatSvcAggToken, std::string& teamId, std
 
 void fetchChannelMessagesCallback(SoupSession *session, SoupMessage *msg, gpointer user_data){
 
-    if (msg->status_code >= 200 && msg->status_code < 300){
-        g_print("Response: %s\n",msg->response_body->data);
-
-        std::ofstream responseFile("fetchChannelMessagesInfo.txt");
-        if (responseFile.is_open()) {
-                responseFile << msg->response_body->data;
-                responseFile.close();
-        }
-    }
-    else{
-        g_printerr("ERROR: Code: %d\n",msg->status_code);
-    }
+    displayResponseInfo( msg, "fetchChannelMessagesInfo.local.json");
 
     GMainLoop *loop = (GMainLoop *) user_data;
     g_main_loop_quit(loop);
 }
 
+//Given an array of oid values, this function returns the information associated with 
+//Might be used for fetching teh information from users in a channel?
 void fetchUsersInfo(SoupSession *session, std::string &chatSvcAggToken, GMainLoop* loop, std::vector<std::string>& userIds){
-    //might also need the team? I'm not exactly sure about that.
+   
     std::string url = "https://teams.microsoft.com/api/mt/part/amer-02/beta/users/fetchShortProfile?isMailAddress=false&enableGuest=true&includeIBBarredUsers=true&skypeTeamsInfo=true";
     
     std::string userIdsStr= "[";
@@ -118,7 +97,8 @@ void fetchUsersInfo(SoupSession *session, std::string &chatSvcAggToken, GMainLoo
         }
     }
     userIdsStr+= "]";
-    std::cout <<"Constructed user string" <<userIdsStr<< "\n";
+
+    //std::cout <<"Constructed user string" <<userIdsStr<< "\n"; //Debug Statement
 
     SoupMessage *msg = soup_message_new(SOUP_METHOD_POST, url.c_str());
     std::string payload = userIdsStr;
@@ -129,22 +109,72 @@ void fetchUsersInfo(SoupSession *session, std::string &chatSvcAggToken, GMainLoo
     soup_session_queue_message(session,msg,fetchUsersInfoCallback,loop);
 }
 
+void JsonArraForEach_Function (  JsonArray* array,  guint index_,  JsonNode* element_node,  gpointer user_data) {  //(* JsonArrayForeach) 
+    std::cout<<"Currently in iteration " + std::to_string((int)index_);
+}
 
 void fetchUsersInfoCallback(SoupSession *session, SoupMessage *msg, gpointer user_data){
+
+    // std::string credFilename = "fetchUsersInfo.local.json";
+    // JsonParser *parser = json_parser_new();
+    // GError *err;
+
+    // if(json_parser_load_from_file(parser,credFilename.c_str(),&err)){
+    //     std::cout<<"\nHey, I am able to parse this file :D How cool!\n";
+
+    //     JsonReader *reader = json_reader_new(json_parser_get_root(parser));
+    //     json_reader_read_member(reader,"value");
+    //     json_reader_set_root(reader,json_parser_get_root(parser));
+    //     std::cout << "Is the reader standing on an array right now? What about now? "<<json_reader_is_array(reader);
+    //     //initlly 1 
+
+    //     // JsonArray* arr= (JsonArray*)json_reader_get_value(reader);
+
+    //     // json_reader_read_element (reader, 0);
+
+    //     // json_reader_read_member(reader,"givenName");
+
+    //     // std::string first=json_reader_get_string_value(reader);
+        
+    //     // for(int i=0; i<2; i++){
+    //     //     JsonNode* value;
+    //     //     json_array_foreach_element(arr, JsonArraForEach_Function(arr, i, value, user_data), user_data); //(* JsonArrayForeach) expecting a fuinction of this type and I am not sure what this entails
+    //     // }
+
+    // }
+    // else{
+    //     g_print ("Unable to parse '%s': %s\n", credFilename.c_str(), err->message);
+    //     g_error_free (err);
+    //     g_object_unref (parser);
+
+    // }
+
+    displayResponseInfo( msg, "fetchUsersInfo.local.json");
+
+    GMainLoop *loop = (GMainLoop *) user_data;
+    g_main_loop_quit(loop);
+}
+
+
+//This function extracts information from the response object and displays it to the console 
+//It also supports the option to print the info to a file given the finelame and extension
+//To only print to console pass in an empty string
+void displayResponseInfo( SoupMessage *msg, std::string filename){
     
     if (msg->status_code >= 200 && msg->status_code < 300){
         g_print("Response: %s\n",msg->response_body->data);
-
-        // std::ofstream responseFile("fetchUsersInfo.txt");
-        // if (responseFile.is_open()) {
-        //         responseFile << msg->response_body->data;
-        //         responseFile.close();
-        // }
     }
     else{
         g_printerr("ERROR: Code: %d\n",msg->status_code);
     }
-
-    GMainLoop *loop = (GMainLoop *) user_data;
-    g_main_loop_quit(loop);
+    
+    if(filename != ""){ //if it's not an empty string means you want info printed to a file
+        std::ofstream responseFile(filename);
+        if (responseFile.is_open()) {
+                responseFile << msg->response_body->data;
+                responseFile.close();
+                std::cout<<"\n Wrote response to file: " + filename + "\n";
+        }
+       
+    }
 }
