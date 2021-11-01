@@ -13,11 +13,11 @@
 #include "../include/admin.h"
 
 int main(){
-    //return testPolling();
+    return testPolling();
     //return  testFetching();
     //return testFetchChannelMessage();
     //return testMessaging();
-    return  testCreateTeam();
+    //return  testCreateTeam();
     //return testCred();
 }
 

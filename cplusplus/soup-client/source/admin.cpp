@@ -41,7 +41,6 @@ void validateNameCallback(SoupSession *session, SoupMessage *msg, gpointer user_
             g_object_unref(reader);
             g_object_unref(parser);
 
-            std::string description = "";
             std::string skypeSpacesToken = soup_message_headers_get_one(msg->request_headers,"Authorization");
             createTeam(session,(GMainLoop *)user_data,skypeSpacesToken,name);
         }
