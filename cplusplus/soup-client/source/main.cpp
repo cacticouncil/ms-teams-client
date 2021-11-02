@@ -12,9 +12,21 @@
 #include "../include/fetch.h"
 #include "../include/admin.h"
 
-int main(){
-    return testPolling();
+int main(int argc, char *argv[]){
+    //return testPolling();
     //return  testFetching();
+    //return  testFetchChannelMessage();
+    //"fetchChannelMessagesInfo.txt"
+    /*   if (argc < 2)
+    {
+      g_print ("Usage: test <filename.json>\n");
+      return EXIT_FAILURE;
+    }
+    */
+    // std::string filename = "fetchTeamsInfo.txt";
+    // return testingJson(filename);
+
+    return testingFetchUsers();
     //return testFetchChannelMessage();
     //return testMessaging();
     //return  testCreateTeam();
@@ -174,7 +186,7 @@ int testSoup(){
     return 0;
 }
 
-//testing fetchTeams Async
+//testing fetchTeams Sync/Async options
 int testFetching(){
     std::string skypeToken;
     std::string chatSvcAggToken;
@@ -187,10 +199,10 @@ int testFetching(){
     GMainLoop *loop = g_main_loop_new (NULL, FALSE);
     SoupSession *session = soup_session_new();
 
-//  fetchTeamsSync(session,chatSvcAggToken); //Sync Version
+    //fetchTeamsSync(session,chatSvcAggToken); //for testing the Sync Version
     fetchTeams(session,chatSvcAggToken, loop);
     g_main_loop_run (loop);
-  //  g_main_loop_quit (loop); //for when testing the Sync Version
+    //g_main_loop_quit (loop); //for when testing the Sync Version
     g_main_loop_unref (loop);
 
     return 0;
@@ -210,13 +222,38 @@ int testFetchChannelMessage(){
     SoupSession *session = soup_session_new();
 
 	fetchChannelMessages(chatSvcAggToken, channelId, channelId, 5,loop, session);
-//void fetchChannelMessages(std::string& chatSvcAggToken, std::string& teamId, std::string& channelId, int pageSize, GMainLoop* loop, SoupSession* session);
+
     g_main_loop_run (loop);
     g_main_loop_unref (loop);
 
     return 0;
 
 }
+
+int testingFetchUsers(){ 
+    std::string skypeToken;
+    std::string chatSvcAggToken;
+    std::string skypeSpacesToken;
+    readCredentials(skypeToken, chatSvcAggToken, skypeSpacesToken);
+
+	std::string JohnId = "fdb3a4e9-675d-497e-acfe-4fd208f8ad89";
+	std::string OlgaId = "7b30ff05-51b2-490a-b28b-2d8ac36cad8e";
+    
+    std::vector<std::string> userIds;
+    userIds.push_back(JohnId);
+    userIds.push_back(OlgaId);
+
+    GMainLoop *loop = g_main_loop_new (NULL, FALSE);
+    SoupSession *session = soup_session_new();
+
+    fetchUsersInfo(session,chatSvcAggToken, loop, userIds);
+
+    g_main_loop_run (loop);
+    g_main_loop_unref (loop);
+
+    return 0;
+}
+  
 
 int testCreateTeam(){
     std::string skypeToken;
@@ -239,5 +276,33 @@ int testCreateTeam(){
     g_main_loop_unref (loop);
     g_object_unref(session);
 
+    return 0;
+}
+
+//This testing did not turn out super useful XD
+int testingJson(std::string filename){
+    JsonParser *parser;
+    JsonNode *root;
+    GError *error;
+    parser = json_parser_new ();
+
+    error = NULL;
+    json_parser_load_from_file (parser,filename.c_str(), &error);
+    if (error){
+        g_print ("Unable to parse `%s': %s\n", filename.c_str(), error->message);
+        g_error_free (error);
+        g_object_unref (parser);
+        return EXIT_FAILURE;
+    }
+
+    g_print("Got past error section just fine");
+    root = json_parser_get_root (parser);
+    JsonReader *reader = json_reader_new (root);
+    //reader->parent_instance.qdata;
+
+    /* manipulate the object tree and then exit */
+
+    g_object_unref (parser);
+    
     return 0;
 }
