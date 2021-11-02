@@ -62,7 +62,7 @@ bool readCredentials(std::string &skypeToken,std::string &chatSvcAggToken,std::s
         return true;
     }
     else{
-        g_print ("Unable to parse '%s': %s\n", credFilename.c_str(), err->message);
+        g_printerr("Unable to parse '%s': %s\n", credFilename.c_str(), err->message);
         g_error_free (err);
         g_object_unref (parser);
         return false;
@@ -265,10 +265,11 @@ int testCreateTeam(){
     SoupSession *session = soup_session_new();
 
     std::string teamId = "19:0MaeOcpNpAX-HchAP2Z8xnw6j_QYsq6htWoAsD94QxY1@thread.tacv2";
-    std::string name = "TestTeam";
-    std::string description = "Test Description";
-	createTeam(session,loop,skypeSpacesToken,name,description);
-    //createChannel(session,loop,chatSvcAggToken,teamId,name,description);
+    //19:0MaeOcpNpAX-HchAP2Z8xnw6j_QYsq6htWoAsD94QxY1@thread.tacv2
+    std::string name = "Fresh Channel";
+    //createTeamName(session,loop,skypeSpacesToken,name);
+	//createTeam(session,loop,skypeSpacesToken,name,description);
+    createChannel(session,loop,skypeSpacesToken,teamId,name);
 
     g_main_loop_run (loop);
 
