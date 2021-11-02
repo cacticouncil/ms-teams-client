@@ -2,6 +2,7 @@
 #include <regex>
 
 #include <libsoup/soup.h>
+
 #include <json-glib/json-glib.h>
 
 #include "../include/polling.h"
@@ -35,7 +36,7 @@ void pollEndpointCallback(SoupSession *session, SoupMessage *msg, gpointer user_
         g_printerr("ERROR: Code: %d\n",msg->status_code);
     }
 
-    //extracts endpoint url from response
+    /* //extracts endpoint url from response
     std::cmatch match;
     std::regex expr("\"longPollUrl\":\"([^\"]*)\"");
 
@@ -44,6 +45,43 @@ void pollEndpointCallback(SoupSession *session, SoupMessage *msg, gpointer user_
         std::string endpointUrl = match[1];
         //poll endpoint for changes
         poll(session,(GMainLoop *)user_data,skypeToken,endpointUrl);
+    } */
+
+    JsonParser *parser = json_parser_new();
+    GError *err;
+
+    if(json_parser_load_from_data(parser,msg->response_body->data,strlen(msg->response_body->data),&err)){
+        JsonNode *root = json_parser_get_root(parser);
+        JsonObject *rootObj = json_node_get_object(root);
+        JsonArray *subsArr = json_object_get_array_member(rootObj,"subscriptions");
+        
+        std::string endpointUrl;
+        json_array_foreach_element(subsArr,ArrayCallback,&endpointUrl);
+
+        g_object_unref(parser);
+
+        std::string skypeToken = soup_message_headers_get_one(msg->request_headers,"Authentication");
+        //poll next endpoint for changes
+        poll(session,(GMainLoop *)user_data,skypeToken,endpointUrl);
+    }
+    else{
+        g_printerr("ERROR: Unable to parse response: %s\n", err->message);
+        g_error_free (err);
+        g_object_unref (parser);
+
+        GMainLoop *loop = (GMainLoop *)user_data;
+        g_main_loop_quit(loop);
+    }
+}
+
+void ArrayCallback(JsonArray* arr,guint index,JsonNode *elem,gpointer user_data){
+    JsonObject* obj = json_node_get_object(elem);
+    std::string channelType = json_object_get_string_member(obj,"channelType");
+    if(channelType == "HttpLongPoll"){
+        g_print("Channel type: %s",channelType.c_str());
+        std::string endpointUrl = json_object_get_string_member(obj,"longPollUrl");
+        g_print("URL: %s",endpointUrl.c_str());
+        *(std::string*)user_data = endpointUrl.c_str();
     }
 }
 
@@ -68,14 +106,28 @@ void pollCallback(SoupSession *session, SoupMessage *msg, gpointer user_data){
         g_printerr("ERROR: Code: %d\n",msg->status_code);
     }
 
-    //extracts next endpoint url from response
-    std::cmatch match;
-    std::regex expr("\"next\":\"([^\"]*)\"");
+    JsonParser *parser = json_parser_new();
+    GError *err;
 
-    if(std::regex_search(msg->response_body->data,match,expr)){
+    if(json_parser_load_from_data(parser,msg->response_body->data,strlen(msg->response_body->data),&err)){
+        JsonReader *reader = json_reader_new(json_parser_get_root(parser));
+
+        json_reader_read_member(reader,"next");
+        std::string endpointUrl = json_reader_get_string_value(reader);
+
+        g_object_unref(reader);
+        g_object_unref(parser);
+
         std::string skypeToken = soup_message_headers_get_one(msg->request_headers,"Authentication");
-        std::string endpointUrl = match[1];
         //poll next endpoint for changes
         poll(session,(GMainLoop *)user_data,skypeToken,endpointUrl);
+    }
+    else{
+        g_printerr("ERROR: Unable to parse response: %s\n", err->message);
+        g_error_free (err);
+        g_object_unref (parser);
+
+        GMainLoop *loop = (GMainLoop *)user_data;
+        g_main_loop_quit(loop);
     }
 }
