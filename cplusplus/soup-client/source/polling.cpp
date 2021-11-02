@@ -106,30 +106,6 @@ void pollCallback(SoupSession *session, SoupMessage *msg, gpointer user_data){
         g_printerr("ERROR: Code: %d\n",msg->status_code);
     }
 
-    /* GError *err;
-    JsonReader *reader = json_reader_new(json_from_string(msg->response_body->data,&err));
-
-    if(err){
-        g_printerr("ERROR: Unable to parse response: %s\n", err->message);
-        g_error_free (err);
-        g_object_unref (reader);
-
-        GMainLoop *loop = (GMainLoop *)user_data;
-        g_main_loop_quit(loop);
-
-        return;
-    }
-    else{
-        json_reader_read_member(reader,"next");
-        std::string endpointUrl = json_reader_get_string_value(reader);
-
-        g_object_unref(reader);
-
-        std::string skypeToken = soup_message_headers_get_one(msg->request_headers,"Authentication");
-        //poll next endpoint for changes
-        poll(session,(GMainLoop *)user_data,skypeToken,endpointUrl);
-    } */
-
     JsonParser *parser = json_parser_new();
     GError *err;
 
