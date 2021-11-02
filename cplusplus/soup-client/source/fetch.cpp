@@ -111,45 +111,70 @@ void fetchUsersInfo(SoupSession *session, std::string &chatSvcAggToken, GMainLoo
 
 void JsonArraForEach_Function (  JsonArray* array,  guint index_,  JsonNode* element_node,  gpointer user_data) {  //(* JsonArrayForeach) 
     std::cout<<"Currently in iteration " + std::to_string((int)index_);
+    JsonObject* currObj =json_array_get_object_element(array, index_);
+    JsonNode* user =json_object_get_member(currObj, "userPrincipalName");
+    std::string userStr = json_node_get_string(user);
+    std::cout<< "\nThis is the princip[al name: " + userStr + "\n";
+
 }
 
 void fetchUsersInfoCallback(SoupSession *session, SoupMessage *msg, gpointer user_data){
 
-    // std::string credFilename = "fetchUsersInfo.local.json";
-    // JsonParser *parser = json_parser_new();
-    // GError *err;
+    std::string credFilename = "fetchUsersInfo.local.json";
+    JsonParser *parser = json_parser_new();
+    GError *err;
 
-    // if(json_parser_load_from_file(parser,credFilename.c_str(),&err)){
-    //     std::cout<<"\nHey, I am able to parse this file :D How cool!\n";
+    if(json_parser_load_from_file(parser,credFilename.c_str(),&err)){
+        std::cout<<"\nHey, I am able to parse this file :D How cool!\n";
 
-    //     JsonReader *reader = json_reader_new(json_parser_get_root(parser));
-    //     json_reader_read_member(reader,"value");
-    //     json_reader_set_root(reader,json_parser_get_root(parser));
-    //     std::cout << "Is the reader standing on an array right now? What about now? "<<json_reader_is_array(reader);
+         JsonReader *reader = json_reader_new(json_parser_get_root(parser));
+         JsonNode* root= json_parser_get_root(parser);
+         JsonObject* rootObj= json_node_get_object(root); //getting the object to read the array from here rather than from a JsonNode* since this is a complex type
+         JsonArray* arr= json_object_get_array_member(rootObj, "value");
+
+         //json_reader_read_member(reader,"value");
+         //json_reader_read_element (reader, 0);
+         //json_reader_set_root(reader,json_parser_get_root(parser));
+        std::cout << "Is the reader standing on an array right now? "<<json_reader_is_array(reader);
+
+        std::cout<< "\n Count: "<<json_reader_count_elements(reader)<<"\n";
+        std::cout << "\n\nIs Object?  "<<json_reader_is_object(reader) << "\n\n";
     //     //initlly 1 
 
-    //     // JsonArray* arr= (JsonArray*)json_reader_get_value(reader);
+        //JsonArray* arr= (JsonArray*)json_reader_get_value(reader);
+        //json_reader_read_element (reader, 0);
+        //std::cout << "\n now? "<<json_reader_is_array(reader);
+        //std::cout<<"\nReader [0]: "<<json_reader_get_string_value(reader)<<"\n";
 
-    //     // json_reader_read_element (reader, 0);
+        //JsonNode* node= json_reader_get_value(reader);
+/*        GValue* g=nullptr;
+        json_node_get_value(node, g);
+        JsonArray* arr= (JsonArray*)g;
+*/
+        // std::cout<< "\n Hold Array: "<<JSON_NODE_HOLDS_ARRAY(node)<<"\n";
+        //JsonArray* arr = json_node_get_array(node);
 
-    //     // json_reader_read_member(reader,"givenName");
 
-    //     // std::string first=json_reader_get_string_value(reader);
+        //json_reader_read_element (reader, 1);
+
+        //json_reader_read_member(reader,"givenName");
+
+        //std::string first=json_reader_get_string_value(reader);
         
-    //     // for(int i=0; i<2; i++){
-    //     //     JsonNode* value;
-    //     //     json_array_foreach_element(arr, JsonArraForEach_Function(arr, i, value, user_data), user_data); //(* JsonArrayForeach) expecting a fuinction of this type and I am not sure what this entails
-    //     // }
+        // for(int i=0; i<2; i++){
+        //     JsonNode* value;
+        json_array_foreach_element(arr, JsonArraForEach_Function, user_data); //(* JsonArrayForeach) expecting a fuinction of this type and I am not sure what this entails
+        //}
 
-    // }
-    // else{
-    //     g_print ("Unable to parse '%s': %s\n", credFilename.c_str(), err->message);
-    //     g_error_free (err);
-    //     g_object_unref (parser);
+    }
+     else{
+        g_print ("Unable to parse '%s': %s\n", credFilename.c_str(), err->message);
+        g_error_free (err);
+        g_object_unref (parser);
 
-    // }
+    }
 
-    displayResponseInfo( msg, "fetchUsersInfo.local.json");
+    //displayResponseInfo( msg, "fetchUsersInfo.local.json");
 
     GMainLoop *loop = (GMainLoop *) user_data;
     g_main_loop_quit(loop);

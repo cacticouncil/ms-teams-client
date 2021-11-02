@@ -19,8 +19,8 @@ int main(int argc, char *argv[]){
     // std::cout<<"\n\n Fetching Channel Message Next: \n\n";
     // testFetchChannelMessage(); 
     //std::cout<<"\n\n Fetching Users Info Next: \n\n";
-    //return testingFetchUsers();
-    return testingJson(); //the login inhere is waht will eventually go into the fetchUSersCallback 
+    return testingFetchUsers();
+    //return testingJson(); //the login inhere is waht will eventually go into the fetchUSersCallback 
 
 
     /***TESTING ISOLATED FUNCTIONALITY***/
