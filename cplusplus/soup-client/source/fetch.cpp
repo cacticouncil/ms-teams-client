@@ -112,6 +112,8 @@ void fetchUsersInfo(SoupSession *session, std::string &chatSvcAggToken, GMainLoo
 
 void fetchUsersInfoCallback(SoupSession *session, SoupMessage *msg, gpointer user_data){
 
+    displayResponseInfo( msg, true, "fetchUsersInfo.local.json"); //Need to write to the file at least once in order to be able to use the json parsing stuff 
+    
     std::string credFilename = "fetchUsersInfo.local.json";
     JsonParser *parser = json_parser_new();
     GError *err;
@@ -129,8 +131,6 @@ void fetchUsersInfoCallback(SoupSession *session, SoupMessage *msg, gpointer use
         g_error_free (err);
         g_object_unref (parser);
     }
-
-    displayResponseInfo( msg, true, "fetchUsersInfo.local.json");
 
     GMainLoop *loop = (GMainLoop *) user_data;
     g_main_loop_quit(loop);
