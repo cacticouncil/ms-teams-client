@@ -20,9 +20,7 @@ int main(int argc, char *argv[]){
     // testFetchChannelMessage(); 
     //std::cout<<"\n\n Fetching Users Info Next: \n\n";
     return testingFetchUsers();
-    //return testingJson(); //the login inhere is waht will eventually go into the fetchUSersCallback 
-
-
+    
     /***TESTING ISOLATED FUNCTIONALITY***/
     //return testPolling();
     //return  testFetching();
@@ -276,53 +274,48 @@ int testCreateTeam(){
 //This testing did not turn out super useful XD
 int testingJson(){
 
-    std::string credFilename = "fetchUsersInfo.local.json";
-    JsonParser *parser = json_parser_new();
-    GError *err;
+    // std::string credFilename = "fetchUsersInfo.local.json";
+    // JsonParser *parser = json_parser_new();
+    // GError *err;
 
-    if(json_parser_load_from_file(parser,credFilename.c_str(),&err)){
-        std::cout<<"\nHey, I am able to parse this file :D How cool!\n";
+    // if(json_parser_load_from_file(parser,credFilename.c_str(),&err)){
+    //     std::cout<<"\nHey, I am able to parse this file :D How cool!\n";
 
-        JsonReader *reader = json_reader_new(json_parser_get_root(parser));
-        json_reader_read_member(reader,"value");
-        std::cout<< json_reader_get_string_value (reader);        
-        json_reader_set_root(reader,json_parser_get_root(parser));
-        std::cout << "Is the reader standing on an array right now? What about now? "<<json_reader_is_array(reader) + "\n";
+    //     JsonReader *reader = json_reader_new(json_parser_get_root(parser));
+    //     json_reader_read_member(reader,"value");
+    //     std::cout<< json_reader_get_string_value (reader);        
+    //     json_reader_set_root(reader,json_parser_get_root(parser));
+    //     std::cout << "Is the reader standing on an array right now? What about now? "<<json_reader_is_array(reader) + "\n";
 
-        json_reader_read_member(reader,"userPrincipalName");
-        std::cout<< json_reader_get_string_value (reader);
-        // json_reader_set_root(reader,json_parser_get_root(parser));
-        // std::string temp=json_reader_get_string_value(reader);
-        // std::cout<<"\n guat?" + temp + "\n";
-        // //JsonArray* arr= (JsonArray*)json_reader_get_value(reader);
+    //     json_reader_read_member(reader,"userPrincipalName");
+    //     std::cout<< json_reader_get_string_value (reader);
+    //     // json_reader_set_root(reader,json_parser_get_root(parser));
+    //     // std::string temp=json_reader_get_string_value(reader);
+    //     // std::cout<<"\n guat?" + temp + "\n";
+    //     // //JsonArray* arr= (JsonArray*)json_reader_get_value(reader);
 
-        // json_reader_read_element (reader, 0);
+    //     // json_reader_read_element (reader, 0);
 
-        // json_reader_read_member(reader,"givenName");
+    //     // json_reader_read_member(reader,"givenName");
 
-        // // std::string first=json_reader_get_string_value(reader);
+    //     // // std::string first=json_reader_get_string_value(reader);
 
+    //     // const char *str_value = NULL;
 
-        // const char *str_value = NULL;
+    //     // //json_reader_read_element (reader, 0);
+    //     // str_value = json_reader_get_string_value (reader);
+    //     //json_reader_end_element (reader);
 
-        
+    //     // json_reader_read_element (reader, 2);
+    //     // str_value = json_reader_get_string_value (reader);
+    //     // json_reader_end_element (reader);
+    // }
+    // else{
+    //     g_print ("Unable to parse '%s': %s\n", credFilename.c_str(), err->message);
+    //     g_error_free (err);
+    //     g_object_unref (parser);
 
-        // //json_reader_read_element (reader, 0);
-        // str_value = json_reader_get_string_value (reader);
-        //json_reader_end_element (reader);
-
-
-
-        // json_reader_read_element (reader, 2);
-        // str_value = json_reader_get_string_value (reader);
-        // json_reader_end_element (reader);
-    }
-    else{
-        g_print ("Unable to parse '%s': %s\n", credFilename.c_str(), err->message);
-        g_error_free (err);
-        g_object_unref (parser);
-
-    }
+    // }
 
     return 0;
 }

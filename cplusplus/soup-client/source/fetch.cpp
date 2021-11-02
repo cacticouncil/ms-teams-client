@@ -48,7 +48,7 @@ void fetchTeams(SoupSession *session, std::string &chatSvcAggToken, GMainLoop* l
 
 void fetchTeamsCallback(SoupSession *session, SoupMessage *msg, gpointer user_data){
 
-    displayResponseInfo( msg, "fetchTeamsInfo.local.json");
+    displayResponseInfo( msg, true, "fetchTeamsInfo.local.json");
 
     GMainLoop *loop = (GMainLoop *) user_data;
     g_main_loop_quit(loop);
@@ -76,7 +76,7 @@ void fetchChannelMessages(std::string& chatSvcAggToken, std::string& teamId, std
 
 void fetchChannelMessagesCallback(SoupSession *session, SoupMessage *msg, gpointer user_data){
 
-    displayResponseInfo( msg, "fetchChannelMessagesInfo.local.json");
+    displayResponseInfo( msg, true, "fetchChannelMessagesInfo.local.json");
 
     GMainLoop *loop = (GMainLoop *) user_data;
     g_main_loop_quit(loop);
@@ -109,14 +109,6 @@ void fetchUsersInfo(SoupSession *session, std::string &chatSvcAggToken, GMainLoo
     soup_session_queue_message(session,msg,fetchUsersInfoCallback,loop);
 }
 
-void JsonArraForEach_Function (  JsonArray* array,  guint index_,  JsonNode* element_node,  gpointer user_data) {  //(* JsonArrayForeach) 
-    std::cout<<"Currently in iteration " + std::to_string((int)index_);
-    JsonObject* currObj =json_array_get_object_element(array, index_);
-    JsonNode* user =json_object_get_member(currObj, "userPrincipalName");
-    std::string userStr = json_node_get_string(user);
-    std::cout<< "\nThis is the princip[al name: " + userStr + "\n";
-
-}
 
 void fetchUsersInfoCallback(SoupSession *session, SoupMessage *msg, gpointer user_data){
 
@@ -125,72 +117,62 @@ void fetchUsersInfoCallback(SoupSession *session, SoupMessage *msg, gpointer use
     GError *err;
 
     if(json_parser_load_from_file(parser,credFilename.c_str(),&err)){
-        std::cout<<"\nHey, I am able to parse this file :D How cool!\n";
+        //using JsonObject* to read the array from here rather than from a JsonNode* since array is a complex type
+        JsonNode* root= json_parser_get_root(parser);
+        JsonObject* rootObj= json_node_get_object(root); 
+        JsonArray* arr= json_object_get_array_member(rootObj, "value");
 
-         JsonReader *reader = json_reader_new(json_parser_get_root(parser));
-         JsonNode* root= json_parser_get_root(parser);
-         JsonObject* rootObj= json_node_get_object(root); //getting the object to read the array from here rather than from a JsonNode* since this is a complex type
-         JsonArray* arr= json_object_get_array_member(rootObj, "value");
-
-         //json_reader_read_member(reader,"value");
-         //json_reader_read_element (reader, 0);
-         //json_reader_set_root(reader,json_parser_get_root(parser));
-        std::cout << "Is the reader standing on an array right now? "<<json_reader_is_array(reader);
-
-        std::cout<< "\n Count: "<<json_reader_count_elements(reader)<<"\n";
-        std::cout << "\n\nIs Object?  "<<json_reader_is_object(reader) << "\n\n";
-    //     //initlly 1 
-
-        //JsonArray* arr= (JsonArray*)json_reader_get_value(reader);
-        //json_reader_read_element (reader, 0);
-        //std::cout << "\n now? "<<json_reader_is_array(reader);
-        //std::cout<<"\nReader [0]: "<<json_reader_get_string_value(reader)<<"\n";
-
-        //JsonNode* node= json_reader_get_value(reader);
-/*        GValue* g=nullptr;
-        json_node_get_value(node, g);
-        JsonArray* arr= (JsonArray*)g;
-*/
-        // std::cout<< "\n Hold Array: "<<JSON_NODE_HOLDS_ARRAY(node)<<"\n";
-        //JsonArray* arr = json_node_get_array(node);
-
-
-        //json_reader_read_element (reader, 1);
-
-        //json_reader_read_member(reader,"givenName");
-
-        //std::string first=json_reader_get_string_value(reader);
-        
-        // for(int i=0; i<2; i++){
-        //     JsonNode* value;
-        json_array_foreach_element(arr, JsonArraForEach_Function, user_data); //(* JsonArrayForeach) expecting a fuinction of this type and I am not sure what this entails
-        //}
-
+        json_array_foreach_element(arr, jsonArrayGetUsers, user_data);
     }
      else{
         g_print ("Unable to parse '%s': %s\n", credFilename.c_str(), err->message);
         g_error_free (err);
         g_object_unref (parser);
-
     }
 
-    //displayResponseInfo( msg, "fetchUsersInfo.local.json");
+    displayResponseInfo( msg, true, "fetchUsersInfo.local.json");
 
     GMainLoop *loop = (GMainLoop *) user_data;
     g_main_loop_quit(loop);
 }
 
+//Function that gets executed for each element of the Json Array
+void jsonArrayGetUsers (  JsonArray* array,  guint index_,  JsonNode* element_node,  gpointer user_data) {  
+    //std::cout<<"Currently in iteration " + std::to_string((int)index_); //Debug Statement
 
-//This function extracts information from the response object and displays it to the console 
-//It also supports the option to print the info to a file given the finelame and extension
+    JsonObject* currObj =json_array_get_object_element(array, index_);  //current array object being disected
+    JsonNode* userInfo =json_object_get_member(currObj, "displayName"); //member name here
+    std::string userInfoStr = json_node_get_string(userInfo);
+    std::cout<< "\nThis is the principal name: " + userInfoStr + "\n\n";
+
+    //additional members available that can be need-based accessed
+    /*
+        "userPrincipalName"
+        "givenName"
+        "surname"
+        "email"
+        "userType" 
+        "isShortProfile" 
+        "displayName"
+        "type"
+        "mri"
+        "objectId"
+    */
+}
+
+
+//This function extracts information from the response object 
+//It displays the response to the console if shouldPrint is true
+//It also supports the option to print to a file given its name with extension
 //To only print to console pass in an empty string
-void displayResponseInfo( SoupMessage *msg, std::string filename){
-    
-    if (msg->status_code >= 200 && msg->status_code < 300){
-        g_print("Response: %s\n",msg->response_body->data);
-    }
-    else{
-        g_printerr("ERROR: Code: %d\n",msg->status_code);
+void displayResponseInfo( SoupMessage *msg,  bool shouldPrint, std::string filename){
+    if(shouldPrint){
+        if (msg->status_code >= 200 && msg->status_code < 300){
+            g_print("Response: %s\n",msg->response_body->data);
+        }
+        else{
+            g_printerr("ERROR: Code: %d\n",msg->status_code);
+        }
     }
     
     if(filename != ""){ //if it's not an empty string means you want info printed to a file
@@ -198,7 +180,7 @@ void displayResponseInfo( SoupMessage *msg, std::string filename){
         if (responseFile.is_open()) {
                 responseFile << msg->response_body->data;
                 responseFile.close();
-                std::cout<<"\n Wrote response to file: " + filename + "\n";
+                std::cout<<"\nWrote response to file: " + filename + "\n";
         }
        
     }

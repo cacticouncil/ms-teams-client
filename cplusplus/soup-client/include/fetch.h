@@ -13,5 +13,5 @@ void fetchChannelMessages(std::string& chatSvcAggToken, std::string& teamId, std
 void fetchChannelMessagesCallback(SoupSession *session, SoupMessage *msg, gpointer user_data);
 void fetchUsersInfo(SoupSession *session, std::string &chatSvcAggToken, GMainLoop* loop, std::vector<std::string>& userIds);
 void fetchUsersInfoCallback(SoupSession *session, SoupMessage *msg, gpointer user_data);
-void displayResponseInfo( SoupMessage *msg, std::string filename);
-void JsonArraForEach_Function(  JsonArray* array,  guint index_,  JsonNode* element_node,  gpointer user_data);
+void jsonArrayGetUsers(  JsonArray* array,  guint index_,  JsonNode* element_node,  gpointer user_data);
+void displayResponseInfo( SoupMessage *msg, bool shouldPrint, std::string filename);
