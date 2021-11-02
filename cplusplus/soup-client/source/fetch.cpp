@@ -50,8 +50,35 @@ void fetchTeamsCallback(SoupSession *session, SoupMessage *msg, gpointer user_da
 
     displayResponseInfo( msg, true, "fetchTeamsInfo.local.json");
 
+    std::string credFilename = "fetchTeamsInfo.local.json";
+    JsonParser *parser = json_parser_new();
+    GError *err;
+
+    if(json_parser_load_from_file(parser,credFilename.c_str(),&err)){
+        //using JsonObject* to read the array from here rather than from a JsonNode* since array is a complex type
+        JsonNode* root= json_parser_get_root(parser);
+        JsonObject* rootObj= json_node_get_object(root); 
+        JsonArray* arr= json_object_get_array_member(rootObj, "teams");
+
+        json_array_foreach_element(arr, jsonArrayFetchTeams, user_data);
+    }
+     else{
+        g_print ("Unable to parse '%s': %s\n", credFilename.c_str(), err->message);
+        g_error_free (err);
+        g_object_unref (parser);
+    }
+
     GMainLoop *loop = (GMainLoop *) user_data;
     g_main_loop_quit(loop);
+}
+
+void jsonArrayFetchTeams(  JsonArray* array,  guint index_,  JsonNode* element_node,  gpointer user_data){
+
+    JsonObject* currObj =json_array_get_object_element(array, index_);  //current array object being disected
+    JsonNode* userInfo =json_object_get_member(currObj, "displayName"); //member name here
+    std::string userInfoStr = json_node_get_string(userInfo);
+    std::cout<< "\nTeam: " + userInfoStr + "\n\n";
+
 }
 
 //This function is used to obtain the messages associated with a specific team channel

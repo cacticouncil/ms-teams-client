@@ -15,11 +15,11 @@
 int main(int argc, char *argv[]){
 
     // std::cout<<"\n\n Fetching Teams Next: \n\n";
-    // testFetchTeams();
+    return testFetchTeams();
     // std::cout<<"\n\n Fetching Channel Message Next: \n\n";
     // testFetchChannelMessage(); 
     //std::cout<<"\n\n Fetching Users Info Next: \n\n";
-    return testingFetchUsers();
+    //return testingFetchUsers();
     
     /***TESTING ISOLATED FUNCTIONALITY***/
     //return testPolling();
