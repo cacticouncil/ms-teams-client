@@ -13,21 +13,17 @@
 #include "../include/admin.h"
 
 int main(int argc, char *argv[]){
+
+    // std::cout<<"\n\n Fetching Teams Next: \n\n";
+    // testFetchTeams();
+    // std::cout<<"\n\n Fetching Channel Message Next: \n\n";
+    // testFetchChannelMessage(); 
+    //std::cout<<"\n\n Fetching Users Info Next: \n\n";
+    return testingFetchUsers();
+    
+    /***TESTING ISOLATED FUNCTIONALITY***/
     //return testPolling();
     //return  testFetching();
-    //return  testFetchChannelMessage();
-    //"fetchChannelMessagesInfo.txt"
-    /*   if (argc < 2)
-    {
-      g_print ("Usage: test <filename.json>\n");
-      return EXIT_FAILURE;
-    }
-    */
-    // std::string filename = "fetchTeamsInfo.txt";
-    // return testingJson(filename);
-
-    return testingFetchUsers();
-    //return testFetchChannelMessage();
     //return testMessaging();
     //return  testCreateTeam();
     //return testCred();
@@ -187,7 +183,7 @@ int testSoup(){
 }
 
 //testing fetchTeams Sync/Async options
-int testFetching(){
+int testFetchTeams(){
     std::string skypeToken;
     std::string chatSvcAggToken;
     std::string skypeSpacesToken;
@@ -209,8 +205,6 @@ int testFetching(){
 }
 
 int testFetchChannelMessage(){
-    std::cout <<"Starting the test"<<std::endl;
-
     std::string skypeToken;
     std::string chatSvcAggToken;
     std::string skypeSpacesToken;
@@ -227,7 +221,6 @@ int testFetchChannelMessage(){
     g_main_loop_unref (loop);
 
     return 0;
-
 }
 
 int testingFetchUsers(){ 
@@ -280,29 +273,50 @@ int testCreateTeam(){
 }
 
 //This testing did not turn out super useful XD
-int testingJson(std::string filename){
-    JsonParser *parser;
-    JsonNode *root;
-    GError *error;
-    parser = json_parser_new ();
+int testingJson(){
 
-    error = NULL;
-    json_parser_load_from_file (parser,filename.c_str(), &error);
-    if (error){
-        g_print ("Unable to parse `%s': %s\n", filename.c_str(), error->message);
-        g_error_free (error);
-        g_object_unref (parser);
-        return EXIT_FAILURE;
-    }
+    // std::string credFilename = "fetchUsersInfo.local.json";
+    // JsonParser *parser = json_parser_new();
+    // GError *err;
 
-    g_print("Got past error section just fine");
-    root = json_parser_get_root (parser);
-    JsonReader *reader = json_reader_new (root);
-    //reader->parent_instance.qdata;
+    // if(json_parser_load_from_file(parser,credFilename.c_str(),&err)){
+    //     std::cout<<"\nHey, I am able to parse this file :D How cool!\n";
 
-    /* manipulate the object tree and then exit */
+    //     JsonReader *reader = json_reader_new(json_parser_get_root(parser));
+    //     json_reader_read_member(reader,"value");
+    //     std::cout<< json_reader_get_string_value (reader);        
+    //     json_reader_set_root(reader,json_parser_get_root(parser));
+    //     std::cout << "Is the reader standing on an array right now? What about now? "<<json_reader_is_array(reader) + "\n";
 
-    g_object_unref (parser);
-    
+    //     json_reader_read_member(reader,"userPrincipalName");
+    //     std::cout<< json_reader_get_string_value (reader);
+    //     // json_reader_set_root(reader,json_parser_get_root(parser));
+    //     // std::string temp=json_reader_get_string_value(reader);
+    //     // std::cout<<"\n guat?" + temp + "\n";
+    //     // //JsonArray* arr= (JsonArray*)json_reader_get_value(reader);
+
+    //     // json_reader_read_element (reader, 0);
+
+    //     // json_reader_read_member(reader,"givenName");
+
+    //     // // std::string first=json_reader_get_string_value(reader);
+
+    //     // const char *str_value = NULL;
+
+    //     // //json_reader_read_element (reader, 0);
+    //     // str_value = json_reader_get_string_value (reader);
+    //     //json_reader_end_element (reader);
+
+    //     // json_reader_read_element (reader, 2);
+    //     // str_value = json_reader_get_string_value (reader);
+    //     // json_reader_end_element (reader);
+    // }
+    // else{
+    //     g_print ("Unable to parse '%s': %s\n", credFilename.c_str(), err->message);
+    //     g_error_free (err);
+    //     g_object_unref (parser);
+
+    // }
+
     return 0;
 }
