@@ -79,6 +79,8 @@ void jsonArrayFetchTeams(  JsonArray* array,  guint index_,  JsonNode* element_n
     std::string userInfoStr = json_node_get_string(userInfo);
     std::cout<< "\nTeam: " + userInfoStr + "\n\n";
 
+    //Next I will attempt to get a list of channels per Team as well
+
 }
 
 //This function is used to obtain the messages associated with a specific team channel
