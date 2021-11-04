@@ -75,12 +75,44 @@ void fetchTeamsCallback(SoupSession *session, SoupMessage *msg, gpointer user_da
 void jsonArrayFetchTeams(  JsonArray* array,  guint index_,  JsonNode* element_node,  gpointer user_data){
 
     JsonObject* currObj =json_array_get_object_element(array, index_);  //current array object being disected
-    JsonNode* userInfo =json_object_get_member(currObj, "displayName"); //member name here
-    std::string userInfoStr = json_node_get_string(userInfo);
-    std::cout<< "\nTeam: " + userInfoStr + "\n\n";
+    JsonNode* teamName =json_object_get_member(currObj, "displayName"); //member name here
+    std::string teamNameStr = json_node_get_string(teamName);
+
+    JsonNode* teamId =json_object_get_member(currObj, "id"); //member name here
+    std::string teamIdStr = json_node_get_string(teamId);
+
+    std::cout<< "\nTeam: " + teamNameStr + "\n\n";
+
+    std::cout<< "Id: " + teamIdStr + "\n";
 
     //Next I will attempt to get a list of channels per Team as well
 
+    std::cout<< "Channel List:\n";
+
+
+    //My attempt to go into the other array
+    JsonArray* channelArr= json_object_get_array_member(currObj, "channels");
+
+    json_array_foreach_element(channelArr, jsonArrayChannelList, user_data);
+
+}
+
+void jsonArrayChannelList(  JsonArray* array,  guint index_,  JsonNode* element_node,  gpointer user_data){
+    JsonObject* currObj =json_array_get_object_element(array, index_);  //current array object being disected
+    JsonNode* channelName =json_object_get_member(currObj, "displayName"); //member name here
+    std::string channelNameStr = json_node_get_string(channelName);
+
+    JsonNode* channelId =json_object_get_member(currObj, "id"); //member name here
+    std::string channelIdStr = json_node_get_string(channelId);
+
+    std::cout<< channelNameStr + "\n";
+
+    std::cout<< "Id: " + channelIdStr + "\n";
+
+    //Not sure exactly whcih one of these does what so I'll have to do some testing of my own to see whihc one to use for new messge vs for reply to last message
+    // "version": 1635343945368,
+    // "threadVersion": 1635300285998,
+    
 }
 
 //This function is used to obtain the messages associated with a specific team channel

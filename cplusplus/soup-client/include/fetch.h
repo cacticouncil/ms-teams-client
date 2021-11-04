@@ -17,5 +17,6 @@ void fetchUsersInfoCallback(SoupSession *session, SoupMessage *msg, gpointer use
 
 void jsonArrayGetUsers(  JsonArray* array,  guint index_,  JsonNode* element_node,  gpointer user_data);
 void jsonArrayFetchTeams(  JsonArray* array,  guint index_,  JsonNode* element_node,  gpointer user_data);
+void jsonArrayChannelList(  JsonArray* array,  guint index_,  JsonNode* element_node,  gpointer user_data);
 
 void displayResponseInfo( SoupMessage *msg, bool shouldPrint, std::string filename);
