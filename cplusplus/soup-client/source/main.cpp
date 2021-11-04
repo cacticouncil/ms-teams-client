@@ -15,11 +15,11 @@
 int main(int argc, char *argv[]){
 
     // std::cout<<"\n\n Fetching Teams Next: \n\n";
-    // testFetchTeams();
+    return testFetchTeams();
     // std::cout<<"\n\n Fetching Channel Message Next: \n\n";
     // testFetchChannelMessage(); 
     //std::cout<<"\n\n Fetching Users Info Next: \n\n";
-    return testingFetchUsers();
+    //return testingFetchUsers();
     
     /***TESTING ISOLATED FUNCTIONALITY***/
     //return testPolling();
@@ -31,7 +31,9 @@ int main(int argc, char *argv[]){
 
 //read auth creds from local file
 bool readCredentials(std::string &skypeToken,std::string &chatSvcAggToken,std::string &skypeSpacesToken) {
-    std::string credFilename = "ms-teams-credentials.local.json";
+    // Add this to the front of the path if generated credentials with npm run login directly from the ms-teams-client directory "../../"
+    // Leave it as "ms-teams-credentials.local.json" if running the python script from soup-client dir
+    std::string credFilename = "../../ms-teams-credentials.local.json"; 
 
     JsonParser *parser = json_parser_new();
     GError *err;
