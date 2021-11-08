@@ -1,7 +1,7 @@
 #pragma once
-#include <string>
 
-bool readCredentials(std::string &skypeToken, std::string &chatSvcAggToken, std::string &skypeSpacesToken);
+int testScript();
+bool readCredentials(std::string &skypeToken, std::string &chatSvcAggToken, std::string &skypeSpacesToken, std::string &currUserId);
 
 int testCred();
 int testPolling();

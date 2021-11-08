@@ -8,7 +8,7 @@
 #include "../include/polling.h"
 
 //fetches the initial endpoint for polling
-void fetchPollingEndpoint(SoupSession *session, GMainLoop *loop, std::string &skypeToken){
+void initPolling(SoupSession *session, GMainLoop *loop, std::string &skypeToken){
     //initialize soup message with url and method
     std::string url = "https://amer.ng.msg.teams.microsoft.com/v2/users/ME/endpoints/";
     std::string id = g_uuid_string_random();
@@ -68,7 +68,7 @@ void ArrayCallback(JsonArray* arr,guint index,JsonNode *elem,gpointer user_data)
     std::string channelType = json_object_get_string_member(obj,"channelType");
     if(channelType == "HttpLongPoll"){
         std::string endpointUrl = json_object_get_string_member(obj,"longPollUrl");
-        g_print("URL: %s",endpointUrl.c_str());
+        g_print("URL: %s\n",endpointUrl.c_str());
         *(std::string*)user_data = endpointUrl.c_str();
     }
 }
