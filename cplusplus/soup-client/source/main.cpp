@@ -11,6 +11,7 @@
 #include "../include/messaging.h"
 #include "../include/fetch.h"
 #include "../include/admin.h"
+#include "../include/app.h"
 
 int main(int argc, char *argv[]){
 
@@ -22,13 +23,15 @@ int main(int argc, char *argv[]){
     //return testingFetchUsers();
     
     /***TESTING ISOLATED FUNCTIONALITY***/
-    return testPolling();
+    //return testPolling();
     //return  testFetching();
     //return testMessaging();
     //return  testCreateTeam();
     //return testCred();
 
     //return testScript();
+
+    return runConsoleApp();
 }
 
 int testScript(){

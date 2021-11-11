@@ -58,7 +58,8 @@ function createWindow() {
       // write credentials to file and exit
       // this implementation should be changed soon, but for reverse engineering, this is fine
       fs.writeFileSync('ms-teams-credentials.local.json', JSON.stringify(details))
-      process.exit(0)
+      app.quit()
+      //process.exit(0)
     })
   })
 }
