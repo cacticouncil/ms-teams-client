@@ -49,7 +49,7 @@ bool readCredentials(std::string &skypeToken,std::string &chatSvcAggToken,std::s
     std::string credFilename = "../../ms-teams-credentials.local.json"; 
 
     JsonParser *parser = json_parser_new();
-    GError *err;
+    GError *err = NULL;
 
     if(json_parser_load_from_file(parser,credFilename.c_str(),&err)){
         JsonReader *reader = json_reader_new(json_parser_get_root(parser));

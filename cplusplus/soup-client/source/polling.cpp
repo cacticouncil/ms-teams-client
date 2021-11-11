@@ -37,7 +37,7 @@ void pollEndpointCallback(SoupSession *session, SoupMessage *msg, gpointer user_
     }
 
     JsonParser *parser = json_parser_new();
-    GError *err;
+    GError *err = NULL;
 
     if(json_parser_load_from_data(parser,msg->response_body->data,strlen(msg->response_body->data),&err)){
         JsonNode *root = json_parser_get_root(parser);
@@ -95,7 +95,7 @@ void pollCallback(SoupSession *session, SoupMessage *msg, gpointer user_data){
     }
 
     JsonParser *parser = json_parser_new();
-    GError *err;
+    GError *err = NULL;
 
     if(json_parser_load_from_data(parser,msg->response_body->data,strlen(msg->response_body->data),&err)){
         JsonReader *reader = json_reader_new(json_parser_get_root(parser));
