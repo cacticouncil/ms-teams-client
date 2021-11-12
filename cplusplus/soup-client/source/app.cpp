@@ -34,9 +34,9 @@ int runConsoleApp(){
     }
     else{
         bool status = checkCredentialsValid();
-        if(!status) system("./trigger-login.sh");
+        /* if(!status) system("./trigger-login.sh"); */
         status = readCredentialsOnly(skypeToken, chatSvcAggToken, skypeSpacesToken, currUserId);
-        if(!status || !checkCredentialsValid()){
+        if(!status /* || !checkCredentialsValid() */){
             std::cout << "ERROR: Invalid credentials! Exiting...\n";
             return 1;
         };
@@ -97,7 +97,9 @@ void displayMain(SoupSession *session, GMainLoop *loop, std::string &skypeToken)
     std::getline(std::cin,input);
     if(input == "1"){
         std::cout << "Sending message...\n";
-        sendChannelMessage(session,loop,msgtext,skypeToken,channelId,sendMessageCallback);
+        std::string tokenPrefix = "skypetoken=";
+        std::string unprefixedToken = skypeToken.substr(tokenPrefix.size(),std::string::npos);
+        sendChannelMessage(session,loop,msgtext,unprefixedToken,channelId,sendMessageCallback);
         msgCt++;
     }
     else if(input == "q"){
@@ -117,7 +119,7 @@ bool checkCredentialsValid(){
     if(json_parser_load_from_file(parser,credFilename.c_str(),&err)){
         JsonReader *reader = json_reader_new(json_parser_get_root(parser));
 
-        json_reader_read_member(reader,"authSkype");
+        json_reader_read_member(reader,"skypeSpacesToken");
         json_reader_read_member(reader,"expiration");
         int expirationTime = json_reader_get_int_value(reader);
         int currTime = std::time(nullptr);
