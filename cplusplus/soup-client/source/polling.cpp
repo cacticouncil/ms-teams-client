@@ -8,7 +8,7 @@
 #include "../include/polling.h"
 
 //fetches the initial endpoint for polling
-void initPolling(SoupSession *session, GMainLoop *loop, std::string &skypeToken){
+void initPolling(SoupSession *session, GMainLoop *loop, std::string &skypeToken, SoupSessionCallback initPollingCallback){
     //initialize soup message with url and method
     std::string url = "https://amer.ng.msg.teams.microsoft.com/v2/users/ME/endpoints/";
     std::string id = g_uuid_string_random();
@@ -24,11 +24,23 @@ void initPolling(SoupSession *session, GMainLoop *loop, std::string &skypeToken)
     soup_message_headers_append(msg->request_headers,"Authentication",tokenstr.c_str());
 
     //send async message request
-    soup_session_queue_message(session,msg,pollEndpointCallback,loop);
+    soup_session_queue_message(session,msg,initPollingCallback,loop);
+}
+
+//poll endpoint for changes
+void poll(SoupSession *session, GMainLoop *loop, std::string &skypeToken, std::string &endpointUrl, SoupSessionCallback pollingCallback){
+    //init msg with endpoint url
+    SoupMessage *msg = soup_message_new(SOUP_METHOD_GET,endpointUrl.c_str());
+
+    //set request auth header token
+    soup_message_headers_append(msg->request_headers,"Authentication",skypeToken.c_str());
+
+    //send async message request
+    soup_session_queue_message(session,msg,pollingCallback,loop);
 }
 
 //callback after polling endpoint is fetched, intiates polling chain
-void pollEndpointCallback(SoupSession *session, SoupMessage *msg, gpointer user_data){
+void initPollCallback(SoupSession *session, SoupMessage *msg, gpointer user_data){
     if(msg->status_code >= 200 && msg->status_code < 300){
         g_print("Response: %s\n",msg->response_body->data);
     }
@@ -51,7 +63,7 @@ void pollEndpointCallback(SoupSession *session, SoupMessage *msg, gpointer user_
 
         std::string skypeToken = soup_message_headers_get_one(msg->request_headers,"Authentication");
         //poll next endpoint for changes
-        poll(session,(GMainLoop *)user_data,skypeToken,endpointUrl);
+        poll(session,(GMainLoop *)user_data,skypeToken,endpointUrl,pollCallback);
     }
     else{
         g_printerr("ERROR: Unable to parse response: %s\n", err->message);
@@ -71,18 +83,6 @@ void ArrayCallback(JsonArray* arr,guint index,JsonNode *elem,gpointer user_data)
         g_print("URL: %s\n",endpointUrl.c_str());
         *(std::string*)user_data = endpointUrl.c_str();
     }
-}
-
-//poll endpoint for changes
-void poll(SoupSession *session, GMainLoop *loop, std::string &skypeToken, std::string &endpointUrl){
-    //init msg with endpoint url
-    SoupMessage *msg = soup_message_new(SOUP_METHOD_GET,endpointUrl.c_str());
-
-    //set request auth header token
-    soup_message_headers_append(msg->request_headers,"Authentication",skypeToken.c_str());
-
-    //send async message request
-    soup_session_queue_message(session,msg,pollCallback,loop);
 }
 
 //callback after poll returns with change
@@ -108,7 +108,7 @@ void pollCallback(SoupSession *session, SoupMessage *msg, gpointer user_data){
 
         std::string skypeToken = soup_message_headers_get_one(msg->request_headers,"Authentication");
         //poll next endpoint for changes
-        poll(session,(GMainLoop *)user_data,skypeToken,endpointUrl);
+        poll(session,(GMainLoop *)user_data,skypeToken,endpointUrl,pollCallback);
     }
     else{
         g_printerr("ERROR: Unable to parse response: %s\n", err->message);

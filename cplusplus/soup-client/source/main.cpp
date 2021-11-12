@@ -23,9 +23,9 @@ int main(int argc, char *argv[]){
     //return testingFetchUsers();
     
     /***TESTING ISOLATED FUNCTIONALITY***/
-    //return testPolling();
+    return testPolling();
     //return  testFetching();
-    return testMessaging();
+    //return testMessaging();
     //return  testCreateTeam();
     //return testCred();
 
@@ -114,7 +114,7 @@ int testPolling(){
 
     SoupSession *session = soup_session_new();
 
-    initPolling(session,loop,skypeToken);
+    initPolling(session,loop,skypeToken,initPollCallback);
 
     g_main_loop_run(loop);
 
@@ -290,9 +290,9 @@ int testCreateTeam(){
     std::string teamId = "19:0MaeOcpNpAX-HchAP2Z8xnw6j_QYsq6htWoAsD94QxY1@thread.tacv2";
     //19:0MaeOcpNpAX-HchAP2Z8xnw6j_QYsq6htWoAsD94QxY1@thread.tacv2
     std::string name = "Fresh Channel";
-    //createTeamName(session,loop,skypeSpacesToken,name);
+    createTeamName(session,loop,skypeSpacesToken,name,validateNameCallback);
 	//createTeam(session,loop,skypeSpacesToken,name,description);
-    createChannel(session,loop,skypeSpacesToken,teamId,name);
+    //createChannel(session,loop,skypeSpacesToken,teamId,name);
 
     g_main_loop_run (loop);
 
