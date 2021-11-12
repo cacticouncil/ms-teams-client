@@ -8,7 +8,7 @@
 #include "../include/polling.h"
 
 //fetches the initial endpoint for polling
-void fetchPollingEndpoint(SoupSession *session, GMainLoop *loop, std::string &skypeToken){
+void initPolling(SoupSession *session, GMainLoop *loop, std::string &skypeToken){
     //initialize soup message with url and method
     std::string url = "https://amer.ng.msg.teams.microsoft.com/v2/users/ME/endpoints/";
     std::string id = g_uuid_string_random();
@@ -35,17 +35,6 @@ void pollEndpointCallback(SoupSession *session, SoupMessage *msg, gpointer user_
     else{
         g_printerr("ERROR: Code: %d\n",msg->status_code);
     }
-
-    /* //extracts endpoint url from response
-    std::cmatch match;
-    std::regex expr("\"longPollUrl\":\"([^\"]*)\"");
-
-    if(std::regex_search(msg->response_body->data,match,expr)){
-        std::string skypeToken = soup_message_headers_get_one(msg->request_headers,"Authentication");
-        std::string endpointUrl = match[1];
-        //poll endpoint for changes
-        poll(session,(GMainLoop *)user_data,skypeToken,endpointUrl);
-    } */
 
     JsonParser *parser = json_parser_new();
     GError *err;
@@ -78,9 +67,8 @@ void ArrayCallback(JsonArray* arr,guint index,JsonNode *elem,gpointer user_data)
     JsonObject* obj = json_node_get_object(elem);
     std::string channelType = json_object_get_string_member(obj,"channelType");
     if(channelType == "HttpLongPoll"){
-        g_print("Channel type: %s",channelType.c_str());
         std::string endpointUrl = json_object_get_string_member(obj,"longPollUrl");
-        g_print("URL: %s",endpointUrl.c_str());
+        g_print("URL: %s\n",endpointUrl.c_str());
         *(std::string*)user_data = endpointUrl.c_str();
     }
 }

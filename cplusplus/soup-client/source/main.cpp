@@ -22,15 +22,25 @@ int main(int argc, char *argv[]){
     //return testingFetchUsers();
     
     /***TESTING ISOLATED FUNCTIONALITY***/
-    //return testPolling();
+    return testPolling();
     //return  testFetching();
     //return testMessaging();
     //return  testCreateTeam();
     //return testCred();
+
+    //return testScript();
+}
+
+int testScript(){
+    system("./trigger-login.sh");
+    std::cout << "Post script\n";
+    return 0;
 }
 
 //read auth creds from local file
-bool readCredentials(std::string &skypeToken,std::string &chatSvcAggToken,std::string &skypeSpacesToken) {
+bool readCredentials(std::string &skypeToken,std::string &chatSvcAggToken,std::string &skypeSpacesToken, std::string &currUserId) {
+    system("./trigger-login.sh");
+
     // Add this to the front of the path if generated credentials with npm run login directly from the ms-teams-client directory "../../"
     // Leave it as "ms-teams-credentials.local.json" if running the python script from soup-client dir
     std::string credFilename = "../../ms-teams-credentials.local.json"; 
@@ -55,6 +65,10 @@ bool readCredentials(std::string &skypeToken,std::string &chatSvcAggToken,std::s
         json_reader_read_member(reader,"token");
         skypeSpacesToken = json_reader_get_string_value(reader);
 
+        json_reader_set_root(reader,json_parser_get_root(parser));
+        json_reader_read_member(reader,"oid");
+        currUserId = json_reader_get_string_value(reader);
+
         g_object_unref(reader);
         g_object_unref(parser);
         return true;
@@ -71,11 +85,14 @@ int testCred(){
     std::string skypeToken;
 	std::string chatSvcAggToken;
     std::string skypeSpacesToken;
+    std::string currUserId;
 
-    bool status = readCredentials(skypeToken, chatSvcAggToken, skypeSpacesToken);
+    bool status = readCredentials(skypeToken, chatSvcAggToken, skypeSpacesToken, currUserId);
     if(status){
         std::cout << "<<<" << skypeToken << ">>>\n";
         std::cout << "\n<<<" << chatSvcAggToken << ">>>\n";
+        std::cout << "\n<<<" << skypeSpacesToken << ">>>\n";
+        std::cout << "\nUser ID: " << currUserId << "\n";
 
         return 0;
     }
@@ -87,13 +104,14 @@ int testPolling(){
     std::string skypeToken;
 	std::string chatSvcAggToken;
     std::string skypeSpacesToken;
-    readCredentials(skypeToken, chatSvcAggToken, skypeSpacesToken);
+    std::string currUserId;
+    readCredentials(skypeToken, chatSvcAggToken, skypeSpacesToken, currUserId);
 
     GMainLoop *loop = g_main_loop_new(NULL,false);
 
     SoupSession *session = soup_session_new();
 
-    fetchPollingEndpoint(session,loop,skypeToken);
+    initPolling(session,loop,skypeToken);
 
     g_main_loop_run(loop);
 
@@ -108,7 +126,8 @@ int testMessaging(){
     std::string skypeToken;
 	std::string chatSvcAggToken;
     std::string skypeSpacesToken;
-    readCredentials(skypeToken, chatSvcAggToken, skypeSpacesToken);
+    std::string currUserId;
+    readCredentials(skypeToken, chatSvcAggToken, skypeSpacesToken, currUserId);
 
     GMainLoop *loop = g_main_loop_new(NULL,false);
 
@@ -118,6 +137,7 @@ int testMessaging(){
     //message id
     std::string messageId = "1634591623619";
 
+    //I would replace these w/ currUserId, but atm it wouldn't work since both of us log in (would require fetchTeams(?) first I believe)
     //John id
 	std::string senderUserId = "fdb3a4e9-675d-497e-acfe-4fd208f8ad89";
 	//Olga id
@@ -125,7 +145,7 @@ int testMessaging(){
 
     SoupSession *session = soup_session_new();
 
-    std::string msgtext = "testing credentials via json lib";
+    std::string msgtext = "Logged in via bash script triggered from native code";
     //sendMessageSync(session,msgtext,skypeToken,channelId);
     sendChannelMessage(session,loop,msgtext,skypeToken,channelId);
     //sendReplyMessage(session,loop,msgtext,skypeToken,channelId,messageId);
@@ -189,7 +209,8 @@ int testFetchTeams(){
     std::string skypeToken;
     std::string chatSvcAggToken;
     std::string skypeSpacesToken;
-    readCredentials(skypeToken, chatSvcAggToken, skypeSpacesToken);
+    std::string currUserId;
+    readCredentials(skypeToken, chatSvcAggToken, skypeSpacesToken, currUserId);
 
     GMainLoop *loop = g_main_loop_new (NULL, FALSE);
     SoupSession *session = soup_session_new();
@@ -207,7 +228,8 @@ int testFetchChannelMessages(){
     std::string skypeToken;
     std::string chatSvcAggToken;
     std::string skypeSpacesToken;
-    readCredentials(skypeToken, chatSvcAggToken, skypeSpacesToken);
+    std::string currUserId;
+    readCredentials(skypeToken, chatSvcAggToken, skypeSpacesToken, currUserId);
     
 	//John/Olga Team
     std::string teamId = "19:0MaeOcpNpAX-HchAP2Z8xnw6j_QYsq6htWoAsD94QxY1@thread.tacv2";
@@ -230,8 +252,10 @@ int testingFetchUsers(){
     std::string skypeToken;
     std::string chatSvcAggToken;
     std::string skypeSpacesToken;
-    readCredentials(skypeToken, chatSvcAggToken, skypeSpacesToken);
+    std::string currUserId;
+    readCredentials(skypeToken, chatSvcAggToken, skypeSpacesToken, currUserId);
 
+    //same story as b4 w/ replacing one w/ currUserId
 	std::string JohnId = "fdb3a4e9-675d-497e-acfe-4fd208f8ad89";
 	std::string OlgaId = "7b30ff05-51b2-490a-b28b-2d8ac36cad8e";
     
@@ -255,7 +279,8 @@ int testCreateTeam(){
     std::string skypeToken;
     std::string chatSvcAggToken;
     std::string skypeSpacesToken;
-    readCredentials(skypeToken, chatSvcAggToken, skypeSpacesToken);
+    std::string currUserId;
+    readCredentials(skypeToken, chatSvcAggToken, skypeSpacesToken, currUserId);
 
     GMainLoop* loop = g_main_loop_new(NULL, FALSE);
     SoupSession *session = soup_session_new();
