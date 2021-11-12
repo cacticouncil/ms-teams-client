@@ -113,7 +113,6 @@ bool displayMain(gpointer user_data){
         std::string unprefixedToken = (*skypeToken).substr(tokenPrefix.size(),std::string::npos);
         sendChannelMessage(session,loop,msgtext,unprefixedToken,channelId,sendMessageCallback);
         msgCt++;
-        return true;
     }
     else if(input == "q"){
         g_main_loop_quit(loop);
@@ -122,6 +121,8 @@ bool displayMain(gpointer user_data){
     else{
         return true;
     }
+
+    return true;
 }
 
 void displayMainUnsource(SoupSession *session, GMainLoop *loop, std::string &skypeToken){
@@ -165,13 +166,13 @@ bool checkCredentialsValid(){
         json_reader_read_member(reader,"expiration");
         int expirationTime = json_reader_get_int_value(reader);
         int currTime = std::time(nullptr);
-        int timeRemaining = currTime - expirationTime;
+        int timeRemaining = expirationTime - currTime;
 
         g_object_unref(reader);
         g_object_unref(parser);
 
         bool valid = timeRemaining > 0;
-        std::cout << "Valid: " << valid << " (" << currTime << "-" << expirationTime << ")" << "\n";
+        std::cout << "Valid: " << valid << " (" << expirationTime << "-" << currTime << ")" << "\n";
         return valid;
     }
     else{
