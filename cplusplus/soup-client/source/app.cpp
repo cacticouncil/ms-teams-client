@@ -35,9 +35,63 @@ int runConsoleApp(){
         bool status = checkCredentialsValid();
         if(!status) system("./trigger-login.sh");
         status = readCredentialsOnly(skypeToken, chatSvcAggToken, skypeSpacesToken, currUserId);
-        if(!status) return 1;
+        if(!status || !checkCredentialsValid()){
+            std::cout << "ERROR: Invalid credentials! Exiting...\n";
+            return 1;
+        };
         std::cout << "Signed in as " << currUserId << "\n";
     }
+
+    /* polling
+
+    team1 - channel
+    team2
+    team3
+
+    Select: team1
+    Delete: 123
+    create:
+    Team: vjnfvnn
+
+    channel
+    teamId
+
+    Messages:
+    msg1
+        -msg1.1
+        -msg1.2
+    msg2
+    msg3
+
+    input: 1
+    msg texT:
+
+    input: 2
+    select msg: 5
+    msg text: jsfiusbuifbisudb
+
+    mainloop.run
+
+    mainloop.dispatch
+
+    event -> handler
+
+    input: teamname
+
+    while(events in queue){
+        if(teamid null){
+            print teams
+            cin << team input
+            teamid = 
+        }
+        else if (){
+            print channels
+            user prompt << b
+            cin <<
+            teamid =null
+        }
+    } */
+
 
     return 0;
 }

@@ -25,13 +25,13 @@ int main(int argc, char *argv[]){
     /***TESTING ISOLATED FUNCTIONALITY***/
     //return testPolling();
     //return  testFetching();
-    //return testMessaging();
+    return testMessaging();
     //return  testCreateTeam();
     //return testCred();
 
     //return testScript();
 
-    return runConsoleApp();
+    //return runConsoleApp();
 }
 
 int testScript(){
@@ -42,7 +42,7 @@ int testScript(){
 
 //read auth creds from local file
 bool readCredentials(std::string &skypeToken,std::string &chatSvcAggToken,std::string &skypeSpacesToken, std::string &currUserId) {
-    system("./trigger-login.sh");
+    //system("./trigger-login.sh");
 
     // Add this to the front of the path if generated credentials with npm run login directly from the ms-teams-client directory "../../"
     // Leave it as "ms-teams-credentials.local.json" if running the python script from soup-client dir
@@ -135,10 +135,10 @@ int testMessaging(){
     GMainLoop *loop = g_main_loop_new(NULL,false);
 
     //John/Olga channel
-	std::string channelId = "19:0MaeOcpNpAX-HchAP2Z8xnw6j_QYsq6htWoAsD94QxY1@thread.tacv2";
+	std::string channelId = "19:5c7c73c0315144a4ab58108a897695a9@thread.tacv2";
 
     //message id
-    std::string messageId = "1634591623619";
+    std::string messageId = "1636669196234";
 
     //I would replace these w/ currUserId, but atm it wouldn't work since both of us log in (would require fetchTeams(?) first I believe)
     //John id
@@ -148,9 +148,9 @@ int testMessaging(){
 
     SoupSession *session = soup_session_new();
 
-    std::string msgtext = "Logged in via bash script triggered from native code";
+    std::string msgtext = "Testing abstracted API callback";
     //sendMessageSync(session,msgtext,skypeToken,channelId);
-    sendChannelMessage(session,loop,msgtext,skypeToken,channelId);
+    sendChannelMessage(session,loop,msgtext,skypeToken,channelId,queueMessageCallback);
     //sendReplyMessage(session,loop,msgtext,skypeToken,channelId,messageId);
     //sendDirectMessage(session,loop,msgtext,skypeToken,senderUserId,receiverUserId);
 
