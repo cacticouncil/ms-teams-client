@@ -17,7 +17,7 @@ int main(int argc, char *argv[]){
     // std::cout<<"\n\n Fetching Teams Next: \n\n";
     //return testFetchTeams();
     // std::cout<<"\n\n Fetching Channel Message Next: \n\n";
-    // testFetchChannelMessage(); 
+    return testFetchChannelMessages(); 
     //std::cout<<"\n\n Fetching Users Info Next: \n\n";
     //return testingFetchUsers();
     
@@ -212,9 +212,6 @@ int testFetchTeams(){
     std::string currUserId;
     readCredentials(skypeToken, chatSvcAggToken, skypeSpacesToken, currUserId);
 
-    //John/Olga channel
-    std::string channelId = "19:0MaeOcpNpAX-HchAP2Z8xnw6j_QYsq6htWoAsD94QxY1@thread.tacv2";
-
     GMainLoop *loop = g_main_loop_new (NULL, FALSE);
     SoupSession *session = soup_session_new();
 
@@ -227,19 +224,23 @@ int testFetchTeams(){
     return 0;
 }
 
-int testFetchChannelMessage(){
+int testFetchChannelMessages(){
     std::string skypeToken;
     std::string chatSvcAggToken;
     std::string skypeSpacesToken;
     std::string currUserId;
     readCredentials(skypeToken, chatSvcAggToken, skypeSpacesToken, currUserId);
     
-	//John/Olga channel
-	std::string channelId = "19:0MaeOcpNpAX-HchAP2Z8xnw6j_QYsq6htWoAsD94QxY1@thread.tacv2";
+	//John/Olga Team
+    std::string teamId = "19:0MaeOcpNpAX-HchAP2Z8xnw6j_QYsq6htWoAsD94QxY1@thread.tacv2";
+
+    //Channel Id for "Creating Channel" Channel of that team
+    std::string channelId ="19:5c7c73c0315144a4ab58108a897695a9@thread.tacv2";
+
     GMainLoop* loop = g_main_loop_new(NULL, FALSE);
     SoupSession *session = soup_session_new();
 
-	fetchChannelMessages(chatSvcAggToken, channelId, channelId, 5,loop, session);
+	fetchChannelMessages(chatSvcAggToken, teamId, channelId, 5,loop, session);
 
     g_main_loop_run (loop);
     g_main_loop_unref (loop);

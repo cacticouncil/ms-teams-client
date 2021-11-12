@@ -8,7 +8,7 @@ int testPolling();
 int testMessaging();
 int testSoup();
 int testFetchTeams();
-int testFetchChannelMessage();
+int testFetchChannelMessages();
 int testingJson();
 int testingFetchUsers();
 int testCreateTeam();
