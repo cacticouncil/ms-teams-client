@@ -23,7 +23,7 @@ int main(int argc, char *argv[]){
     //return testingFetchUsers();
     
     /***TESTING ISOLATED FUNCTIONALITY***/
-    return testPolling();
+    //return testPolling();
     //return  testFetching();
     //return testMessaging();
     //return  testCreateTeam();
@@ -31,7 +31,7 @@ int main(int argc, char *argv[]){
 
     //return testScript();
 
-    //return runConsoleApp();
+    return runConsoleApp();
 }
 
 int testScript(){

@@ -6,12 +6,13 @@
 
 #include <json-glib/json-glib.h>
 
-#include "../include/test.h"
 #include "../include/polling.h"
 #include "../include/messaging.h"
 #include "../include/fetch.h"
 #include "../include/admin.h"
 #include "../include/app.h"
+
+int msgCt = 1;
 
 int runConsoleApp(){
     std::cout << "Welcome to MS-Teams!\n";
@@ -19,14 +20,14 @@ int runConsoleApp(){
     std::cout << "\nSign In: [ENTER]\n";
     std::cout << "Quit: [q]\n";
 
-    std::cout << "\nInput: ";
-    std::string input;
-    std::getline(std::cin,input);
-
     std::string skypeToken;
-	std::string chatSvcAggToken;
+    std::string chatSvcAggToken;
     std::string skypeSpacesToken;
     std::string currUserId;
+
+    std::string input;
+    std::cout << "\nInput: ";
+    std::getline(std::cin,input);
     if(input == "q"){
         std::cout << "Goodbye!\n";
         return 0;
@@ -39,61 +40,72 @@ int runConsoleApp(){
             std::cout << "ERROR: Invalid credentials! Exiting...\n";
             return 1;
         };
-        std::cout << "Signed in as " << currUserId << "\n";
+        std::cout << "Signed in as " << currUserId << "\n"; //convert to display name via getUsersInfo
     }
 
-    /* polling
+    SoupSession *session = soup_session_new();
+    GMainLoop *loop = g_main_loop_new(NULL,false);
 
-    team1 - channel
-    team2
-    team3
+    initPolling(session,loop,skypeToken,initCallback);
 
-    Select: team1
-    Delete: 123
-    create:
-    Team: vjnfvnn
+    g_main_loop_run(loop);
+    /* bool run = true;
+    while (run){
+        g_main_context_iteration(g_main_loop_get_context(loop), FALSE);
 
-    channel
-    teamId
+        std::cout << "\nPending: " << g_main_context_pending(g_main_loop_get_context(loop)) << "\n";
 
-    Messages:
-    msg1
-        -msg1.1
-        -msg1.2
-    msg2
-    msg3
+        std::cout << "\nSend Message: [1]\n";
+        std::cout << "Continue: [ENTER]\n";
+        std::cout << "Quit: [q]\n";
+        
+        std::string channelId = "19:5c7c73c0315144a4ab58108a897695a9@thread.tacv2";
+        std::string msgtext = "Testing event loop [" + std::to_string(runCt) + "]";
 
-    input: 1
-    msg texT:
-
-    input: 2
-    select msg: 5
-    msg text: jsfiusbuifbisudb
-
-    mainloop.run
-
-    mainloop.dispatch
-
-    event -> handler
-
-    input: teamname
-
-    while(events in queue){
-        if(teamid null){
-            print teams
-            cin << team input
-            teamid = 
+        std::cout << "\nInput: ";
+        std::getline(std::cin,input);
+        if(input == "1"){
+            std::cout << "Sending message...\n";
+            sendChannelMessage(session,loop,msgtext,skypeToken,channelId,tempMessageCallback);
+            runCt++;
         }
-        else if (){
-            print channels
-            user prompt << b
-            cin <<
-            teamid =null
+        else if(input == "q"){
+            run = false;
+            break;
+        }
+        else{
+            continue;
         }
     } */
 
+    g_main_loop_unref(loop);
+    g_object_unref(session);
 
     return 0;
+}
+
+void displayMain(SoupSession *session, GMainLoop *loop, std::string &skypeToken){
+    std::cout << "\nSend Message: [1]\n";
+    std::cout << "Continue: [ENTER]\n";
+    std::cout << "Quit: [q]\n";
+    
+    std::string channelId = "19:5c7c73c0315144a4ab58108a897695a9@thread.tacv2";
+    std::string msgtext = "Testing event loop (" + std::to_string(msgCt) + ")";
+
+    std::string input;
+    std::cout << "\nInput: ";
+    std::getline(std::cin,input);
+    if(input == "1"){
+        std::cout << "Sending message...\n";
+        sendChannelMessage(session,loop,msgtext,skypeToken,channelId,sendMessageCallback);
+        msgCt++;
+    }
+    else if(input == "q"){
+        g_main_loop_quit(loop);
+    }
+    else{
+        return;
+    }
 }
 
 bool checkCredentialsValid(){
@@ -105,15 +117,18 @@ bool checkCredentialsValid(){
     if(json_parser_load_from_file(parser,credFilename.c_str(),&err)){
         JsonReader *reader = json_reader_new(json_parser_get_root(parser));
 
-        json_reader_read_member(reader,"skypeSpacesToken");
+        json_reader_read_member(reader,"authSkype");
         json_reader_read_member(reader,"expiration");
         int expirationTime = json_reader_get_int_value(reader);
-        int currTime = time(0);
+        int currTime = std::time(nullptr);
         int timeRemaining = currTime - expirationTime;
 
         g_object_unref(reader);
         g_object_unref(parser);
-        return timeRemaining > 0;
+
+        bool valid = timeRemaining > 0;
+        std::cout << "Valid: " << valid << " (" << currTime << "-" << expirationTime << ")" << "\n";
+        return valid;
     }
     else{
         g_printerr("Unable to parse '%s': %s\n", credFilename.c_str(), err->message);
@@ -159,5 +174,93 @@ bool readCredentialsOnly(std::string &skypeToken,std::string &chatSvcAggToken,st
         g_error_free (err);
         g_object_unref (parser);
         return false;
+    }
+}
+
+void sendMessageCallback(SoupSession *session, SoupMessage *msg, gpointer user_data){
+    if(msg->status_code >= 200 && msg->status_code < 300){
+        g_print("Response: %s\n",msg->response_body->data);
+    }
+    else{
+        g_printerr("ERROR: Code: %d\n",msg->status_code);
+    }
+
+    std::string skypeToken = soup_message_headers_get_one(msg->request_headers,"Authentication");
+
+    displayMain(session,(GMainLoop*)user_data,skypeToken);
+}
+
+//callback after polling endpoint is fetched, intiates polling chain
+void initCallback(SoupSession *session, SoupMessage *msg, gpointer user_data){
+    /* if(msg->status_code >= 200 && msg->status_code < 300){
+        g_print("Response: %s\n",msg->response_body->data);
+    }
+    else{
+        g_printerr("ERROR: Code: %d\n",msg->status_code);
+    } */
+
+    JsonParser *parser = json_parser_new();
+    GError *err = NULL;
+
+    if(json_parser_load_from_data(parser,msg->response_body->data,strlen(msg->response_body->data),&err)){
+        JsonNode *root = json_parser_get_root(parser);
+        JsonObject *rootObj = json_node_get_object(root);
+        JsonArray *subsArr = json_object_get_array_member(rootObj,"subscriptions");
+        
+        std::string endpointUrl;
+        json_array_foreach_element(subsArr,ArrayCallback,&endpointUrl);
+
+        g_object_unref(parser);
+
+        std::string skypeToken = soup_message_headers_get_one(msg->request_headers,"Authentication");
+
+        //poll next endpoint for changes
+        poll(session,(GMainLoop *)user_data,skypeToken,endpointUrl,newEventCallback);
+        //trigger main display function
+        displayMain(session,(GMainLoop*)user_data,skypeToken);
+    }
+    else{
+        g_printerr("ERROR: Unable to parse polling response: %s! Exiting ...\n", err->message);
+        g_error_free (err);
+        g_object_unref (parser);
+
+        GMainLoop *loop = (GMainLoop *)user_data;
+        g_main_loop_quit(loop);
+    }
+}
+
+//callback after poll returns with change
+void newEventCallback(SoupSession *session, SoupMessage *msg, gpointer user_data){
+    if(msg->status_code >= 200 && msg->status_code < 300){
+        g_print("\nNew! Response: %s\n",msg->response_body->data);
+    }
+    else{
+        g_printerr("ERROR: Code: %d\n",msg->status_code);
+    }
+
+    JsonParser *parser = json_parser_new();
+    GError *err = NULL;
+
+    if(json_parser_load_from_data(parser,msg->response_body->data,strlen(msg->response_body->data),&err)){
+        JsonReader *reader = json_reader_new(json_parser_get_root(parser));
+
+        json_reader_read_member(reader,"next");
+        std::string endpointUrl = json_reader_get_string_value(reader);
+
+        g_object_unref(reader);
+        g_object_unref(parser);
+
+        std::string skypeToken = soup_message_headers_get_one(msg->request_headers,"Authentication");
+
+        //poll next endpoint for changes
+        poll(session,(GMainLoop *)user_data,skypeToken,endpointUrl,newEventCallback);
+    }
+    else{
+        g_printerr("ERROR: Unable to parse polling response: %s! Exiting...\n", err->message);
+        g_error_free (err);
+        g_object_unref (parser);
+
+        GMainLoop *loop = (GMainLoop *)user_data;
+        g_main_loop_quit(loop);
     }
 }
