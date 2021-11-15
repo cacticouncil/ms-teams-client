@@ -137,16 +137,22 @@ void displayMainUnsource(SoupSession *session, GMainLoop *loop, std::string &sky
     static int msgCt = 1;
     
     std::string channelId = "19:5c7c73c0315144a4ab58108a897695a9@thread.tacv2";
-    std::string msgtext = "Testing event loop (" + std::to_string(msgCt) + ")";
+    //std::string msgtext = "Testing event loop (" + std::to_string(msgCt) + ")";
 
     std::string input;
     std::cout << "\nInput: ";
     std::getline(std::cin,input);
     if(input == "1"){
+        std::cout << "Enter message text: ";
+        std::string msgtext;
+        std::getline(std::cin,msgtext);
+
         std::cout << "Sending message...\n";
+        
         std::string tokenPrefix = "skypetoken=";
         std::string unprefixedToken = skypeToken.substr(tokenPrefix.size(),std::string::npos);
         sendChannelMessage(session,loop,msgtext,unprefixedToken,channelId,sendMessageCallback);
+        
         msgCt++;
     }
     else if(input == "q"){
@@ -282,7 +288,8 @@ void initCallback(SoupSession *session, SoupMessage *msg, gpointer user_data){
 //callback after poll returns with change
 void newEventCallback(SoupSession *session, SoupMessage *msg, gpointer user_data){
     if(msg->status_code >= 200 && msg->status_code < 300){
-        g_print("\nNew! Response: %s\n",msg->response_body->data);
+        //g_print("\nNew! Response: %s\n",msg->response_body->data);
+        g_print("New Message!");
     }
     else{
         g_printerr("ERROR: Code: %d\n",msg->status_code);
