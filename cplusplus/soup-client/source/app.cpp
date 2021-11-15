@@ -46,8 +46,8 @@ int runConsoleApp(){
 
     initPolling(session,loop,skypeToken,initCallback);
 
-    skypeToken = "skypetoken=" + skypeToken;
-    displayMainUnsource(session,loop,skypeToken);
+    /* skypeToken = "skypetoken=" + skypeToken;
+    displayMainUnsource(session,loop,skypeToken); */
 
     /* GPtrArray *user_data = g_ptr_array_new();
     g_ptr_array_add(user_data,session);
@@ -56,34 +56,6 @@ int runConsoleApp(){
     g_idle_add(G_SOURCE_FUNC(displayMain),user_data); */
 
     g_main_loop_run(loop);
-    /* bool run = true;
-    while (run){
-        g_main_context_iteration(g_main_loop_get_context(loop), FALSE);
-
-        std::cout << "\nPending: " << g_main_context_pending(g_main_loop_get_context(loop)) << "\n";
-
-        std::cout << "\nSend Message: [1]\n";
-        std::cout << "Continue: [ENTER]\n";
-        std::cout << "Quit: [q]\n";
-        
-        std::string channelId = "19:5c7c73c0315144a4ab58108a897695a9@thread.tacv2";
-        std::string msgtext = "Testing event loop [" + std::to_string(runCt) + "]";
-
-        std::cout << "\nInput: ";
-        std::getline(std::cin,input);
-        if(input == "1"){
-            std::cout << "Sending message...\n";
-            sendChannelMessage(session,loop,msgtext,skypeToken,channelId,tempMessageCallback);
-            runCt++;
-        }
-        else if(input == "q"){
-            run = false;
-            break;
-        }
-        else{
-            continue;
-        }
-    } */
 
     //g_ptr_array_unref(user_data);
     g_main_loop_unref(loop);
@@ -137,26 +109,27 @@ void displayMainUnsource(SoupSession *session, GMainLoop *loop, std::string &sky
     static int msgCt = 1;
     
     std::string channelId = "19:5c7c73c0315144a4ab58108a897695a9@thread.tacv2";
-    //std::string msgtext = "Testing event loop (" + std::to_string(msgCt) + ")";
 
     std::string input;
     std::cout << "\nInput: ";
     std::getline(std::cin,input);
-    if(input == "1"){
+    if(input == "q"){
+        g_main_loop_quit(loop);
+        return;
+    }
+    else if(input == "1"){
         std::cout << "Enter message text: ";
         std::string msgtext;
         std::getline(std::cin,msgtext);
+        msgtext += " (" + std::to_string(msgCt) + ")";
 
         std::cout << "Sending message...\n";
-        
+
         std::string tokenPrefix = "skypetoken=";
         std::string unprefixedToken = skypeToken.substr(tokenPrefix.size(),std::string::npos);
         sendChannelMessage(session,loop,msgtext,unprefixedToken,channelId,sendMessageCallback);
         
         msgCt++;
-    }
-    else if(input == "q"){
-        g_main_loop_quit(loop);
     }
     else{
         return;
@@ -182,7 +155,7 @@ bool checkCredentialsValid(){
         g_object_unref(parser);
 
         bool valid = timeRemaining > 0;
-        std::cout << "Valid: " << valid << " (" << expirationTime << "-" << currTime << ")" << "\n";
+        //std::cout << "Valid: " << valid << " (" << expirationTime << "-" << currTime << ")" << "\n";
         return valid;
     }
     else{
@@ -241,20 +214,12 @@ void sendMessageCallback(SoupSession *session, SoupMessage *msg, gpointer user_d
     }
 
     std::string skypeToken = soup_message_headers_get_one(msg->request_headers,"Authentication");
-    //std::cout << "token in res: " << skypeToken;
 
     displayMainUnsource(session,(GMainLoop*)user_data,skypeToken);
 }
 
 //callback after polling endpoint is fetched, intiates polling chain
 void initCallback(SoupSession *session, SoupMessage *msg, gpointer user_data){
-    /* if(msg->status_code >= 200 && msg->status_code < 300){
-        g_print("Response: %s\n",msg->response_body->data);
-    }
-    else{
-        g_printerr("ERROR: Code: %d\n",msg->status_code);
-    } */
-
     JsonParser *parser = json_parser_new();
     GError *err = NULL;
 
@@ -273,7 +238,7 @@ void initCallback(SoupSession *session, SoupMessage *msg, gpointer user_data){
         //poll next endpoint for changes
         poll(session,(GMainLoop *)user_data,skypeToken,endpointUrl,newEventCallback);
         //trigger main display function
-        //displayMainUnsource(session,(GMainLoop*)user_data,skypeToken);
+        displayMainUnsource(session,(GMainLoop*)user_data,skypeToken);
     }
     else{
         g_printerr("ERROR: Unable to parse polling response: %s! Exiting ...\n", err->message);
@@ -311,7 +276,8 @@ void newEventCallback(SoupSession *session, SoupMessage *msg, gpointer user_data
 
         //poll next endpoint for changes
         poll(session,(GMainLoop *)user_data,skypeToken,endpointUrl,newEventCallback);
-        displayMainUnsource(session,(GMainLoop *)user_data,skypeToken);
+        //trigger main display function
+        //displayMainUnsource(session,(GMainLoop *)user_data,skypeToken);
     }
     else{
         g_printerr("ERROR: Unable to parse polling response: %s! Exiting...\n", err->message);
