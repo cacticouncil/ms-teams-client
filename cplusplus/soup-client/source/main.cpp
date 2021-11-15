@@ -22,13 +22,13 @@ int main(int argc, char *argv[]){
     //return testingFetchUsers();
     
     /***TESTING ISOLATED FUNCTIONALITY***/
-    return testPolling();
+    //return testPolling();
     //return  testFetching();
     //return testMessaging();
     //return  testCreateTeam();
     //return testCred();
 
-    //return testScript();
+   // return testScript();
 }
 
 int testScript(){
@@ -39,9 +39,9 @@ int testScript(){
 
 //read auth creds from local file
 bool readCredentials(std::string &skypeToken,std::string &chatSvcAggToken,std::string &skypeSpacesToken, std::string &currUserId) {
-    system("./trigger-login.sh");
+   // system("./trigger-login.sh");
 
-    // Add this to the front of the path if generated credentials with npm run login directly from the ms-teams-client directory "../../"
+    // Add this "../../" to the front of the path if generated credentials with npm run login directly from the ms-teams-client directory 
     // Leave it as "ms-teams-credentials.local.json" if running the python script from soup-client dir
     std::string credFilename = "../../ms-teams-credentials.local.json"; 
 
