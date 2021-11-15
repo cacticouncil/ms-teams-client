@@ -207,7 +207,7 @@ bool readCredentialsOnly(std::string &skypeToken,std::string &chatSvcAggToken,st
 
 void sendMessageCallback(SoupSession *session, SoupMessage *msg, gpointer user_data){
     if(msg->status_code >= 200 && msg->status_code < 300){
-        g_print("Response: %s\n",msg->response_body->data);
+        g_print("Message sent! Time: %s\n",msg->response_body->data);
     }
     else{
         g_printerr("ERROR: Code: %d\n",msg->status_code);
@@ -254,7 +254,7 @@ void initCallback(SoupSession *session, SoupMessage *msg, gpointer user_data){
 void newEventCallback(SoupSession *session, SoupMessage *msg, gpointer user_data){
     if(msg->status_code >= 200 && msg->status_code < 300){
         //g_print("\nNew! Response: %s\n",msg->response_body->data);
-        g_print("New Message!");
+        g_print("New message received!\n");
     }
     else{
         g_printerr("ERROR: Code: %d\n",msg->status_code);
