@@ -5,7 +5,7 @@
 #include "../include/Message.h"
 
 class Channel{
-    public:
+   
     //ReplyChain channelMsgs;
     std::vector<Message> channelMgs; //replace with map
 
@@ -18,7 +18,18 @@ class Channel{
     std::string id;
     std::string parentTeamId;
 
-    //Team* to team it belongs in
 
+    //Team* to team it belongs in
+    public:
     Channel(std::vector<Message>& channelMsgs, std::string displayName="", std::string id="",  std::string parentTeamId= "");
+
+    //Accessors
+    std::string GetChannelDisplayName();
+    std::string GetChannelId();
+    std::string GetChannelTeamId();
+    //Modifiers
+    void SetChannelDisplayName(std::string);
+    void SetChannelId(std::string);
+    void SetChannelTeamId(std::string);
+
 };
