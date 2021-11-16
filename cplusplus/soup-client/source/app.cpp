@@ -12,6 +12,7 @@
 #include "../include/admin.h"
 #include "../include/app.h"
 
+//add logout
 int runConsoleApp(){
     std::cout << "Welcome to MS-Teams!\n";
     std::cout << "[NOTE] If running this app via WSL on Windows, make sure that you are running an active XServer to login!\n";
@@ -101,6 +102,9 @@ bool displayMain(gpointer user_data){
     return true;
 }
 
+//main display function - call from callbacks currrently
+//switch to call from getMessages callback
+//add back function
 void displayMainUnsource(SoupSession *session, GMainLoop *loop, std::string &skypeToken){
     std::cout << "\nSend Message: [1]\n";
     std::cout << "Refresh: [ENTER]\n";
@@ -132,7 +136,7 @@ void displayMainUnsource(SoupSession *session, GMainLoop *loop, std::string &sky
         msgCt++;
     }
     else{
-        return;
+        return; //on "refresh", call getMessages/cached messages with custom event
     }
 }
 
