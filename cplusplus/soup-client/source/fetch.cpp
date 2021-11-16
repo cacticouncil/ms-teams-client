@@ -36,6 +36,7 @@ void fetchTeamsSync(SoupSession *session, std::string &chatSvcAggToken){
 }
 
 //fetch teams data asynchronously working
+//In the future a function pointer would be passed here to the callback rather than having the callback here. this is temporary.
 void fetchTeams(SoupSession *session, std::string &chatSvcAggToken, GMainLoop* loop){
     SoupMessage *msg = soup_message_new(SOUP_METHOD_GET,"https://teams.microsoft.com/api/csa/api/v1/teams/users/me?isPrefetch=false&enableMembershipSummary=true");
 
@@ -116,7 +117,7 @@ void jsonArrayChannelList(  JsonArray* array,  guint index_,  JsonNode* element_
 }
 
 //This function is used to obtain the messages associated with a specific team channel
-//This can be used to figure out which is the latest message int eh channel etc?
+//This can be used to figure out which is the latest message in the channel etc
 void fetchChannelMessages(std::string& chatSvcAggToken, std::string& teamId, std::string& channelId, int pageSize, GMainLoop* loop, SoupSession* session){
     //formulating the url
     std::string url = "https://teams.microsoft.com/api/csa/api/v2/teams/" + teamId + "/channels/" + channelId;
