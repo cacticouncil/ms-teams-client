@@ -4,7 +4,6 @@
 
 class Message{
 
-    public:
     std::string content;
     std::string id;
     std::string parentMessageId;
@@ -18,7 +17,8 @@ class Message{
 
 
     //Could potentially have a User type for sender? 
-
+    public:
+    
     Message (std::string content ="", std::string id="", std::string parentMessageId="", std::string sequenceId="", std::string fromMri="", std::string arrivalTime="");
     
     //Accessors
