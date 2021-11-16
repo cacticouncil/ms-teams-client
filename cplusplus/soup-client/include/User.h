@@ -20,6 +20,7 @@ class User{
     std::string GetUserDisplayName();
     std::string GetUserOid();
     std::string GetUserMri();
+    
     //Modifiers
     void SetUserEmail(std::string);
     void SetUserDisplayName(std::string);

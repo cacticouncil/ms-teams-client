@@ -20,8 +20,26 @@ class Message{
     //Could potentially have a User type for sender? 
 
     Message (std::string content ="", std::string id="", std::string parentMessageId="", std::string sequenceId="", std::string fromMri="", std::string arrivalTime="");
+    
+    //Accessors
+    std::string GetMsgContent();
+    std::string GetMsgId();
+    std::string GetMsgParentId();
+    std::string GetMsgSequenceId();
+    std::string GetSenderMri(); 
+    std::string GetArrivalTime();
+    
+    //Modifiers
+    void SetMsgContent(std::string);
+    void SetMsgId(std::string);
+    void SetMsgParentId(std::string);
+    void SetMsgSequenceId(std::string);
+    void SetSenderMri(std::string); 
+    void SetArrivalTime(std::string);
 
-    //topLevelMsg to check if parent message with children or not
+    //topLevelMsg fucntion to check if parent message with children or not
+
+
 
 
     // "messageType": "Text",
@@ -45,7 +63,7 @@ class Message{
 
 };
 
-
+//Decided against the Reply Chain class foe now but leaving it here for future reference
 // class ReplyChain{
 //     public:
 //     std::vector<Message> messages;

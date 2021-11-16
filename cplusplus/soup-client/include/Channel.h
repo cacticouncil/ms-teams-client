@@ -27,6 +27,7 @@ class Channel{
     std::string GetChannelDisplayName();
     std::string GetChannelId();
     std::string GetChannelTeamId();
+    
     //Modifiers
     void SetChannelDisplayName(std::string);
     void SetChannelId(std::string);

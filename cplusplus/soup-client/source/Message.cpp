@@ -10,3 +10,53 @@ Message::Message (std::string content , std::string id, std::string parentMessag
     this->arrivalTime =arrivalTime;
 
 }
+
+//Accessors 
+std::string Message::GetMsgContent(){
+    return content;
+}
+
+std::string Message::GetMsgId(){
+    return id;
+}
+
+std::string Message::GetMsgParentId(){
+    return parentMessageId;
+}
+
+std::string Message::GetMsgSequenceId(){
+    return sequenceId;
+}
+
+std::string Message::GetSenderMri(){
+    return fromMri;
+} 
+
+std::string Message::GetArrivalTime(){
+    return arrivalTime;
+}
+
+//Modifiers
+void Message:: SetMsgContent(std::string msg){
+    content=msg;
+}
+
+void Message:: SetMsgId(std::string msgId){
+    id=msgId;
+}
+
+void Message:: SetMsgParentId(std::string parentMsg){
+    parentMessageId=parentMsg;
+}
+
+void Message:: SetMsgSequenceId(std::string seq){
+    sequenceId=seq;
+}
+
+void Message:: SetSenderMri(std::string sender){
+    fromMri=sender;
+} 
+
+void Message:: SetArrivalTime(std::string time){
+    arrivalTime=time;
+}
