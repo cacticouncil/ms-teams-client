@@ -2,19 +2,31 @@
 #include <string>
 
 class User{
-
-    public:
-    //eventually thes fields will be private, rn public temporarily
+    
     std::string email;
     std::string displayName;
     std::string objectId;
     std::string mri;
 
+    public:
+    //eventually thes fields will be private, rn public temporarily
+
     //mri is just 8:orig:objectId, worth saving it since the mri matches the "from field in the message class"
 
     User(std::string email = "",  std::string displayName = "", std::string objectId = "", std::string mri = "");
-    //Accessors and Modifiers Here for when the fields are made private (very soon)
+    
+    //Accessors
+    std::string GetUserEmail();
+    std::string GetUserDisplayName();
+    std::string GetUserOid();
+    std::string GetUserMri();
+    //Modifiers
+    void SetUserEmail(std::string);
+    void SetUserDisplayName(std::string);
+    void SetUserOid(std::string);
+    void SetUserMri(std::string);
 
+   
     
     //These are all future potential properties
 
