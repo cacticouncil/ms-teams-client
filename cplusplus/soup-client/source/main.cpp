@@ -1,6 +1,7 @@
 #include <string>
 #include <iostream>
 #include <fstream>
+#include <map>
 
 #include <libsoup/soup.h>
 
@@ -12,26 +13,13 @@
 #include "../include/fetch.h"
 #include "../include/admin.h"
 #include "../include/app.h"
+#include "../include/Team.h"
+#include "../include/Callbacks.h"
 
 int main(int argc, char *argv[]){
 
-    // std::cout<<"\n\n Fetching Teams Next: \n\n";
-    //return testFetchTeams();
-    // std::cout<<"\n\n Fetching Channel Message Next: \n\n";
-    return testFetchChannelMessages(); 
-    //std::cout<<"\n\n Fetching Users Info Next: \n\n";
-    //return testingFetchUsers();
-    
-    /***TESTING ISOLATED FUNCTIONALITY***/
-    //return testPolling();
-    //return  testFetching();
-    //return testMessaging();
-    //return  testCreateTeam();
-    //return testCred();
-
-   // return testScript();
-
-    return runConsoleApp();
+   //return runConsoleApp();
+   return testingFetchUsers();
 }
 
 int testScript(){
@@ -262,14 +250,23 @@ int testingFetchUsers(){
 	std::string JohnId = "fdb3a4e9-675d-497e-acfe-4fd208f8ad89";
 	std::string OlgaId = "7b30ff05-51b2-490a-b28b-2d8ac36cad8e";
     
-    std::vector<std::string> userIds;
-    userIds.push_back(JohnId);
-    userIds.push_back(OlgaId);
+    //std::vector<std::string> userIds;
+    // userIds.push_back(JohnId);
+    // userIds.push_back(OlgaId);
 
     GMainLoop *loop = g_main_loop_new (NULL, FALSE);
     SoupSession *session = soup_session_new();
 
-    fetchUsersInfo(session,chatSvcAggToken, loop, userIds);
+    User john;
+    User olga;
+    
+    std::map<std::string*, User*> userMap;
+    userMap.emplace(&JohnId,&john);
+    userMap.emplace(&OlgaId,&olga);
+   
+    fetchUsersInfo(session,chatSvcAggToken, loop, &userMap, fetchUsersInfoCallback);
+
+    //fetchUsersInfo(session,chatSvcAggToken, loop, userIds, fetchUsersInfoCallback);
 
     g_main_loop_run (loop);
     g_main_loop_unref (loop);

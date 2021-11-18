@@ -42,3 +42,18 @@ void Team::SetCreatorMri(std::string mri){
 void Team::SetTeamGroupId(std::string group){
     groupId=group;
 }
+
+
+
+// void Team::FetchUsersTest(SoupSession *session, std::string &chatSvcAggToken, GMainLoop* loop, std::vector<std::string>& userIds, SoupSessionCallback fetch,  JsonArrayForeach jArrCallback){
+
+//     fetchUsersInfo(session,chatSvcAggToken, loop, userIds, fetch , jArrCallback); //GetUsersInfoCallback pass as the callback
+
+// }
+
+   
+
+//API Fucntions
+
+
+
