@@ -41,3 +41,10 @@ void User::SetUserOid(std::string oid){
 void User::SetUserMri(std::string mriParam){
     mri=mriParam;
 }
+
+std::string User::GetUserSummary(){
+    std::string result= "Information for " + this->GetUserDisplayName() + ":\n";
+    result+= this->GetUserEmail() + "\n" + this->GetUserMri() + "\n" + this->GetUserOid() + "\n";
+
+    return result;
+}
