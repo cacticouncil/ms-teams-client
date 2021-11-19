@@ -146,26 +146,42 @@ void fetchChannelMessagesCallback(SoupSession *session, SoupMessage *msg, gpoint
 
 //Given an array of oid values, this function returns the information associated with 
 //Might be used for fetching teh information from users in a channel?
-void fetchUsersInfo(SoupSession *session, std::string &chatSvcAggToken, GMainLoop* loop, std::map<std::string*, User*>* userMap , SoupSessionCallback callback){//, JsonArrayForeach jArrCallback ){ //will receive the callback here 
+void fetchUsersInfo(SoupSession *session, std::string &chatSvcAggToken, GMainLoop* loop, std::vector<User*>* userVect , SoupSessionCallback callback){//, JsonArrayForeach jArrCallback ){ //will receive the callback here 
    
     std::string url = "https://teams.microsoft.com/api/mt/part/amer-02/beta/users/fetchShortProfile?isMailAddress=false&enableGuest=true&includeIBBarredUsers=true&skypeTeamsInfo=true";
     
-    auto iter = userMap->begin();
+    // auto iter = userMap->begin();
+    // std::string userIdsStr= "[";
+
+    // int i=0;
+
+    // for (iter; iter != userMap->end(); iter++){
+        
+    //     std::string v = iter->first; //*(iter->first);
+
+    //     userIdsStr+= "\"" + v + "\"" ;
+
+    //     if(i!=userMap->size()-1){
+    //         userIdsStr+=",";
+    //     }
+
+    //     i++;
+    // }
+    // userIdsStr+= "]";
+
     std::string userIdsStr= "[";
 
-    int i=0;
-
-    for (iter; iter != userMap->end(); iter++){
+    for (int i=0; i< userVect->size(); i++){
         
-        std::string v = *(iter->first);
+        std::string v =  userVect->at(i)->GetUserOid();// GetUserOid();
+     
 
         userIdsStr+= "\"" + v + "\"" ;
 
-        if(i!=userMap->size()-1){
+        if(i!=userVect->size()-1){
             userIdsStr+=",";
         }
 
-        i++;
     }
     userIdsStr+= "]";
 
@@ -174,8 +190,8 @@ void fetchUsersInfo(SoupSession *session, std::string &chatSvcAggToken, GMainLoo
     //std::cout <<"Constructed user string" <<userIdsStr<< "\n"; //Debug Statement
 
     GPtrArray *user_data = g_ptr_array_new();
-    g_ptr_array_add(user_data,userMap);
-    g_ptr_array_add(user_data,loop);
+    g_ptr_array_add(user_data,userVect);  //0
+    g_ptr_array_add(user_data,loop);  //1
 
     // //g_ptr_array_add(user_data,jArrCallback); //adding the json array callbakc that will be neded within the SoupSessionCallback
    

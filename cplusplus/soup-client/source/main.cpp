@@ -20,6 +20,7 @@ int main(int argc, char *argv[]){
 
    //return runConsoleApp();
    return testingFetchUsers();
+   //return testFetchChannelMessages();
 }
 
 int testScript(){
@@ -254,21 +255,48 @@ int testingFetchUsers(){
     // userIds.push_back(JohnId);
     // userIds.push_back(OlgaId);
 
+    //std::vector<std::string>;
+    // userIds.push_back(JohnId);
+    // userIds.push_back(OlgaId);
+
     GMainLoop *loop = g_main_loop_new (NULL, FALSE);
     SoupSession *session = soup_session_new();
 
-    User john;
-    User olga;
+    // User john;
+    // User olga;
     
-    std::map<std::string*, User*> userMap;
-    userMap.emplace(&JohnId,&john);
-    userMap.emplace(&OlgaId,&olga);
-   
-    fetchUsersInfo(session,chatSvcAggToken, loop, &userMap, fetchUsersInfoCallback);
+    // std::map<std::string, User*> userMap;
+    // userMap.emplace(JohnId,&john);
+    // userMap.emplace(OlgaId,&olga);
+
+
+    User john;
+    john.SetUserOid("fdb3a4e9-675d-497e-acfe-4fd208f8ad89");
+    User olga;
+    olga.SetUserOid("7b30ff05-51b2-490a-b28b-2d8ac36cad8e");
+
+    std::vector<User*> userVector;
+    userVector.push_back(&john);
+    userVector.push_back(&olga);
+
+
+    fetchUsersInfo(session,chatSvcAggToken, loop, &userVector, fetchUsersInfoCallback);
+
+
+    
+    // std::cout<<john.GetUserSummary();
+    // std::cout<<olga.GetUserSummary();
+
+    //fetchUsersInfo(session,chatSvcAggToken, loop, &userMap, fetchUsersInfoCallback);
 
     //fetchUsersInfo(session,chatSvcAggToken, loop, userIds, fetchUsersInfoCallback);
 
     g_main_loop_run (loop);
+
+
+    std::cout<<john.GetUserSummary() + "\n";
+    std::cout<<olga.GetUserSummary();
+
     g_main_loop_unref (loop);
 
     return 0;

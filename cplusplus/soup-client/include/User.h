@@ -13,7 +13,15 @@ class User{
 
     //mri is just 8:orig:objectId, worth saving it since the mri matches the "from field in the message class"
 
-    User(std::string email = "",  std::string displayName = "", std::string objectId = "", std::string mri = "");
+    User(std::string email ,  std::string displayName , std::string objectId , std::string mri );
+
+    User(){
+        email = "";
+        displayName = "";
+        objectId = "";
+        mri = "";
+    }
+
     
     //Accessors
     std::string GetUserEmail();
@@ -26,6 +34,9 @@ class User{
     void SetUserDisplayName(std::string);
     void SetUserOid(std::string);
     void SetUserMri(std::string);
+
+
+    std::string GetUserSummary();
 
    
     
