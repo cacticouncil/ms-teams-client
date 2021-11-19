@@ -1,6 +1,8 @@
 #include <string>
 #include <iostream>
 #include <ctime>
+#include <map>
+#include <vector>
 
 #include <libsoup/soup.h>
 
@@ -11,6 +13,8 @@
 #include "../include/fetch.h"
 #include "../include/admin.h"
 #include "../include/app.h"
+#include "../include/User.h"
+#include "../include/Callbacks.h"
 
 //add logout
 int runConsoleApp(){
@@ -44,6 +48,20 @@ int runConsoleApp(){
 
     SoupSession *session = soup_session_new();
     GMainLoop *loop = g_main_loop_new(NULL,false);
+
+    ///////////////////////////////////////////////////////////////////////////////////
+    //std::map<std::string&,User&> usersMap;
+
+    User currUser;
+    currUser.SetUserOid(currUserId);
+    //usersMap.emplace(currUserId,currUser);
+    
+    std::vector<User*> userList;
+    userList.push_back(&currUser);
+
+    //fetchUsersInfo(session,chatSvcAggToken,loop,&userList,fetchUsersInfoCallback);
+    fetchUsersInfo(session,chatSvcAggToken,loop,&userList,populateUserData);
+    ///////////////////////////////////////////////////////////////////////////////////
 
     initPolling(session,loop,skypeToken,initCallback);
 
@@ -285,6 +303,40 @@ void newEventCallback(SoupSession *session, SoupMessage *msg, gpointer user_data
     }
     else{
         g_printerr("ERROR: Unable to parse polling response: %s! Exiting...\n", err->message);
+        g_error_free (err);
+        g_object_unref (parser);
+
+        GMainLoop *loop = (GMainLoop *)user_data;
+        g_main_loop_quit(loop);
+    }
+}
+
+void populateUserData(SoupSession *session, SoupMessage *msg, gpointer user_data){
+    if(msg->status_code >= 200 && msg->status_code < 300){
+        g_print("User Info Retrieved\n");
+    }
+    else{
+        g_printerr("ERROR: Code: %d\n",msg->status_code);
+    }
+
+    JsonParser *parser = json_parser_new();
+    GError *err;
+
+    if(json_parser_load_from_data(parser,msg->response_body->data,strlen(msg->response_body->data),&err)){
+        JsonNode* root = json_parser_get_root(parser);
+        JsonObject* rootObj = json_node_get_object(root); 
+        JsonArray* arr = json_object_get_array_member(rootObj, "value");        
+
+        json_array_foreach_element(arr, jsonArrayGetUsers, user_data);  //jsonArrayGetUsers
+
+        GPtrArray *data_arr = (GPtrArray*)user_data;
+
+        //std::vector<User*>* userVect = (std::vector<User*>*)g_ptr_array_index(data_arr,0);
+        std::vector<User*> userList = *((std::vector<User*>*)g_ptr_array_index(data_arr,0));
+        if(userList.size() == 1) std::cout << "Hello, " << userList[0]->GetUserDisplayName() << "!\n";
+    }
+    else{
+        g_printerr("ERROR: Unable to parse user info response: %s! Exiting...\n", err->message);
         g_error_free (err);
         g_object_unref (parser);
 

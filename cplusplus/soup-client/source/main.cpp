@@ -18,8 +18,8 @@
 
 int main(int argc, char *argv[]){
 
-   //return runConsoleApp();
-   return testingFetchUsers();
+   return runConsoleApp();
+   //return testingFetchUsers();
    //return testFetchChannelMessages();
 }
 
