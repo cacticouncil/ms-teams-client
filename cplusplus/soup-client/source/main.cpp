@@ -279,8 +279,12 @@ int testingFetchUsers(){
     userVector.push_back(&john);
     userVector.push_back(&olga);
 
+    GPtrArray *user_data = g_ptr_array_new();
+    g_ptr_array_add(user_data,&userVector);  //0
+    g_ptr_array_add(user_data,loop);  //1
 
-    fetchUsersInfo(session,chatSvcAggToken, loop, &userVector, fetchUsersInfoCallback);
+
+    fetchUsersInfo(session,chatSvcAggToken, loop, &userVector, fetchUsersInfoCallback, user_data);
 
 
     

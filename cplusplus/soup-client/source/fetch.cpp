@@ -146,7 +146,7 @@ void fetchChannelMessagesCallback(SoupSession *session, SoupMessage *msg, gpoint
 
 //Given an array of oid values, this function returns the information associated with 
 //Might be used for fetching teh information from users in a channel?
-void fetchUsersInfo(SoupSession *session, std::string &chatSvcAggToken, GMainLoop* loop, std::vector<User*>* userVect , SoupSessionCallback callback){//, JsonArrayForeach jArrCallback ){ //will receive the callback here 
+void fetchUsersInfo(SoupSession *session, std::string &chatSvcAggToken, GMainLoop* loop, std::vector<User*>* userVect , SoupSessionCallback callback, GPtrArray* callback_data){//, JsonArrayForeach jArrCallback ){ //will receive the callback here 
    
     std::string url = "https://teams.microsoft.com/api/mt/part/amer-02/beta/users/fetchShortProfile?isMailAddress=false&enableGuest=true&includeIBBarredUsers=true&skypeTeamsInfo=true";
     
@@ -189,9 +189,9 @@ void fetchUsersInfo(SoupSession *session, std::string &chatSvcAggToken, GMainLoo
 
     //std::cout <<"Constructed user string" <<userIdsStr<< "\n"; //Debug Statement
 
-    GPtrArray *user_data = g_ptr_array_new();
+    /* GPtrArray *user_data = g_ptr_array_new();
     g_ptr_array_add(user_data,userVect);  //0
-    g_ptr_array_add(user_data,loop);  //1
+    g_ptr_array_add(user_data,loop);  //1 */
 
     // //g_ptr_array_add(user_data,jArrCallback); //adding the json array callbakc that will be neded within the SoupSessionCallback
    
@@ -202,7 +202,7 @@ void fetchUsersInfo(SoupSession *session, std::string &chatSvcAggToken, GMainLoo
 
     std::string tokenstr = "Bearer " + chatSvcAggToken;
     soup_message_headers_append(msg->request_headers,"Authorization",tokenstr.c_str());
-    soup_session_queue_message(session,msg,callback,user_data); //pass the callback in the PARMETER in here  --fetchUsersInfoCallback
+    soup_session_queue_message(session,msg,callback,(gpointer)callback_data);//user_data); //pass the callback in the PARMETER in here  --fetchUsersInfoCallback
 }
 
 
