@@ -43,13 +43,11 @@ int runConsoleApp(){
             std::cout << "ERROR: Invalid credentials! Exiting...\n";
             return 1;
         };
-        std::cout << "Signed in as " << currUserId << "\n"; //convert to display name via getUsersInfo
     }
 
     SoupSession *session = soup_session_new();
     GMainLoop *loop = g_main_loop_new(NULL,false);
 
-    ///////////////////////////////////////////////////////////////////////////////////
     User currUser;
     currUser.SetUserOid(currUserId);
 
@@ -66,71 +64,21 @@ int runConsoleApp(){
     bool isLogin = true;
     g_ptr_array_add(user_callback_data,&isLogin);
 
-    //fetchUsersInfo(session,chatSvcAggToken,loop,&userList,fetchUsersInfoCallback);
     fetchUsersInfo(session,chatSvcAggToken,loop,&userList,populateUserData,user_callback_data);
-    ///////////////////////////////////////////////////////////////////////////////////
-
-    //initPolling(session,loop,skypeToken,initCallback);
-
-    /* skypeToken = "skypetoken=" + skypeToken;
-    displayMainUnsource(session,loop,skypeToken); */
-
-    /* GPtrArray *user_data = g_ptr_array_new();
-    g_ptr_array_add(user_data,session);
-    g_ptr_array_add(user_data,loop);
-    g_ptr_array_add(user_data,&skypeToken);
-    g_idle_add(G_SOURCE_FUNC(displayMain),user_data); */
 
     g_main_loop_run(loop);
 
-    //g_ptr_array_unref(user_data);
+    g_ptr_array_unref(user_callback_data);
     g_main_loop_unref(loop);
     g_object_unref(session);
 
     return 0;
 }
 
-bool displayMain(gpointer user_data){
-    std::cout << "\nSend Message: [1]\n";
-    std::cout << "Continue: [ENTER]\n";
-    std::cout << "Quit: [q]\n";
-
-    static int msgCt = 1;
-    
-    std::string channelId = "19:5c7c73c0315144a4ab58108a897695a9@thread.tacv2";
-    std::string msgtext = "Testing event loop (" + std::to_string(msgCt) + ")";
-
-    GPtrArray *data_arr = (GPtrArray*)user_data;
-    SoupSession *session = (SoupSession*)g_ptr_array_index(data_arr,0);
-    GMainLoop *loop = (GMainLoop*)g_ptr_array_index(data_arr,1);
-    std::string *skypeToken = (std::string*)g_ptr_array_index(data_arr,2);
-
-    std::string input;
-    std::cout << "\nInput: ";
-    std::getline(std::cin,input);
-    if(input == "1"){
-        std::cout << "Sending message...\n";
-        std::string tokenPrefix = "skypetoken=";
-        std::string unprefixedToken = (*skypeToken).substr(tokenPrefix.size(),std::string::npos);
-        std::cout << "token: " << unprefixedToken << "\n";
-        sendChannelMessage(session,loop,msgtext,unprefixedToken,channelId,sendMessageCallback);
-        msgCt++;
-    }
-    else if(input == "q"){
-        g_main_loop_quit(loop);
-        return false;
-    }
-    else{
-        return true;
-    }
-
-    return true;
-}
-
 //main display function - call from callbacks currrently
 //switch to call from getMessages callback
 //add back function
-void displayMainUnsource(SoupSession *session, GMainLoop *loop, std::string &skypeToken){
+void displayMain(SoupSession *session, GMainLoop *loop, std::string &skypeToken){
     std::cout << "\nSend Message: [1]\n";
     std::cout << "Refresh: [ENTER]\n";
     std::cout << "Quit: [q]\n";
@@ -244,7 +192,7 @@ void sendMessageCallback(SoupSession *session, SoupMessage *msg, gpointer user_d
 
     std::string skypeToken = soup_message_headers_get_one(msg->request_headers,"Authentication");
 
-    displayMainUnsource(session,(GMainLoop*)user_data,skypeToken);
+    displayMain(session,(GMainLoop*)user_data,skypeToken);
 }
 
 //callback after polling endpoint is fetched, intiates polling chain
@@ -267,7 +215,7 @@ void initCallback(SoupSession *session, SoupMessage *msg, gpointer user_data){
         //poll next endpoint for changes
         poll(session,(GMainLoop *)user_data,skypeToken,endpointUrl,newEventCallback);
         //trigger main display function
-        displayMainUnsource(session,(GMainLoop*)user_data,skypeToken);
+        displayMain(session,(GMainLoop*)user_data,skypeToken);
     }
     else{
         g_printerr("ERROR: Unable to parse polling response: %s! Exiting ...\n", err->message);
@@ -282,7 +230,6 @@ void initCallback(SoupSession *session, SoupMessage *msg, gpointer user_data){
 //callback after poll returns with change
 void newEventCallback(SoupSession *session, SoupMessage *msg, gpointer user_data){
     if(msg->status_code >= 200 && msg->status_code < 300){
-        //g_print("\nNew! Response: %s\n",msg->response_body->data);
         g_print("New message received!\n");
     }
     else{
@@ -305,8 +252,6 @@ void newEventCallback(SoupSession *session, SoupMessage *msg, gpointer user_data
 
         //poll next endpoint for changes
         poll(session,(GMainLoop *)user_data,skypeToken,endpointUrl,newEventCallback);
-        //trigger main display function
-        //displayMainUnsource(session,(GMainLoop *)user_data,skypeToken);
     }
     else{
         g_printerr("ERROR: Unable to parse polling response: %s! Exiting...\n", err->message);
@@ -327,16 +272,18 @@ void populateUserData(SoupSession *session, SoupMessage *msg, gpointer user_data
     }
 
     JsonParser *parser = json_parser_new();
-    GError *err;
+    GError *err = NULL;
+
+    GPtrArray *data_arr = (GPtrArray*)user_data;
 
     if(json_parser_load_from_data(parser,msg->response_body->data,strlen(msg->response_body->data),&err)){
         JsonNode* root = json_parser_get_root(parser);
         JsonObject* rootObj = json_node_get_object(root); 
-        JsonArray* arr = json_object_get_array_member(rootObj, "value");        
+        JsonArray* arr = json_object_get_array_member(rootObj, "value");
 
-        json_array_foreach_element(arr, jsonArrayGetUsers, user_data);  //jsonArrayGetUsers
+        json_array_foreach_element(arr, jsonArrayGetUsers, user_data);
 
-        GPtrArray *data_arr = (GPtrArray*)user_data;
+        g_object_unref (parser);
 
         bool isLogin = *((bool*)g_ptr_array_index(data_arr,3));
         if(isLogin){
@@ -353,7 +300,7 @@ void populateUserData(SoupSession *session, SoupMessage *msg, gpointer user_data
         g_error_free (err);
         g_object_unref (parser);
 
-        GMainLoop *loop = (GMainLoop *)user_data;
+        GMainLoop *loop = (GMainLoop*)g_ptr_array_index(data_arr,1);
         g_main_loop_quit(loop);
     }
 }
