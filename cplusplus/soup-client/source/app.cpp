@@ -51,8 +51,8 @@ int runConsoleApp(){
     User currUser;
     currUser.SetUserOid(currUserId);
 
-    std::map<std::string,User&> usersMap;
-    usersMap.emplace(currUserId,currUser);
+    std::map<std::string,User*> usersMap;
+    usersMap.emplace(currUserId,&currUser);
     
     std::vector<User*> userList;
     userList.push_back(&currUser);
@@ -71,6 +71,9 @@ int runConsoleApp(){
     g_ptr_array_unref(user_callback_data);
     g_main_loop_unref(loop);
     g_object_unref(session);
+
+    //a little map experimentation
+    std::cout << "Goodbye, " << usersMap[currUserId]->GetUserDisplayName() << "!\n";
 
     return 0;
 }
@@ -98,6 +101,7 @@ void displayMain(SoupSession *session, GMainLoop *loop, std::string &skypeToken)
         std::cout << "Enter message text: ";
         std::string msgtext;
         std::getline(std::cin,msgtext);
+        
         msgtext += " (" + std::to_string(msgCt) + ")";
 
         std::cout << "Sending message...\n";
