@@ -11,3 +11,5 @@ bool readCredentialsOnly(std::string &skypeToken,std::string &chatSvcAggToken,st
 void sendMessageCallback(SoupSession *session, SoupMessage *msg, gpointer user_data);
 void initCallback(SoupSession *session, SoupMessage *msg, gpointer user_data);
 void newEventCallback(SoupSession *session, SoupMessage *msg, gpointer user_data);
+
+void populateUserData(SoupSession *session, SoupMessage *msg, gpointer user_data);

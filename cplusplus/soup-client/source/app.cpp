@@ -1,6 +1,8 @@
 #include <string>
 #include <iostream>
 #include <ctime>
+#include <map>
+#include <vector>
 
 #include <libsoup/soup.h>
 
@@ -11,6 +13,8 @@
 #include "../include/fetch.h"
 #include "../include/admin.h"
 #include "../include/app.h"
+#include "../include/User.h"
+#include "../include/Callbacks.h"
 
 //add logout
 int runConsoleApp(){
@@ -45,7 +49,28 @@ int runConsoleApp(){
     SoupSession *session = soup_session_new();
     GMainLoop *loop = g_main_loop_new(NULL,false);
 
-    initPolling(session,loop,skypeToken,initCallback);
+    ///////////////////////////////////////////////////////////////////////////////////
+    User currUser;
+    currUser.SetUserOid(currUserId);
+
+    std::map<std::string,User&> usersMap;
+    usersMap.emplace(currUserId,currUser);
+    
+    std::vector<User*> userList;
+    userList.push_back(&currUser);
+
+    GPtrArray *user_callback_data = g_ptr_array_new();
+    g_ptr_array_add(user_callback_data,&userList);
+    g_ptr_array_add(user_callback_data,loop);
+    g_ptr_array_add(user_callback_data,&skypeToken);
+    bool isLogin = true;
+    g_ptr_array_add(user_callback_data,&isLogin);
+
+    //fetchUsersInfo(session,chatSvcAggToken,loop,&userList,fetchUsersInfoCallback);
+    fetchUsersInfo(session,chatSvcAggToken,loop,&userList,populateUserData,user_callback_data);
+    ///////////////////////////////////////////////////////////////////////////////////
+
+    //initPolling(session,loop,skypeToken,initCallback);
 
     /* skypeToken = "skypetoken=" + skypeToken;
     displayMainUnsource(session,loop,skypeToken); */
@@ -285,6 +310,46 @@ void newEventCallback(SoupSession *session, SoupMessage *msg, gpointer user_data
     }
     else{
         g_printerr("ERROR: Unable to parse polling response: %s! Exiting...\n", err->message);
+        g_error_free (err);
+        g_object_unref (parser);
+
+        GMainLoop *loop = (GMainLoop *)user_data;
+        g_main_loop_quit(loop);
+    }
+}
+
+void populateUserData(SoupSession *session, SoupMessage *msg, gpointer user_data){
+    if(msg->status_code >= 200 && msg->status_code < 300){
+        g_print("User Info Retrieved\n");
+    }
+    else{
+        g_printerr("ERROR: Code: %d\n",msg->status_code);
+    }
+
+    JsonParser *parser = json_parser_new();
+    GError *err;
+
+    if(json_parser_load_from_data(parser,msg->response_body->data,strlen(msg->response_body->data),&err)){
+        JsonNode* root = json_parser_get_root(parser);
+        JsonObject* rootObj = json_node_get_object(root); 
+        JsonArray* arr = json_object_get_array_member(rootObj, "value");        
+
+        json_array_foreach_element(arr, jsonArrayGetUsers, user_data);  //jsonArrayGetUsers
+
+        GPtrArray *data_arr = (GPtrArray*)user_data;
+
+        bool isLogin = *((bool*)g_ptr_array_index(data_arr,3));
+        if(isLogin){
+            std::vector<User*> userList = *((std::vector<User*>*)g_ptr_array_index(data_arr,0));
+            std::cout << "Hello, " << userList[0]->GetUserDisplayName() << "!\n";
+
+            GMainLoop* loop = (GMainLoop*)g_ptr_array_index(data_arr,1);
+            std::string skypeToken = *((std::string*)g_ptr_array_index(data_arr,2));
+            initPolling(session,loop,skypeToken,initCallback);
+        }
+    }
+    else{
+        g_printerr("ERROR: Unable to parse user info response: %s! Exiting...\n", err->message);
         g_error_free (err);
         g_object_unref (parser);
 
