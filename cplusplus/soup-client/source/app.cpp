@@ -16,17 +16,23 @@
 #include "../include/User.h"
 #include "../include/Callbacks.h"
 
+//develop standardized solution for tokens in core API; currently ones called only from callbacks use prepended token
+//possibly switch all to just token; develop function which takes Authentication vs Authorization and prepended tokenstr, extracts just token to pass
+
+Auth appAuth;
+
 //add logout
+//main console app run function
 int runConsoleApp(){
     std::cout << "Welcome to MS-Teams!\n";
     std::cout << "[NOTE] If running this app via WSL on Windows, make sure that you are running an active XServer to login!\n";
     std::cout << "\nSign In: [ENTER]\n";
     std::cout << "Quit: [q]\n";
 
-    std::string skypeToken;
+    /* std::string skypeToken;
     std::string chatSvcAggToken;
     std::string skypeSpacesToken;
-    std::string currUserId;
+    std::string currUserId; */
 
     std::string input;
     std::cout << "\nInput: ";
@@ -38,7 +44,7 @@ int runConsoleApp(){
     else{
         bool status = checkCredentialsValid();
         if(!status) system("./trigger-login.sh");
-        status = readCredentialsOnly(skypeToken, chatSvcAggToken, skypeSpacesToken, currUserId);
+        status = readCredentialsOnly(appAuth.skypeToken, appAuth.chatSvcAggToken, appAuth.skypeSpacesToken, appAuth.currUserId);
         if(!status || !checkCredentialsValid()){
             std::cout << "ERROR: Invalid credentials! Exiting...\n";
             return 1;
@@ -49,10 +55,10 @@ int runConsoleApp(){
     GMainLoop *loop = g_main_loop_new(NULL,false);
 
     User currUser;
-    currUser.SetUserOid(currUserId);
+    currUser.SetUserOid(appAuth.currUserId);
 
     std::map<std::string,User*> usersMap;
-    usersMap.emplace(currUserId,&currUser);
+    usersMap.emplace(appAuth.currUserId,&currUser);
     
     std::vector<User*> userList;
     userList.push_back(&currUser);
@@ -60,11 +66,11 @@ int runConsoleApp(){
     GPtrArray *user_callback_data = g_ptr_array_new();
     g_ptr_array_add(user_callback_data,&userList);
     g_ptr_array_add(user_callback_data,loop);
-    g_ptr_array_add(user_callback_data,&skypeToken);
+    g_ptr_array_add(user_callback_data,&appAuth.skypeToken);
     bool isLogin = true;
     g_ptr_array_add(user_callback_data,&isLogin);
 
-    fetchUsersInfo(session,chatSvcAggToken,loop,&userList,populateUserData,user_callback_data);
+    fetchUsersInfo(session,appAuth.chatSvcAggToken,loop,&userList,populateUserData,user_callback_data);
 
     g_main_loop_run(loop);
 
@@ -73,7 +79,7 @@ int runConsoleApp(){
     g_object_unref(session);
 
     //a little map experimentation
-    std::cout << "Goodbye, " << usersMap[currUserId]->GetUserDisplayName() << "!\n";
+    std::cout << "Goodbye, " << usersMap[appAuth.currUserId]->GetUserDisplayName() << "!\n";
 
     return 0;
 }
@@ -81,8 +87,9 @@ int runConsoleApp(){
 //main display function - call from callbacks currrently
 //switch to call from getMessages callback
 //add back function
-void displayMain(SoupSession *session, GMainLoop *loop, std::string &skypeToken){
+void displayMain(SoupSession *session, GMainLoop *loop){//, std::string &skypeToken){
     std::cout << "\nSend Message: [1]\n";
+    std::cout << "Create New Team: [2]\n";
     std::cout << "Refresh: [ENTER]\n";
     std::cout << "Quit: [q]\n";
 
@@ -106,17 +113,28 @@ void displayMain(SoupSession *session, GMainLoop *loop, std::string &skypeToken)
 
         std::cout << "Sending message...\n";
 
-        std::string tokenPrefix = "skypetoken=";
-        std::string unprefixedToken = skypeToken.substr(tokenPrefix.size(),std::string::npos);
-        sendChannelMessage(session,loop,msgtext,unprefixedToken,channelId,sendMessageCallback);
+        /* std::string tokenPrefix = "skypetoken=";
+        std::string unprefixedToken = skypeToken.substr(tokenPrefix.size(),std::string::npos); */
+        sendChannelMessage(session,loop,msgtext,appAuth.skypeToken/* unprefixedToken */,channelId,sendMessageCallback);
         
         msgCt++;
+    }
+    else if(input == "2"){
+        std::cout << "Enter Team name: ";
+        std::string teamname;
+        std::getline(std::cin,teamname);
+
+        std::cout << "Verifying name...\n";
+
+        //populate skypeSpacesToken, pass all tokens to displayMain maybe
+        createTeamName(session,loop,appAuth.skypeSpacesToken,teamname,teamNameValidatedCallback);
     }
     else{
         return; //on "refresh", call getMessages/cached messages with custom event
     }
 }
 
+//check if current credentials in file are valid
 bool checkCredentialsValid(){
     std::string credFilename = "../../ms-teams-credentials.local.json"; 
 
@@ -147,6 +165,7 @@ bool checkCredentialsValid(){
     }
 }
 
+//read in credentials from file, return if successful
 bool readCredentialsOnly(std::string &skypeToken,std::string &chatSvcAggToken,std::string &skypeSpacesToken, std::string &currUserId){
     std::string credFilename = "../../ms-teams-credentials.local.json"; 
 
@@ -186,6 +205,7 @@ bool readCredentialsOnly(std::string &skypeToken,std::string &chatSvcAggToken,st
     }
 }
 
+//callback after message sent, triggers main display
 void sendMessageCallback(SoupSession *session, SoupMessage *msg, gpointer user_data){
     if(msg->status_code >= 200 && msg->status_code < 300){
         g_print("Message sent! Time: %s\n",msg->response_body->data);
@@ -194,9 +214,9 @@ void sendMessageCallback(SoupSession *session, SoupMessage *msg, gpointer user_d
         g_printerr("ERROR: Code: %d\n",msg->status_code);
     }
 
-    std::string skypeToken = soup_message_headers_get_one(msg->request_headers,"Authentication");
+    //std::string skypeToken = soup_message_headers_get_one(msg->request_headers,"Authentication");
 
-    displayMain(session,(GMainLoop*)user_data,skypeToken);
+    displayMain(session,(GMainLoop*)user_data);//,skypeToken);
 }
 
 //callback after polling endpoint is fetched, intiates polling chain
@@ -214,12 +234,13 @@ void initCallback(SoupSession *session, SoupMessage *msg, gpointer user_data){
 
         g_object_unref(parser);
 
+        //can replace with appAuth.skypeToken
         std::string skypeToken = soup_message_headers_get_one(msg->request_headers,"Authentication");
 
         //poll next endpoint for changes
         poll(session,(GMainLoop *)user_data,skypeToken,endpointUrl,newEventCallback);
         //trigger main display function
-        displayMain(session,(GMainLoop*)user_data,skypeToken);
+        displayMain(session,(GMainLoop*)user_data);//,skypeToken);
     }
     else{
         g_printerr("ERROR: Unable to parse polling response: %s! Exiting ...\n", err->message);
@@ -234,7 +255,7 @@ void initCallback(SoupSession *session, SoupMessage *msg, gpointer user_data){
 //callback after poll returns with change
 void newEventCallback(SoupSession *session, SoupMessage *msg, gpointer user_data){
     if(msg->status_code >= 200 && msg->status_code < 300){
-        g_print("New message received!\n");
+        g_print("New notification received!\n");
     }
     else{
         g_printerr("ERROR: Code: %d\n",msg->status_code);
@@ -252,6 +273,7 @@ void newEventCallback(SoupSession *session, SoupMessage *msg, gpointer user_data
         g_object_unref(reader);
         g_object_unref(parser);
 
+        //can replace with appAuth.skypeToken
         std::string skypeToken = soup_message_headers_get_one(msg->request_headers,"Authentication");
 
         //poll next endpoint for changes
@@ -267,6 +289,7 @@ void newEventCallback(SoupSession *session, SoupMessage *msg, gpointer user_data
     }
 }
 
+//callback after getUserInfo returns, trigger json parser to populate User list, prints welcome message if login flag
 void populateUserData(SoupSession *session, SoupMessage *msg, gpointer user_data){
     if(msg->status_code >= 200 && msg->status_code < 300){
         g_print("User Info Retrieved\n");
@@ -295,7 +318,9 @@ void populateUserData(SoupSession *session, SoupMessage *msg, gpointer user_data
             std::cout << "Hello, " << userList[0]->GetUserDisplayName() << "!\n";
 
             GMainLoop* loop = (GMainLoop*)g_ptr_array_index(data_arr,1);
+            //can replace with appAuth.skypeToken
             std::string skypeToken = *((std::string*)g_ptr_array_index(data_arr,2));
+
             initPolling(session,loop,skypeToken,initCallback);
         }
     }
@@ -307,4 +332,55 @@ void populateUserData(SoupSession *session, SoupMessage *msg, gpointer user_data
         GMainLoop *loop = (GMainLoop*)g_ptr_array_index(data_arr,1);
         g_main_loop_quit(loop);
     }
+}
+
+//parse name validation response (if 2xx code) and call createTeam with response alias name (if parse successful)
+void teamNameValidatedCallback(SoupSession *session, SoupMessage *msg, gpointer user_data){
+    if(msg->status_code >= 200 && msg->status_code < 300){
+        g_print("Validation Response: %s\n",msg->response_body->data);
+
+        JsonParser *parser = json_parser_new();
+        GError *err;
+
+        if(json_parser_load_from_data(parser,msg->response_body->data,strlen(msg->response_body->data),&err)){
+            JsonReader *reader = json_reader_new(json_parser_get_root(parser));
+
+            json_reader_read_member(reader,"value");
+            json_reader_read_member(reader,"mailNickname");
+            std::string name = json_reader_get_string_value(reader);
+
+            g_object_unref(reader);
+            g_object_unref(parser);
+
+            //can replace with appAuth.skypeSpacesToken
+            std::string skypeSpacesToken = soup_message_headers_get_one(msg->request_headers,"Authorization");
+            createTeam(session,(GMainLoop *)user_data,skypeSpacesToken,name,teamCreatedCallback);
+        }
+        else{
+            g_printerr("VALIDATION ERROR: Unable to parse response: %s\n", err->message);
+            g_error_free (err);
+            g_object_unref (parser);
+
+            GMainLoop *loop = (GMainLoop *)user_data;
+            g_main_loop_quit(loop);
+        }
+    }
+    else{
+        g_printerr("VALIDATION ERROR: Code: %d\nResponse: %s\n",msg->status_code,msg->response_body->data);
+
+        GMainLoop *loop = (GMainLoop *)user_data;
+        g_main_loop_quit(loop);
+    }
+}
+
+//callback to execute after team created (well response returned at least), then trigger displayMain
+void teamCreatedCallback(SoupSession *session, SoupMessage *msg, gpointer user_data){
+    if(msg->status_code >= 200 && msg->status_code < 300){
+        g_print("Response: %s\n",msg->response_body->data);
+    }
+    else{
+        g_printerr("ERROR: Code: %d\nResponse: %s\n",msg->status_code,msg->response_body->data);
+    }
+
+    displayMain(session,(GMainLoop *)user_data);
 }
