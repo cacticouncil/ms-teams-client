@@ -3,4 +3,4 @@ powershell.exe "C:\'Program Files'\VcXsrv\vcxsrv.exe -multiwindow -clipboard -wg
 cd ../..
 export LIBGL_ALWAYS_INDIRECT=1
 npm run login
-powershell.exe taskkill /f /im vcxsrv.exe
+powershell.exe taskkill /f /im vcxsrv.exe >/dev/null
