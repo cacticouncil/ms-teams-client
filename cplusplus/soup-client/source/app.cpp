@@ -19,7 +19,8 @@
 //develop standardized solution for tokens in core API; currently ones called only from callbacks use prepended token
 //possibly switch all to just token; develop function which takes Authentication vs Authorization and prepended tokenstr, extracts just token to pass
 
-Auth appAuth;
+//could maybe replace struct with singleton
+Auth appAuth; //holds auth tokens (and userId for kinda no reason)
 
 //add logout
 //main console app run function
@@ -63,9 +64,11 @@ int runConsoleApp(){
     std::vector<User*> userList;
     userList.push_back(&currUser);
 
+    //callback data to pass fetchUsersInfo->populateUserData
     GPtrArray *user_callback_data = g_ptr_array_new();
     g_ptr_array_add(user_callback_data,&userList);
     g_ptr_array_add(user_callback_data,loop);
+    //can replace with appAuth.skypeToken
     g_ptr_array_add(user_callback_data,&appAuth.skypeToken);
     bool isLogin = true;
     g_ptr_array_add(user_callback_data,&isLogin);
