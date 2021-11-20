@@ -24,6 +24,7 @@ void createTeamName(SoupSession *session, GMainLoop *loop, std::string &skypeSpa
 }
 
 //added skypeSpacesToken to login/credentials
+//only called from nameValidationCallback of createTeamName, so "Bearer " already prepended to token
 void createTeam(SoupSession *session, GMainLoop *loop, std::string &skypeSpacesToken, std::string &name, SoupSessionCallback createTeamCallback){
     //initialize soup message with url and method
     std::string url = "https://teams.microsoft.com/api/mt/part/amer-02/beta/teams/create";

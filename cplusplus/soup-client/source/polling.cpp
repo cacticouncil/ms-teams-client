@@ -28,6 +28,7 @@ void initPolling(SoupSession *session, GMainLoop *loop, std::string &skypeToken,
 }
 
 //poll endpoint for changes
+//only called from initPollingCallback of initPolling, so "skypetoken=" already prepended to token
 void poll(SoupSession *session, GMainLoop *loop, std::string &skypeToken, std::string &endpointUrl, SoupSessionCallback pollingCallback){
     //init msg with endpoint url
     SoupMessage *msg = soup_message_new(SOUP_METHOD_GET,endpointUrl.c_str());
