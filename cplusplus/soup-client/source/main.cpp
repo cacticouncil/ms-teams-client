@@ -18,9 +18,10 @@
 
 int main(int argc, char *argv[]){
 
-   return runConsoleApp();
+
+   //return runConsoleApp();
    //return testingFetchUsers();
-   //return testFetchChannelMessages();
+   return testFetchChannelMessages();
 }
 
 int testScript(){
@@ -217,25 +218,52 @@ int testFetchTeams(){
 }
 
 int testFetchChannelMessages(){
-    std::string skypeToken;
-    std::string chatSvcAggToken;
-    std::string skypeSpacesToken;
-    std::string currUserId;
-    readCredentials(skypeToken, chatSvcAggToken, skypeSpacesToken, currUserId);
+    //Basic Testing of Class Relationships
+
+    Team inQuestion;
+
+    Channel myChannel;
+
+    Message m;
+    m.SetMsgContent("Empty Content\n");
+    Message x;
+    x.SetMsgContent("X Message\n");
+    inQuestion.GetChannelList().push_back(&myChannel);
+    myChannel.GetChannelMgs().push_back(&m);
+    myChannel.GetChannelMgs().push_back(&x);
+
+    for (Channel* c: inQuestion.GetChannelList()){
+        for (Message* i : c->GetChannelMgs() ){
+            std::cout<<i->GetMsgContent()<<std::endl;
+        }
+    }
+
+    // for (Message* i : myChannel.GetChannelMgs() ){
+    //     std::cout<<i->GetMsgContent()<<std::endl;
+    // }
+
     
-	//John/Olga Team
-    std::string teamId = "19:0MaeOcpNpAX-HchAP2Z8xnw6j_QYsq6htWoAsD94QxY1@thread.tacv2";
 
-    //Channel Id for "Creating Channel" Channel of that team
-    std::string channelId ="19:5c7c73c0315144a4ab58108a897695a9@thread.tacv2";
 
-    GMainLoop* loop = g_main_loop_new(NULL, FALSE);
-    SoupSession *session = soup_session_new();
+    // std::string skypeToken;
+    // std::string chatSvcAggToken;
+    // std::string skypeSpacesToken;
+    // std::string currUserId;
+    // readCredentials(skypeToken, chatSvcAggToken, skypeSpacesToken, currUserId);
+    
+	// //John/Olga Team
+    // std::string teamId = "19:0MaeOcpNpAX-HchAP2Z8xnw6j_QYsq6htWoAsD94QxY1@thread.tacv2";
 
-	fetchChannelMessages(chatSvcAggToken, teamId, channelId, 5,loop, session);
+    // //Channel Id for "Creating Channel" Channel of that team
+    // std::string channelId ="19:5c7c73c0315144a4ab58108a897695a9@thread.tacv2";
 
-    g_main_loop_run (loop);
-    g_main_loop_unref (loop);
+    // GMainLoop* loop = g_main_loop_new(NULL, FALSE);
+    // SoupSession *session = soup_session_new();
+
+	// fetchChannelMessages(chatSvcAggToken, teamId, channelId, 5,loop, session);
+
+    // g_main_loop_run (loop);
+    // g_main_loop_unref (loop);
 
     return 0;
 }
@@ -328,55 +356,6 @@ int testCreateTeam(){
 
     g_main_loop_unref (loop);
     g_object_unref(session);
-
-    return 0;
-}
-
-//This testing did not turn out super useful XD
-int testingJson(){
-
-    // std::string credFilename = "fetchUsersInfo.local.json";
-    // JsonParser *parser = json_parser_new();
-    // GError *err;
-
-    // if(json_parser_load_from_file(parser,credFilename.c_str(),&err)){
-    //     std::cout<<"\nHey, I am able to parse this file :D How cool!\n";
-
-    //     JsonReader *reader = json_reader_new(json_parser_get_root(parser));
-    //     json_reader_read_member(reader,"value");
-    //     std::cout<< json_reader_get_string_value (reader);        
-    //     json_reader_set_root(reader,json_parser_get_root(parser));
-    //     std::cout << "Is the reader standing on an array right now? What about now? "<<json_reader_is_array(reader) + "\n";
-
-    //     json_reader_read_member(reader,"userPrincipalName");
-    //     std::cout<< json_reader_get_string_value (reader);
-    //     // json_reader_set_root(reader,json_parser_get_root(parser));
-    //     // std::string temp=json_reader_get_string_value(reader);
-    //     // std::cout<<"\n guat?" + temp + "\n";
-    //     // //JsonArray* arr= (JsonArray*)json_reader_get_value(reader);
-
-    //     // json_reader_read_element (reader, 0);
-
-    //     // json_reader_read_member(reader,"givenName");
-
-    //     // // std::string first=json_reader_get_string_value(reader);
-
-    //     // const char *str_value = NULL;
-
-    //     // //json_reader_read_element (reader, 0);
-    //     // str_value = json_reader_get_string_value (reader);
-    //     //json_reader_end_element (reader);
-
-    //     // json_reader_read_element (reader, 2);
-    //     // str_value = json_reader_get_string_value (reader);
-    //     // json_reader_end_element (reader);
-    // }
-    // else{
-    //     g_print ("Unable to parse '%s': %s\n", credFilename.c_str(), err->message);
-    //     g_error_free (err);
-    //     g_object_unref (parser);
-
-    // }
 
     return 0;
 }
