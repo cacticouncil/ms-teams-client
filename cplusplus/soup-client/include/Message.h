@@ -1,6 +1,8 @@
 #pragma once
 #include <string>
 #include <vector>
+#include <sstream>
+//#include "../include/Channel.h"
 
 class Message{
 
@@ -8,15 +10,14 @@ class Message{
     std::string id;
     std::string parentMessageId;
     std::string sequenceId;
-    std::string fromMri; 
+    std::string fromMri; //Mri of user who sent message
     std::string arrivalTime;
+
+  //  Channel* channel; //pointer to the channel this message belongs to
 
     //TO DO:
     //vector of Message pointers to the reply messages
-    //Channrl* to parent channel 
 
-
-    //Could potentially have a User type for sender? 
     public:
     
     Message (std::string content ="", std::string id="", std::string parentMessageId="", std::string sequenceId="", std::string fromMri="", std::string arrivalTime="");
@@ -28,6 +29,7 @@ class Message{
     std::string GetMsgSequenceId();
     std::string GetSenderMri(); 
     std::string GetArrivalTime();
+    //Channel* GetChannel();
     
     //Modifiers
     void SetMsgContent(std::string);
@@ -36,9 +38,13 @@ class Message{
     void SetMsgSequenceId(std::string);
     void SetSenderMri(std::string); 
     void SetArrivalTime(std::string);
+    //void SetChannel(Channel*);
 
-    //topLevelMsg fucntion to check if parent message with children or not
+    //others
+    bool IsTopLevelMsg();
+    std::string GetSenderOid();
 
+    //8:orgid:fdb3a4e9-675d-497e-acfe-4fd208f8ad89
 
 
 
