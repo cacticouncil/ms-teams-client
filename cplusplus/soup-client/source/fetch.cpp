@@ -118,7 +118,11 @@ void jsonArrayChannelList(  JsonArray* array,  guint index_,  JsonNode* element_
 
 //This function is used to obtain the messages associated with a specific team channel
 //This can be used to figure out which is the latest message in the channel etc
-void fetchChannelMessages(std::string& chatSvcAggToken, std::string& teamId, std::string& channelId, int pageSize, GMainLoop* loop, SoupSession* session){
+
+//void fetchChannelMessages(SoupSession* session, std::string& chatSvcAggToken,  GMainLoop* loop, std::string& teamId, std::string& channelId, int pageSize) //old
+void fetchChannelMessages(SoupSession* session, std::string& chatSvcAggToken, GMainLoop* loop, Team* team, Channel* channel, int pageSize, SoupSessionCallback callback){
+    std::string teamId= team->GetTeamId();
+    std::string channelId=channel->GetChannelId();
     //formulating the url
     std::string url = "https://teams.microsoft.com/api/csa/api/v2/teams/" + teamId + "/channels/" + channelId;
     url += "?";
@@ -132,17 +136,17 @@ void fetchChannelMessages(std::string& chatSvcAggToken, std::string& teamId, std
     std::string tokenstr = "Bearer " + chatSvcAggToken;
 
     soup_message_headers_append(msg->request_headers,"Authorization",tokenstr.c_str());
-    soup_session_queue_message(session,msg,fetchChannelMessagesCallback,loop);
+    soup_session_queue_message(session,msg,callback,loop);//fetchChannelMessagesCallback
 
 }
 
-void fetchChannelMessagesCallback(SoupSession *session, SoupMessage *msg, gpointer user_data){
+// void fetchChannelMessagesCallback(SoupSession *session, SoupMessage *msg, gpointer user_data){
 
-    displayResponseInfo( msg, true, "fetchChannelMessagesInfo.local.json");
+//     displayResponseInfo( msg, true, "fetchChannelMessagesInfo.local.json");
 
-    GMainLoop *loop = (GMainLoop *) user_data;
-    g_main_loop_quit(loop);
-}
+//     GMainLoop *loop = (GMainLoop *) user_data;
+//     g_main_loop_quit(loop);
+// }
 
 //Given an array of oid values, this function returns the information associated with 
 //Might be used for fetching teh information from users in a channel?

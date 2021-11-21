@@ -34,6 +34,18 @@ void fetchUsersInfoCallback(SoupSession *session, SoupMessage *msg, gpointer use
 }
 
 
+void fetchChannelMessagesCallback(SoupSession *session, SoupMessage *msg, gpointer user_data){
+
+    displayResponseInfo( msg, true, "fetchChannelMessagesInfo.local.json");
+
+    GMainLoop *loop = (GMainLoop *) user_data;
+    g_main_loop_quit(loop);
+}
+
+
+
+
+
 //Function that gets executed for each element of the Json Array
 void jsonArrayGetUsers (  JsonArray* array,  guint index_,  JsonNode* element_node,  gpointer user_data) {  
 

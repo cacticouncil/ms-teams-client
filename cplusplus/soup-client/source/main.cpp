@@ -219,7 +219,7 @@ int testFetchTeams(){
 
 int testFetchChannelMessages(){
     //Basic Testing of Class Relationships
-
+/*
     Team inQuestion;
 
     Channel myChannel;
@@ -237,33 +237,33 @@ int testFetchChannelMessages(){
             std::cout<<i->GetMsgContent()<<std::endl;
         }
     }
-
-    // for (Message* i : myChannel.GetChannelMgs() ){
-    //     std::cout<<i->GetMsgContent()<<std::endl;
-    // }
+*/    
 
     
-
-
-    // std::string skypeToken;
-    // std::string chatSvcAggToken;
-    // std::string skypeSpacesToken;
-    // std::string currUserId;
-    // readCredentials(skypeToken, chatSvcAggToken, skypeSpacesToken, currUserId);
+    std::string skypeToken;
+    std::string chatSvcAggToken;
+    std::string skypeSpacesToken;
+    std::string currUserId;
+    readCredentials(skypeToken, chatSvcAggToken, skypeSpacesToken, currUserId);
     
-	// //John/Olga Team
-    // std::string teamId = "19:0MaeOcpNpAX-HchAP2Z8xnw6j_QYsq6htWoAsD94QxY1@thread.tacv2";
+	//John/Olga Team
+    std::string teamId = "19:0MaeOcpNpAX-HchAP2Z8xnw6j_QYsq6htWoAsD94QxY1@thread.tacv2";
 
-    // //Channel Id for "Creating Channel" Channel of that team
-    // std::string channelId ="19:5c7c73c0315144a4ab58108a897695a9@thread.tacv2";
+    //Channel Id for "Creating Channel" Channel of that team
+    std::string channelId ="19:5c7c73c0315144a4ab58108a897695a9@thread.tacv2";
 
-    // GMainLoop* loop = g_main_loop_new(NULL, FALSE);
-    // SoupSession *session = soup_session_new();
+    Team team;
+    team.SetTeamId(teamId);
+    Channel channel;
+    channel.SetChannelId(channelId);
 
-	// fetchChannelMessages(chatSvcAggToken, teamId, channelId, 5,loop, session);
+    GMainLoop* loop = g_main_loop_new(NULL, FALSE);
+    SoupSession *session = soup_session_new();
 
-    // g_main_loop_run (loop);
-    // g_main_loop_unref (loop);
+	fetchChannelMessages(session,chatSvcAggToken, loop, &team, &channel, 10, fetchChannelMessagesCallback );
+
+    g_main_loop_run (loop);
+    g_main_loop_unref (loop);
 
     return 0;
 }
