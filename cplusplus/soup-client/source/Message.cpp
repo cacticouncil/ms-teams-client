@@ -1,6 +1,6 @@
 #include "../include/Message.h"
 
-Message::Message (std::string content , std::string id, std::string parentMessageId, std::string sequenceId, std::string fromMri, std::string arrivalTime){
+Message::Message (std::string content , std::string id, std::string parentMessageId, std::string sequenceId, std::string fromMri, std::string arrivalTime, std::string containerId){
 
     this->content = content;
     this->id = id;
@@ -8,6 +8,7 @@ Message::Message (std::string content , std::string id, std::string parentMessag
     this->sequenceId =sequenceId;
     this->fromMri =fromMri; 
     this->arrivalTime =arrivalTime;
+    this->containerChannelId = containerId;
 
 }
 
@@ -36,6 +37,10 @@ std::string Message::GetArrivalTime(){
     return arrivalTime;
 }
 
+std::string Message::GetMsgContainerChannelId(){
+    return this->containerChannelId;
+}
+
 // Channel* Message::GetChannel(){
 //     return this->channel;
 // }
@@ -62,6 +67,10 @@ void Message:: SetSenderMri(std::string sender){
 
 void Message:: SetArrivalTime(std::string time){
     arrivalTime=time;
+}
+
+void Message::SetMsgContainerChannelId(std::string container){
+    this->containerChannelId = container;
 }
 
 // void Message::SetChannel(Channel* chan){
