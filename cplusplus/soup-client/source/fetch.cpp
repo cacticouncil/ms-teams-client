@@ -110,7 +110,7 @@ void jsonArrayChannelList(  JsonArray* array,  guint index_,  JsonNode* element_
 
     std::cout<< "Id: " + channelIdStr + "\n";
 
-    //Not sure exactly whcih one of these does what so I'll have to do some testing of my own to see whihc one to use for new messge vs for reply to last message
+    //Not sure exactly which one of these does what so I'll have to do some testing of my own to see which one to use for new message vs for reply to last message
     // "version": 1635343945368,
     // "threadVersion": 1635300285998,
     
@@ -150,25 +150,7 @@ void fetchUsersInfo(SoupSession *session, std::string &chatSvcAggToken, GMainLoo
    
     std::string url = "https://teams.microsoft.com/api/mt/part/amer-02/beta/users/fetchShortProfile?isMailAddress=false&enableGuest=true&includeIBBarredUsers=true&skypeTeamsInfo=true";
     
-    // auto iter = userMap->begin();
-    // std::string userIdsStr= "[";
-
-    // int i=0;
-
-    // for (iter; iter != userMap->end(); iter++){
-        
-    //     std::string v = iter->first; //*(iter->first);
-
-    //     userIdsStr+= "\"" + v + "\"" ;
-
-    //     if(i!=userMap->size()-1){
-    //         userIdsStr+=",";
-    //     }
-
-    //     i++;
-    // }
-    // userIdsStr+= "]";
-
+    //Constructing the string array with the users' oids
     std::string userIdsStr= "[";
 
     for (int i=0; i< userVect->size(); i++){
@@ -185,82 +167,20 @@ void fetchUsersInfo(SoupSession *session, std::string &chatSvcAggToken, GMainLoo
     }
     userIdsStr+= "]";
 
-
-
-    //std::cout <<"Constructed user string" <<userIdsStr<< "\n"; //Debug Statement
-
+    //This logic is replaced by creating the array outside this function and passing it in
     /* GPtrArray *user_data = g_ptr_array_new();
     g_ptr_array_add(user_data,userVect);  //0
     g_ptr_array_add(user_data,loop);  //1 */
 
-    // //g_ptr_array_add(user_data,jArrCallback); //adding the json array callbakc that will be neded within the SoupSessionCallback
    
-
     SoupMessage *msg = soup_message_new(SOUP_METHOD_POST, url.c_str());
     std::string payload = userIdsStr;
     soup_message_set_request(msg,"application/json",SOUP_MEMORY_COPY,payload.c_str(),strlen(payload.c_str()));
 
     std::string tokenstr = "Bearer " + chatSvcAggToken;
     soup_message_headers_append(msg->request_headers,"Authorization",tokenstr.c_str());
-    soup_session_queue_message(session,msg,callback,(gpointer)callback_data);//user_data); //pass the callback in the PARMETER in here  --fetchUsersInfoCallback
+    soup_session_queue_message(session,msg,callback,(gpointer)callback_data);
 }
-
-
-// void fetchUsersInfoCallback(SoupSession *session, SoupMessage *msg, gpointer user_data){
-
-//     displayResponseInfo( msg, true, "fetchUsersInfo.local.json"); //Need to write to the file at least once in order to be able to use the json parsing stuff 
-    
-//     std::string credFilename = "fetchUsersInfo.local.json";
-//     JsonParser *parser = json_parser_new();
-//     GError *err;
-
-//     GPtrArray *data_arr = (GPtrArray*)user_data;
-
-//     if(json_parser_load_from_file(parser,credFilename.c_str(),&err)){
-//         //using JsonObject* to read the array from here rather than from a JsonNode* since array is a complex type
-//         JsonNode* root= json_parser_get_root(parser);
-//         JsonObject* rootObj= json_node_get_object(root); 
-//         JsonArray* arr= json_object_get_array_member(rootObj, "value");
-
-//         JsonArrayForeach callB = (JsonArrayForeach)g_ptr_array_index(data_arr,0); //give it the index of the callback
-        
-
-//         json_array_foreach_element(arr, callB, user_data);  //jsonArrayGetUsers
-//     }
-//      else{
-//         g_print ("Unable to parse '%s': %s\n", credFilename.c_str(), err->message);
-//         g_error_free (err);
-//         g_object_unref (parser);
-//     }
-
-//    // GMainLoop *loop = (GMainLoop*)g_ptr_array_index(data_arr,1); //give it the index of the loop
-
-//    // g_main_loop_quit(loop);
-// }
-
-// //Function that gets executed for each element of the Json Array
-// void jsonArrayGetUsers (  JsonArray* array,  guint index_,  JsonNode* element_node,  gpointer user_data) {  
-//     //std::cout<<"Currently in iteration " + std::to_string((int)index_); //Debug Statement
-
-//     JsonObject* currObj =json_array_get_object_element(array, index_);  //current array object being disected
-//     JsonNode* userInfo =json_object_get_member(currObj, "displayName"); //member name here
-//     std::string userInfoStr = json_node_get_string(userInfo);
-//     std::cout<< "\nThis is the principal name: " + userInfoStr + "\n\n";
-
-//     //additional members available that can be need-based accessed
-//     /*
-//         "userPrincipalName"
-//         "givenName"
-//         "surname"
-//         "email"
-//         "userType" 
-//         "isShortProfile" 
-//         "displayName"
-//         "type"
-//         "mri"
-//         "objectId"
-//     */
-// }
 
 
 //This function extracts information from the response object 

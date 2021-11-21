@@ -15,6 +15,8 @@ void fetchTeams(SoupSession *session, std::string &chatSvcAggToken, GMainLoop* l
 void fetchChannelMessages(std::string& chatSvcAggToken, std::string& teamId, std::string& channelId, int pageSize, GMainLoop* loop, SoupSession* session);
 void fetchUsersInfo(SoupSession *session, std::string &chatSvcAggToken, GMainLoop* loop, std::vector<User*>* userVect,SoupSessionCallback callback,GPtrArray* callback_data);//, JsonArrayForeach jArrCallback ); //JsonArrayForeach* jArrCallback
 
+//Moving all of these functions to the callbacks file rather than the API fucntions file
+
 void fetchTeamsCallback(SoupSession *session, SoupMessage *msg, gpointer user_data);//(GObject *obj, GAsyncResult *res, gpointer user_data); 
 void fetchChannelMessagesCallback(SoupSession *session, SoupMessage *msg, gpointer user_data);
 //void fetchUsersInfoCallback(SoupSession *session, SoupMessage *msg, gpointer user_data);  //will pass both the loop and the callback within the user data pointer 

@@ -2,7 +2,10 @@
 
 void fetchUsersInfoCallback(SoupSession *session, SoupMessage *msg, gpointer user_data){
 
-    displayResponseInfo( msg, false, "fetchUsersInfo.local.json"); //Need to write to the file at least once in order to be able to use the json parsing stuff 
+    //Need to write to the file at least once in order to be able to use the json parsing stuff 
+    //Alternatively parse from data rather than the file
+    //Pass true vs false to printo to console as well
+    displayResponseInfo( msg, false, "fetchUsersInfo.local.json"); 
     
     std::string credFilename = "fetchUsersInfo.local.json";
     JsonParser *parser = json_parser_new();
@@ -16,19 +19,7 @@ void fetchUsersInfoCallback(SoupSession *session, SoupMessage *msg, gpointer use
         JsonObject* rootObj= json_node_get_object(root); 
         JsonArray* arr= json_object_get_array_member(rootObj, "value");
 
-        //JsonArrayForeach callB = (JsonArrayForeach)g_ptr_array_index(data_arr,0); //give it the index of the callback
-
-        //std::map<std::string&, User&>* userMap = (std::map<std::string&, User&>*)g_ptr_array_index(data_arr,2); //getting the user map
-
-
-        //std::map<std::string*, User*>* userMap = (std::map<std::string*, User*>*)g_ptr_array_index(data_arr,2);
-        // auto iter = userMap->begin();
-        //vector<users>
-
-        // g_ptr_array_add(user_data,iter);
-                
-
-        json_array_foreach_element(arr, jsonArrayGetUsers, user_data);  //jsonArrayGetUsers
+        json_array_foreach_element(arr, jsonArrayGetUsers, user_data);
     }
      else{
         g_print ("Unable to parse '%s': %s\n", credFilename.c_str(), err->message);
@@ -36,18 +27,16 @@ void fetchUsersInfoCallback(SoupSession *session, SoupMessage *msg, gpointer use
         g_object_unref (parser);
     }
 
-    
 
+    GMainLoop *loop = (GMainLoop*)g_ptr_array_index(data_arr,1); //give it the index of the loop
 
-   GMainLoop *loop = (GMainLoop*)g_ptr_array_index(data_arr,1); //give it the index of the loop
-
-   g_main_loop_quit(loop);
+    g_main_loop_quit(loop);
 }
 
 
 //Function that gets executed for each element of the Json Array
 void jsonArrayGetUsers (  JsonArray* array,  guint index_,  JsonNode* element_node,  gpointer user_data) {  
-    //std::cout<<"Currently in iteration " + std::to_string((int)index_); //Debug Statement
+
     GPtrArray *data_arr = (GPtrArray*)user_data;
     int i = (int) index_;
     //std::map<std::string*, User*>* userMap = (std::map<std::string, User*>*)g_ptr_array_index(data_arr,2); //getting the user map
@@ -62,7 +51,7 @@ void jsonArrayGetUsers (  JsonArray* array,  guint index_,  JsonNode* element_no
     std::string objectId = json_node_get_string(userInfo);
 
 
-    userInfo =json_object_get_member(currObj, "displayName"); //member name here
+    userInfo =json_object_get_member(currObj, "displayName");
     std::string displayName = json_node_get_string(userInfo);
 
     userInfo =json_object_get_member(currObj, "email");
@@ -71,36 +60,12 @@ void jsonArrayGetUsers (  JsonArray* array,  guint index_,  JsonNode* element_no
     userInfo =json_object_get_member(currObj, "mri");
     std::string mri = json_node_get_string(userInfo);
 
-    // userVect->at(i)->SetUserOid(objectId);
+    // userVect->at(i)->SetUserOid(objectId); //don't need this since oid is passed through the User object
     userVect->at(i)->SetUserDisplayName(displayName);
     userVect->at(i)->SetUserEmail(email);
     userVect->at(i)->SetUserMri(mri);
 
     
-    // std::cout<< "\nThis is the principal name: " + displayName + "\n";
-
-    // std::cout<< "Vect Size: " << userVect->size()<<std::endl;
-
-
     // std::cout<< "User object version: " + userVect->at(i)->GetUserDisplayName() + " \n\n";
-/*
-    std::string email;
-    std::string displayName;
-    std::string objectId;
-    std::string mri;
-
-
-
-            "userPrincipalName": "jhook1@ufl.edu",
-            "givenName": "John",
-            "surname": "Hook",
-            "email": "jhook1@ufl.edu",
-            "userType": "Member",
-            "isShortProfile": true,
-            "displayName": "Hook,John W",
-            "type": "ADUser",
-            "mri": "8:orgid:fdb3a4e9-675d-497e-acfe-4fd208f8ad89",
-            "objectId": "fdb3a4e9-675d-497e-acfe-4fd208f8ad89"
-*/
 
 }
