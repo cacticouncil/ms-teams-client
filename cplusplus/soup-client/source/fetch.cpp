@@ -167,7 +167,7 @@ void fetchUsersInfo(SoupSession *session, std::string &chatSvcAggToken, GMainLoo
     }
     userIdsStr+= "]";
 
-    //This logic is replaced by creating the array outside this fucntion and passing it in
+    //This logic is replaced by creating the array outside this function and passing it in
     /* GPtrArray *user_data = g_ptr_array_new();
     g_ptr_array_add(user_data,userVect);  //0
     g_ptr_array_add(user_data,loop);  //1 */

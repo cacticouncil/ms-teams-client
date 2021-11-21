@@ -60,7 +60,7 @@ void jsonArrayGetUsers (  JsonArray* array,  guint index_,  JsonNode* element_no
     userInfo =json_object_get_member(currObj, "mri");
     std::string mri = json_node_get_string(userInfo);
 
-    // userVect->at(i)->SetUserOid(objectId); //don't need thi ssince oid is passed through the User object
+    // userVect->at(i)->SetUserOid(objectId); //don't need this since oid is passed through the User object
     userVect->at(i)->SetUserDisplayName(displayName);
     userVect->at(i)->SetUserEmail(email);
     userVect->at(i)->SetUserMri(mri);
