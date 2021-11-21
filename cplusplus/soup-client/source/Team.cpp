@@ -1,5 +1,12 @@
 #include "../include/Team.h"
 
+Team::Team(std::string displayName, std::string id, std::string totalMemberCount, std::string creatorMri, std::string groupId){
+    this->displayName = displayName;
+    this->id = id;
+    this->totalMemberCount = totalMemberCount;
+    this->creatorMri = creatorMri;
+    this->groupId = groupId;
+}
 
 //Accessors
 std::string Team::GetTeamDisplayName(){
@@ -20,6 +27,10 @@ std::string Team::GetCreatorMri(){
 
 std::string Team::GetTeamGroupId(){
     return groupId;
+}
+
+std::vector<Channel*>& Team::GetChannelList(){
+    return this->channelList;
 }
 
 //Modifiers
@@ -43,17 +54,6 @@ void Team::SetTeamGroupId(std::string group){
     groupId=group;
 }
 
-
-
-// void Team::FetchUsersTest(SoupSession *session, std::string &chatSvcAggToken, GMainLoop* loop, std::vector<std::string>& userIds, SoupSessionCallback fetch,  JsonArrayForeach jArrCallback){
-
-//     fetchUsersInfo(session,chatSvcAggToken, loop, userIds, fetch , jArrCallback); //GetUsersInfoCallback pass as the callback
-
-// }
-
-   
-
-//API Fucntions
-
-
-
+void Team::SetChannelList(std::vector<Channel*>& channels){
+    this->channelList=channels;
+}

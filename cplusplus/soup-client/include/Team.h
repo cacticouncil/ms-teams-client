@@ -6,7 +6,6 @@
 #include <fstream>
 #include <iostream>
 #include "../include/Channel.h"
-#include "../include/fetch.h"
 
 
 class Team{
@@ -16,12 +15,20 @@ class Team{
     std::string totalMemberCount;
     std::string creatorMri;
     std::string groupId;
-    std::vector<Channel> channelList; //change to a map of id to Channel
+    std::vector<Channel*> channelList; //change to a map of id to Channel
     
     
     public:
 
-    Team(){}
+    Team(){
+        this->displayName = "";
+        this->id = "";
+        this->totalMemberCount = "";
+        this->creatorMri = "";
+        this->groupId = "";
+    }
+
+    Team(std::string displayName, std::string id, std::string totalMemberCount, std::string creatorMri, std::string groupId);
     
     //Accessors
     std::string GetTeamDisplayName();
@@ -29,6 +36,7 @@ class Team{
     std::string GetTotalMemberCount();
     std::string GetCreatorMri();
     std::string GetTeamGroupId();
+    std::vector<Channel*>& GetChannelList();
 
     //Modifiers
     void SetTeamDisplayName(std::string);
@@ -36,15 +44,7 @@ class Team{
     void SetTotalMemberCount(std::string);
     void SetCreatorMri(std::string);
     void SetTeamGroupId(std::string);
+    void SetChannelList(std::vector<Channel*>&);
 
-
-    //void FetchUsersTest(SoupSession *session, std::string &chatSvcAggToken, GMainLoop* loop, std::vector<std::string>& userIds, SoupSessionCallback callback, JsonArrayForeach jArrCallback);
-   
-    //{
-    //     JsonObject* currObj =json_array_get_object_element(array, index_);  //current array object being disected
-    //     JsonNode* userInfo =json_object_get_member(currObj, "displayName"); //member name here
-    //     std::string userInfoStr = json_node_get_string(userInfo);
-    //     std::cout<< "\nThis is the principal name: " + userInfoStr + "\n\n";
-    // }
-
+    //fetchUsers Info e=her for something in the future??
 };
