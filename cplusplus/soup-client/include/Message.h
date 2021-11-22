@@ -12,6 +12,7 @@ class Message{
     std::string sequenceId;
     std::string fromMri; //Mri of user who sent message
     std::string arrivalTime;
+    std::string containerChannelId;
 
   //  Channel* channel; //pointer to the channel this message belongs to
 
@@ -20,7 +21,7 @@ class Message{
 
     public:
     
-    Message (std::string content ="", std::string id="", std::string parentMessageId="", std::string sequenceId="", std::string fromMri="", std::string arrivalTime="");
+    Message (std::string content ="", std::string id="", std::string parentMessageId="", std::string sequenceId="", std::string fromMri="", std::string arrivalTime="", std::string containerChannelId="");
     
     //Accessors
     std::string GetMsgContent();
@@ -29,6 +30,7 @@ class Message{
     std::string GetMsgSequenceId();
     std::string GetSenderMri(); 
     std::string GetArrivalTime();
+    std::string GetMsgContainerChannelId();
     //Channel* GetChannel();
     
     //Modifiers
@@ -38,6 +40,7 @@ class Message{
     void SetMsgSequenceId(std::string);
     void SetSenderMri(std::string); 
     void SetArrivalTime(std::string);
+    void SetMsgContainerChannelId(std::string);
     //void SetChannel(Channel*);
 
     //others
