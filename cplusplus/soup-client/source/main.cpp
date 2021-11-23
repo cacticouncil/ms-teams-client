@@ -260,7 +260,12 @@ int testFetchChannelMessages(){
     GMainLoop* loop = g_main_loop_new(NULL, FALSE);
     SoupSession *session = soup_session_new();
 
+
+    //This API call is specific for channel message populaiton.
+    //Any testing done here with the Team and Channel object are focusing on that, the rest of the fields for these classesa are empty for this testing
 	fetchChannelMessages(session,chatSvcAggToken, loop, &team, &channel, 10, fetchChannelMessagesCallback );
+
+
 
     g_main_loop_run (loop);
     g_main_loop_unref (loop);
