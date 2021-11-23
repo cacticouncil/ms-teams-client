@@ -1,4 +1,5 @@
 #include <string>
+#include <iostream>
 
 #include <libsoup/soup.h>
 
@@ -41,19 +42,23 @@ void createTeam(SoupSession *session, GMainLoop *loop, std::string &skypeSpacesT
 }
 
 //Error 401 {"errorCode":"UnauthorizedAccess"}
-void createChannel(SoupSession *session, GMainLoop *loop, std::string &skypeSpacesToken, std::string &teamId, std::string &name){
+void createChannel(SoupSession *session, GMainLoop *loop, std::string &skypeSpacesToken, std::string &teamId, std::string &name, std::string &skypeToken){
     std::string url = "https://teams.microsoft.com/api/mt/part/amer-02/beta/teams/"+teamId+"/channels";
     SoupMessage *msg = soup_message_new(SOUP_METHOD_POST,url.c_str());
+    std::cout<<"Url: "<<url<<"\n";
 
     //set message request payload
     std::string payload = "{\"displayName\":\""+name+"\",\"description\":\"\",\"groupId\":\"3c0db051-2932-4bac-8fff-38a23e2febe2\"}";
     soup_message_set_request(msg,"application/json",SOUP_MEMORY_COPY,payload.c_str(),strlen(payload.c_str()));
-
+    std::cout<<"Payload: "<<payload<<"\n";
     //auth
     std::string tokenstr = "Bearer " + skypeSpacesToken;
-    soup_message_headers_append(msg->request_headers,"Authorization",tokenstr.c_str());
+    std::cout<<"Token: "<<tokenstr<<"\n";
+    soup_message_headers_append(msg->request_headers,"authorization",tokenstr.c_str());
 
-    soup_session_queue_message(session,msg,nullptr,loop);
+    soup_message_headers_append(msg->request_headers,"x-skypetoken",skypeToken.c_str());
+
+    soup_session_queue_message(session,msg,teamCreateCallback,loop);
 }
 
 //parse name validation response (if 2xx code) and call createTeam with response alias name (if parse successful)
