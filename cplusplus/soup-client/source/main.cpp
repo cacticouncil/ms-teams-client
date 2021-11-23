@@ -20,10 +20,11 @@ int main(int argc, char *argv[]){
 
     //return runConsoleApp();
     //return testingFetchUsers();
-    return testFetchChannelMessages();
+    //return testFetchChannelMessages();
     //return testCreateTeam();
     //return testDeleteChannel();
     //return testDeleteTeam();
+    return testFetchTeams();
 }
 
 int testScript(){
@@ -210,8 +211,15 @@ int testFetchTeams(){
     GMainLoop *loop = g_main_loop_new (NULL, FALSE);
     SoupSession *session = soup_session_new();
 
+
+    GPtrArray *user_data = g_ptr_array_new();
+    //g_ptr_array_add(user_data,&userVector);  //0 channel vector for this function
+    g_ptr_array_add(user_data,loop);
+
+
+
     //fetchTeamsSync(session,chatSvcAggToken); //for testing the Sync Version
-    fetchTeams(session,chatSvcAggToken, loop);
+    fetchTeams(session,chatSvcAggToken, loop, fetchTeamsCallback , user_data);
     g_main_loop_run (loop);
     //g_main_loop_quit (loop); //for when testing the Sync Version
     g_main_loop_unref (loop);

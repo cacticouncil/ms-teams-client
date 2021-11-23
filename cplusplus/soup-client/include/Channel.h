@@ -7,13 +7,7 @@
 class Channel{
    
     //ReplyChain channelMsgs;
-    std::vector<Message> channelMgs; //replace with map
-
-    //map<msgId, Message>
-
-    //Having a map so that children can find parents quickly
-    //Using the refernce variable
-
+    std::vector<Message> channelMgs; 
     std::string displayName;
     std::string id;
     std::string parentTeamId;
