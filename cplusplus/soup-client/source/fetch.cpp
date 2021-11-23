@@ -120,7 +120,7 @@ void jsonArrayChannelList(  JsonArray* array,  guint index_,  JsonNode* element_
 //This can be used to figure out which is the latest message in the channel etc
 
 //void fetchChannelMessages(SoupSession* session, std::string& chatSvcAggToken,  GMainLoop* loop, std::string& teamId, std::string& channelId, int pageSize) //old
-void fetchChannelMessages(SoupSession* session, std::string& chatSvcAggToken, GMainLoop* loop, Team* team, Channel* channel, int pageSize, SoupSessionCallback callback){
+void fetchChannelMessages(SoupSession* session, std::string& chatSvcAggToken, GMainLoop* loop, Team* team, Channel* channel, int pageSize, SoupSessionCallback callback, GPtrArray* callback_data){
     std::string teamId= team->GetTeamId();
     std::string channelId=channel->GetChannelId();
     //formulating the url
@@ -136,7 +136,7 @@ void fetchChannelMessages(SoupSession* session, std::string& chatSvcAggToken, GM
     std::string tokenstr = "Bearer " + chatSvcAggToken;
 
     soup_message_headers_append(msg->request_headers,"Authorization",tokenstr.c_str());
-    soup_session_queue_message(session,msg,callback,loop);//fetchChannelMessagesCallback
+    soup_session_queue_message(session,msg,callback,(gpointer)callback_data);//fetchChannelMessagesCallback
 
 }
 

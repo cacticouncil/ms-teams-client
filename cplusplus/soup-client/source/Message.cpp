@@ -1,6 +1,6 @@
 #include "../include/Message.h"
 
-Message::Message (std::string content , std::string id, std::string parentMessageId, std::string sequenceId, std::string fromMri, std::string arrivalTime, std::string containerId){
+Message::Message (std::string content , std::string id, std::string parentMessageId, int sequenceId, std::string fromMri, std::string arrivalTime, std::string containerId){
 
     this->content = content;
     this->id = id;
@@ -25,7 +25,7 @@ std::string Message::GetMsgParentId(){
     return parentMessageId;
 }
 
-std::string Message::GetMsgSequenceId(){
+int Message::GetMsgSequenceId(){
     return sequenceId;
 }
 
@@ -41,9 +41,6 @@ std::string Message::GetMsgContainerChannelId(){
     return this->containerChannelId;
 }
 
-// Channel* Message::GetChannel(){
-//     return this->channel;
-// }
 //Modifiers
 void Message:: SetMsgContent(std::string msg){
     content=msg;
@@ -57,7 +54,7 @@ void Message:: SetMsgParentId(std::string parentMsg){
     parentMessageId=parentMsg;
 }
 
-void Message:: SetMsgSequenceId(std::string seq){
+void Message:: SetMsgSequenceId(int seq){
     sequenceId=seq;
 }
 
@@ -72,10 +69,6 @@ void Message:: SetArrivalTime(std::string time){
 void Message::SetMsgContainerChannelId(std::string container){
     this->containerChannelId = container;
 }
-
-// void Message::SetChannel(Channel* chan){
-//     this->channel = chan;
-// }
 
 bool Message::IsTopLevelMsg(){
 
@@ -100,4 +93,18 @@ std::string Message::GetSenderOid(){
     return value;
 }
 
+std::string Message::GetMessageSummary(){
+    std::string result= "Message Summary: \n";
+    
+    result+= "msgcontent: " + this->GetMsgContent()+ "\n";
+    result+= "msgid: " + this->GetMsgId()+ "\n";
+    result+= "parentmsgId: " + this->GetMsgParentId()+ "\n";
+    result+= "msgseqId: " + std::to_string(this->GetMsgSequenceId())+ "\n";
+    result+= "senderMri: " + this->GetSenderMri()+ "\n"; 
+    result+= "oid from Mri: " + this->GetSenderOid()+ "\n"; 
+    result+= "arrrival time: " + this->GetArrivalTime()+ "\n";
+    result+= "containedx in channel id: " + this->GetMsgContainerChannelId()+ "\n";
+
+    return result;
+}
     
