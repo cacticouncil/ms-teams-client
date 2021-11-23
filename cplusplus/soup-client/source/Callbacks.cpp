@@ -186,24 +186,44 @@ void fetchTeamsCallback(SoupSession *session, SoupMessage *msg, gpointer user_da
         g_object_unref (parser);
     }
     
-    GMainLoop *loop = (GMainLoop*)g_ptr_array_index(data_arr, 1);
-    
+    GMainLoop *loop = (GMainLoop*)g_ptr_array_index(data_arr, 1); //1- loop
+
     g_main_loop_quit(loop);
 }
 
 
 void jsonArrayFetchTeams(  JsonArray* array,  guint index_,  JsonNode* element_node,  gpointer user_data){
 
+    GPtrArray *data_arr = (GPtrArray*)user_data;
+ 
+    std::vector<Team> *teamVect = (std::vector<Team> *)g_ptr_array_index(data_arr, 0); //0-team vect; 1-loop
+
+    Team t;
+
     JsonObject* currObj =json_array_get_object_element(array, index_);  //current array object being disected
-    JsonNode* teamName =json_object_get_member(currObj, "displayName"); //member name here
-    std::string teamNameStr = json_node_get_string(teamName);
+    JsonNode* value =json_object_get_member(currObj, "displayName"); 
+    t.SetTeamDisplayName(json_node_get_string(value));
 
-    JsonNode* teamId =json_object_get_member(currObj, "id"); //member name here
-    std::string teamIdStr = json_node_get_string(teamId);
+    value =json_object_get_member(currObj, "id"); 
+    t.SetTeamId(json_node_get_string(value));
 
-    std::cout<< "\nTeam: " + teamNameStr + "\n\n";
 
-    std::cout<< "Id: " + teamIdStr + "\n";
+
+
+    // std::string displayName;
+    // std::string id;
+
+    // std::string creatorMri; //creator   (something of its own BUT also something of the channel in case we want to add it there as a property? YESSSSS)
+
+    // std::vector<Channel> channelList;
+
+    // std::string totalMemberCount; // totalMemberCount  (within a membership summary object), will handle this one last
+    // std::string groupId;  (wihtin the teamSiteInformation contianer will handle in same way as total membercount )
+
+
+    std::cout<< "\nTeam: " + t.GetTeamDisplayName() + "\n\n";
+
+    std::cout<< "Team Id: " + t.GetTeamId() + "\n";
 
     //Next I will attempt to get a list of channels per Team as well
 
@@ -214,6 +234,8 @@ void jsonArrayFetchTeams(  JsonArray* array,  guint index_,  JsonNode* element_n
     JsonArray* channelArr= json_object_get_array_member(currObj, "channels");
 
     json_array_foreach_element(channelArr, jsonArrayChannelList, user_data);
+
+    teamVect->push_back(t);
 
 }
 

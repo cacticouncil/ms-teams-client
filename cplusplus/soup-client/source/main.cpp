@@ -224,6 +224,9 @@ int testFetchTeams(){
 
     g_main_loop_run (loop);
 
+
+    std::cout << "\n\n TOTAL NUMBER OF TEAMS IN LSIT: "<<teamList.size() <<std::endl;
+
     g_main_loop_unref (loop);
 
     return 0;
