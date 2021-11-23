@@ -40,3 +40,25 @@ void Channel::SetChannelTeamId(std::string teamId){
 void Channel::SetChannelMgs(std::vector<Message>& vect){
     this->channelMgs = vect;
 }
+
+
+std::string Channel::GetChannelSummary(){
+
+    std::string result = "Channel Summary for " + this->GetChannelDisplayName() + ": \n";
+    
+    result += "id :" + id + "\n";
+    result += "parentTeamId :" + parentTeamId + "\n";
+
+    result += "Content of Message List:\n";
+
+    result += "msgId \t|\t content";
+
+    for(Message m : this->channelMgs){
+        result +=  m.GetMsgId() + " | " + m.GetMsgContent() + "\n";
+    }
+
+    result += "\n";
+
+    return result;
+    
+}

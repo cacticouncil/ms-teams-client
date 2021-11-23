@@ -43,7 +43,7 @@ void fetchTeams(SoupSession *session, std::string &chatSvcAggToken, GMainLoop* l
     std::string tokenstr = "Bearer " + chatSvcAggToken;
 
     soup_message_headers_append(msg->request_headers,"Authorization",tokenstr.c_str());
-    soup_session_queue_message(session,msg,callback,loop);  //fetchTeamsCallback
+    soup_session_queue_message(session,msg,callback,(gpointer)callback_data);//loop);  //fetchTeamsCallback
 }
 
 

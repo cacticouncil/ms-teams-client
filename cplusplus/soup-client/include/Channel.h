@@ -35,4 +35,6 @@ class Channel{
     void SetChannelTeamId(std::string);
     void SetChannelMgs(std::vector<Message>&);
 
+    std::string GetChannelSummary();
+
 };

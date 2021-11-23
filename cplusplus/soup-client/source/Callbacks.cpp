@@ -165,11 +165,12 @@ void jsonArrayGetChannelMessages(  JsonArray* array,  guint index_,  JsonNode* e
 
 void fetchTeamsCallback(SoupSession *session, SoupMessage *msg, gpointer user_data){
 
-    displayResponseInfo( msg, true, "fetchTeamsInfo.local.json");
-
+    displayResponseInfo( msg, false, "fetchTeamsInfo.local.json");
+    GPtrArray *data_arr = (GPtrArray*)user_data;
+    
     std::string credFilename = "fetchTeamsInfo.local.json";
     JsonParser *parser = json_parser_new();
-    GError *err;
+    GError *err = nullptr;
 
     if(json_parser_load_from_file(parser,credFilename.c_str(),&err)){
         //using JsonObject* to read the array from here rather than from a JsonNode* since array is a complex type
@@ -184,8 +185,9 @@ void fetchTeamsCallback(SoupSession *session, SoupMessage *msg, gpointer user_da
         g_error_free (err);
         g_object_unref (parser);
     }
-
-    GMainLoop *loop = (GMainLoop *) user_data;
+    
+    GMainLoop *loop = (GMainLoop*)g_ptr_array_index(data_arr, 1);
+    
     g_main_loop_quit(loop);
 }
 
