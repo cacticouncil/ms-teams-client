@@ -18,10 +18,9 @@
 
 int main(int argc, char *argv[]){
 
-
     //return runConsoleApp();
-   //return testingFetchUsers();
-   return testFetchChannelMessages();
+    //return testingFetchUsers();
+    return testFetchChannelMessages();
 }
 
 int testScript(){
@@ -224,24 +223,23 @@ int testFetchChannelMessages(){
 
     Channel myChannel;
 
+    //If we wanted to add a message to the vector (obviously with all the other info filled up as well)
     Message m;
     m.SetMsgContent("Empty Content\n");
     Message x;
     x.SetMsgContent("X Message\n");
     inQuestion.GetChannelList().push_back(&myChannel);
-    myChannel.GetChannelMgs().push_back(&m);
-    myChannel.GetChannelMgs().push_back(&x);
+    myChannel.GetChannelMgs().push_back(m);
+    myChannel.GetChannelMgs().push_back(x);
 
     for (Channel* c: inQuestion.GetChannelList()){
-        for (Message* i : c->GetChannelMgs() ){
-            std::cout<<i->GetMsgContent()<<std::endl;
+        for (Message i : c->GetChannelMgs() ){
+            std::cout<<i.GetMsgContent()<<std::endl;
         }
     }
 */   
 
-
-
-    
+   
     std::string skypeToken;
     std::string chatSvcAggToken;
     std::string skypeSpacesToken;
@@ -259,16 +257,6 @@ int testFetchChannelMessages(){
     Channel channel;
     channel.SetChannelId(channelId);
 
-    //filling up temporarily
-    Message m;
-    m.SetMsgContent("Empty Content\n");
-    Message x;
-    x.SetMsgContent("X Message\n");
-    channel.GetChannelMgs().push_back(m);
-    channel.GetChannelMgs().push_back(x);
-
-
-
     GMainLoop* loop = g_main_loop_new(NULL, FALSE);
     SoupSession *session = soup_session_new();
 
@@ -277,20 +265,20 @@ int testFetchChannelMessages(){
     g_ptr_array_add(msgs_callback_data,loop);//1
    
 
-
     //This API call is specific for channel message populaiton.
-    //Any testing done here with the Team and Channel object are focusing on that, the rest of the fields for these classesa are empty for this testing
-	fetchChannelMessages(session,chatSvcAggToken, loop, &team, &channel, 3, fetchChannelMessagesCallback, msgs_callback_data );
+    //Any testing done here with the Team and Channel object are focusing on that, the rest of the fields for these claases (Channel and Team) are empty for this testing
+    //Only testing channel messages gets populated
+	fetchChannelMessages(session,chatSvcAggToken, loop, &team, &channel, 5, fetchChannelMessagesCallback, msgs_callback_data );
 
 
 
     g_main_loop_run (loop);
 
 
-    std::cout<< "\n\n AFTER: \n"<<std::endl;
+    std::cout<< "\n\n AFTER THE API CALLS: \n"<<std::endl;
     
     for (Message i : channel.GetChannelMgs() ){
-        std::cout<<i.GetMsgContent()<<std::endl;
+        std::cout<<i.GetMessageSummary()<<std::endl;
     }
 
     g_main_loop_unref (loop);
