@@ -20,10 +20,10 @@ int main(int argc, char *argv[]){
 
     //return runConsoleApp();
     //return testingFetchUsers();
-    //return testFetchChannelMessages();
+    return testFetchChannelMessages();
     //return testCreateTeam();
     //return testDeleteChannel();
-    return testDeleteTeam();
+    //return testDeleteTeam();
 }
 
 int testScript(){

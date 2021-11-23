@@ -77,7 +77,7 @@ void fetchChannelMessagesCallback(SoupSession *session, SoupMessage *msg, gpoint
     GPtrArray *data_arr = (GPtrArray*)user_data;
     std::string credFilename = "fetchChannelMessagesInfo.local.json";
     JsonParser *parser = json_parser_new();
-    GError *err;
+    GError *err = nullptr;
 
     if(json_parser_load_from_file(parser,credFilename.c_str(),&err)){
         //using JsonObject* to read the array from here rather than from a JsonNode* since array is a complex type
