@@ -19,7 +19,7 @@
 int main(int argc, char *argv[]){
 
 
-   //return runConsoleApp();
+    //return runConsoleApp();
    //return testingFetchUsers();
    return testFetchChannelMessages();
 }
@@ -237,7 +237,9 @@ int testFetchChannelMessages(){
             std::cout<<i->GetMsgContent()<<std::endl;
         }
     }
-*/    
+*/   
+
+
 
     
     std::string skypeToken;
@@ -257,17 +259,40 @@ int testFetchChannelMessages(){
     Channel channel;
     channel.SetChannelId(channelId);
 
+    //filling up temporarily
+    Message m;
+    m.SetMsgContent("Empty Content\n");
+    Message x;
+    x.SetMsgContent("X Message\n");
+    channel.GetChannelMgs().push_back(m);
+    channel.GetChannelMgs().push_back(x);
+
+
+
     GMainLoop* loop = g_main_loop_new(NULL, FALSE);
     SoupSession *session = soup_session_new();
+
+    GPtrArray *msgs_callback_data = g_ptr_array_new();
+    g_ptr_array_add(msgs_callback_data,&channel.GetChannelMgs()); //0
+    g_ptr_array_add(msgs_callback_data,loop);//1
+   
 
 
     //This API call is specific for channel message populaiton.
     //Any testing done here with the Team and Channel object are focusing on that, the rest of the fields for these classesa are empty for this testing
-	fetchChannelMessages(session,chatSvcAggToken, loop, &team, &channel, 10, fetchChannelMessagesCallback );
+	fetchChannelMessages(session,chatSvcAggToken, loop, &team, &channel, 3, fetchChannelMessagesCallback, msgs_callback_data );
 
 
 
     g_main_loop_run (loop);
+
+
+    std::cout<< "\n\n AFTER: \n"<<std::endl;
+    
+    for (Message i : channel.GetChannelMgs() ){
+        std::cout<<i.GetMsgContent()<<std::endl;
+    }
+
     g_main_loop_unref (loop);
 
     return 0;
