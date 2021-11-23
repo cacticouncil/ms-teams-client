@@ -11,4 +11,5 @@ int testFetchTeams();
 int testFetchChannelMessages();
 int testingFetchUsers();
 int testCreateTeam();
-
+int testDeleteChannel();
+int testDeleteTeam();

@@ -20,7 +20,10 @@ int main(int argc, char *argv[]){
 
     //return runConsoleApp();
     //return testingFetchUsers();
-    return testFetchChannelMessages();
+    //return testFetchChannelMessages();
+    //return testCreateTeam();
+    //return testDeleteChannel();
+    return testDeleteTeam();
 }
 
 int testScript(){
@@ -365,10 +368,53 @@ int testCreateTeam(){
 
     std::string teamId = "19:0MaeOcpNpAX-HchAP2Z8xnw6j_QYsq6htWoAsD94QxY1@thread.tacv2";
     //19:0MaeOcpNpAX-HchAP2Z8xnw6j_QYsq6htWoAsD94QxY1@thread.tacv2
-    std::string name = "Fresh Channel";
-    createTeamName(session,loop,skypeSpacesToken,name,validateNameCallback);
+    std::string name = "Testiest of testis";
+    //createTeamName(session,loop,skypeSpacesToken,name,validateNameCallback);
 	//createTeam(session,loop,skypeSpacesToken,name,description);
-    //createChannel(session,loop,skypeSpacesToken,teamId,name);
+    createChannel(session,loop,skypeSpacesToken,teamId,name,skypeToken);
+
+    g_main_loop_run (loop);
+
+    g_main_loop_unref (loop);
+    g_object_unref(session);
+
+    return 0;
+}
+
+int testDeleteChannel(){
+    std::string skypeToken;
+    std::string chatSvcAggToken;
+    std::string skypeSpacesToken;
+    std::string currUserId;
+    readCredentials(skypeToken, chatSvcAggToken, skypeSpacesToken, currUserId);
+
+    GMainLoop* loop = g_main_loop_new(NULL, FALSE);
+    SoupSession *session = soup_session_new();
+
+    std::string teamId = "19:0MaeOcpNpAX-HchAP2Z8xnw6j_QYsq6htWoAsD94QxY1@thread.tacv2";
+    std::string channelId = "19:955c605b9bdb428a846f4e7246c813e6@thread.tacv2";
+    deleteChannel(session,loop,skypeSpacesToken,skypeToken,teamId,channelId);
+
+    g_main_loop_run (loop);
+
+    g_main_loop_unref (loop);
+    g_object_unref(session);
+
+    return 0;
+}
+
+int testDeleteTeam(){
+    std::string skypeToken;
+    std::string chatSvcAggToken;
+    std::string skypeSpacesToken;
+    std::string currUserId;
+    readCredentials(skypeToken, chatSvcAggToken, skypeSpacesToken, currUserId);
+
+    GMainLoop* loop = g_main_loop_new(NULL, FALSE);
+    SoupSession *session = soup_session_new();
+
+    std::string teamId = "19:JLj0jdpffy_WxMmxRpkVEYJXsvzIdwhxqOzGvU9OrpM1@thread.tacv2";
+    deleteTeam(session,loop,skypeSpacesToken,skypeToken,teamId);
 
     g_main_loop_run (loop);
 
