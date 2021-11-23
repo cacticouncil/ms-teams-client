@@ -7,7 +7,7 @@
 class Channel{
    
     //ReplyChain channelMsgs;
-    std::vector<Message*> channelMgs; //replace with map
+    std::vector<Message> channelMgs; //replace with map
 
     //map<msgId, Message>
 
@@ -28,17 +28,17 @@ class Channel{
         this->parentTeamId="" ;  
     }
 
-    Channel(std::vector<Message*> channelMgs, std::string displayName, std::string ,  std::string parentTeamId);
+    Channel(std::vector<Message> channelMgs, std::string displayName, std::string ,  std::string parentTeamId);
     
     //Accessors
     std::string GetChannelDisplayName();
     std::string GetChannelId();
     std::string GetChannelTeamId();
-    std::vector<Message*>& GetChannelMgs();
+    std::vector<Message>& GetChannelMgs();
     //Modifiers
     void SetChannelDisplayName(std::string);
     void SetChannelId(std::string);
     void SetChannelTeamId(std::string);
-    void SetChannelMgs(std::vector<Message*>&);
+    void SetChannelMgs(std::vector<Message>&);
 
 };
