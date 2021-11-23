@@ -21,6 +21,9 @@
 
 //could maybe replace struct with singleton
 Auth appAuth; //holds auth tokens (and userId for kinda no reason)
+std::map<std::string,User*> usersMap;
+std::map<std::string,Team*> teamMap;
+std::map<std::string,Channel*> channelMap;
 
 //add logout
 //main console app run function
@@ -57,9 +60,15 @@ int runConsoleApp(){
 
     User currUser;
     currUser.SetUserOid(appAuth.currUserId);
-
-    std::map<std::string,User*> usersMap;
     usersMap.emplace(appAuth.currUserId,&currUser);
+
+    Team currTeam;
+    currTeam.SetTeamId("19:0MaeOcpNpAX-HchAP2Z8xnw6j_QYsq6htWoAsD94QxY1@thread.tacv2");
+    teamMap.emplace(currTeam.GetTeamId(),&currTeam);
+
+    Channel currChannel;
+    currChannel.SetChannelId(currTeam.GetTeamId());
+    channelMap.emplace(currChannel.GetChannelId(),&currChannel);
     
     std::vector<User*> userList;
     userList.push_back(&currUser);
@@ -91,14 +100,24 @@ int runConsoleApp(){
 //switch to call from getMessages callback
 //add back function
 void displayMain(SoupSession *session, GMainLoop *loop){//, std::string &skypeToken){
+    Team currTeam = *teamMap["19:0MaeOcpNpAX-HchAP2Z8xnw6j_QYsq6htWoAsD94QxY1@thread.tacv2"];
+    Channel currChannel = *(channelMap["19:0MaeOcpNpAX-HchAP2Z8xnw6j_QYsq6htWoAsD94QxY1@thread.tacv2"]);
+    //std::string channelId = "19:5c7c73c0315144a4ab58108a897695a9@thread.tacv2";
+
+    if(!currChannel.GetChannelMgs().empty()){
+        for(Message m : currChannel.GetChannelMgs()){
+            std::cout << "\nFrom: " << m.GetSenderOid() << "\n";
+            std::cout << "Content: " << m.GetMsgContent() << "\n";
+        }
+    }
+    
     std::cout << "\nSend Message: [1]\n";
     std::cout << "Create New Team: [2]\n";
+    std::cout << "Fetch Messages: [3]\n";
     std::cout << "Refresh: [ENTER]\n";
     std::cout << "Quit: [q]\n";
 
     static int msgCt = 1;
-    
-    std::string channelId = "19:5c7c73c0315144a4ab58108a897695a9@thread.tacv2";
 
     std::string input;
     std::cout << "\nInput: ";
@@ -118,7 +137,8 @@ void displayMain(SoupSession *session, GMainLoop *loop){//, std::string &skypeTo
 
         /* std::string tokenPrefix = "skypetoken=";
         std::string unprefixedToken = skypeToken.substr(tokenPrefix.size(),std::string::npos); */
-        sendChannelMessage(session,loop,msgtext,appAuth.skypeToken/* unprefixedToken */,channelId,sendMessageCallback);
+        std::string targetId = currChannel.GetChannelId();
+        sendChannelMessage(session,loop,msgtext,appAuth.skypeToken/* unprefixedToken */,/* channelId */targetId,sendMessageCallback);
         
         msgCt++;
     }
@@ -131,6 +151,14 @@ void displayMain(SoupSession *session, GMainLoop *loop){//, std::string &skypeTo
 
         //populate skypeSpacesToken, pass all tokens to displayMain maybe
         createTeamName(session,loop,appAuth.skypeSpacesToken,teamname,teamNameValidatedCallback);
+    }
+    else if(input == "3"){
+        GPtrArray *msgs_callback_data = g_ptr_array_new();
+        std::vector<Message> msgVect = currChannel.GetChannelMgs();
+        g_ptr_array_add(msgs_callback_data,&msgVect); //0
+        g_ptr_array_add(msgs_callback_data,loop);//1
+        std::cout << "Init vect: " << &msgVect << "\n";
+        fetchChannelMessages(session,appAuth.chatSvcAggToken,loop,&currTeam,&currChannel,5,fetchMessagesCallback,msgs_callback_data);
     }
     else{
         return; //on "refresh", call getMessages/cached messages with custom event
@@ -343,7 +371,7 @@ void teamNameValidatedCallback(SoupSession *session, SoupMessage *msg, gpointer 
         g_print("Validation Response: %s\n",msg->response_body->data);
 
         JsonParser *parser = json_parser_new();
-        GError *err;
+        GError *err = NULL;
 
         if(json_parser_load_from_data(parser,msg->response_body->data,strlen(msg->response_body->data),&err)){
             JsonReader *reader = json_reader_new(json_parser_get_root(parser));
@@ -386,4 +414,88 @@ void teamCreatedCallback(SoupSession *session, SoupMessage *msg, gpointer user_d
     }
 
     displayMain(session,(GMainLoop *)user_data);
+}
+
+void fetchMessagesCallback(SoupSession *session, SoupMessage *msg, gpointer user_data){
+    if(msg->status_code >= 200 && msg->status_code < 300){
+        g_print("Messages Retrieved\n");
+    }
+    else{
+        g_printerr("ERROR: Code: %d\n",msg->status_code);
+    }
+    
+    JsonParser *parser = json_parser_new();
+    GError *err = NULL;
+
+    GPtrArray *data_arr = (GPtrArray*)user_data;
+    GMainLoop *loop = (GMainLoop*)g_ptr_array_index(data_arr, 1);
+
+    if(json_parser_load_from_data(parser,msg->response_body->data,strlen(msg->response_body->data),&err)){
+        JsonNode* root = json_parser_get_root(parser);
+        JsonObject* rootObj = json_node_get_object(root); 
+        JsonArray* arr = json_object_get_array_member(rootObj, "replyChains");
+
+        json_array_foreach_element(arr, parseReplyChains, user_data); //middle level callback
+
+        displayMain(session,loop);
+    }
+     else{
+        g_printerr("ERROR: Unable to parse response: %s\n", err->message);
+        g_error_free (err);
+        g_object_unref (parser);
+
+        g_main_loop_quit(loop);
+    } 
+}
+
+void parseReplyChains(JsonArray* array, guint index_, JsonNode* element_node, gpointer user_data){
+    JsonObject* currObj = json_array_get_object_element(array, index_);
+
+    JsonNode* value = json_object_get_member(currObj, "containerId");
+    std::string tempStr = json_node_get_string(value);
+    
+    //appending the channel id to the callback data for the next callback to assign to the message channel container id 
+    GPtrArray *data_arr = (GPtrArray*)user_data;
+    g_ptr_array_add(data_arr, &tempStr);
+
+    JsonArray* messageArr = json_object_get_array_member(currObj, "messages");
+
+    json_array_foreach_element(messageArr, parseMessages, (gpointer) data_arr);
+}
+
+void parseMessages(JsonArray* array, guint index_, JsonNode* element_node, gpointer user_data){
+    GPtrArray *data_arr = (GPtrArray*)user_data;
+    int i = (int) index_;
+    /* std::cout << "Index: " << i << "\n";
+    std::vector<Message> *msgVect = (std::vector<Message> *)g_ptr_array_index(data_arr, 0);
+    std::cout << "parseVect: " << msgVect << "\n"; */
+    std::string* channId = (std::string*)g_ptr_array_index(data_arr, 2); //Values at index: 0-vect, 1-loop, 2- just added the channel id in the middleLayer callback
+    
+    Channel *currChannel = channelMap[*channId];
+
+    Message t;
+    t.SetMsgContainerChannelId(*(channId));
+
+    JsonObject* currObj = json_array_get_object_element(array, index_);  //current array object being disected
+
+    JsonNode* value = json_object_get_member(currObj, "content");
+    t.SetMsgContent(json_node_get_string(value));
+    
+    value = json_object_get_member(currObj, "id");
+    t.SetMsgId(json_node_get_string(value));
+
+    value = json_object_get_member(currObj, "parentMessageId");
+    t.SetMsgParentId(json_node_get_string(value));
+
+    int seqId = json_object_get_int_member (currObj, "sequenceId");
+    t.SetMsgSequenceId(seqId);
+
+    value = json_object_get_member(currObj, "from");
+    t.SetSenderMri(json_node_get_string(value));
+
+    value = json_object_get_member(currObj, "originalArrivalTime");
+    t.SetArrivalTime(json_node_get_string(value));
+
+    currChannel->GetChannelMgs().push_back(t);
+    //msgVect->push_back(t);
 }

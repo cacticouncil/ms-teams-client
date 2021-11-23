@@ -1,3 +1,4 @@
+#include <iostream>
 #include <libsoup/soup.h>
 
 #include "../include/fetch.h"
@@ -121,20 +122,20 @@ void jsonArrayChannelList(  JsonArray* array,  guint index_,  JsonNode* element_
 
 //void fetchChannelMessages(SoupSession* session, std::string& chatSvcAggToken,  GMainLoop* loop, std::string& teamId, std::string& channelId, int pageSize) //old
 void fetchChannelMessages(SoupSession* session, std::string& chatSvcAggToken, GMainLoop* loop, Team* team, Channel* channel, int pageSize, SoupSessionCallback callback, GPtrArray* callback_data){
-    std::string teamId= team->GetTeamId();
-    std::string channelId=channel->GetChannelId();
+    std::string teamId = team->GetTeamId();
+    std::string channelId = channel->GetChannelId();
     //formulating the url
     std::string url = "https://teams.microsoft.com/api/csa/api/v2/teams/" + teamId + "/channels/" + channelId;
     url += "?";
     url += "pageSize=" + std::to_string(pageSize);
-    if(teamId == channelId) url+= "&filterSystemMessage=true";
-
+    if(teamId == channelId) url += "&filterSystemMessage=true";
+    std::cout << "Url: " << url << "\n";
     //Initializing the mesage after url is fully constructed
     SoupMessage *msg = soup_message_new(SOUP_METHOD_GET, url.c_str());
 
     //auth
     std::string tokenstr = "Bearer " + chatSvcAggToken;
-
+    std::cout << "Token: " << tokenstr << "\n";
     soup_message_headers_append(msg->request_headers,"Authorization",tokenstr.c_str());
     soup_session_queue_message(session,msg,callback,(gpointer)callback_data);//fetchChannelMessagesCallback
 
