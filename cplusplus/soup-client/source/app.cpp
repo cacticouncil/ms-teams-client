@@ -466,11 +466,8 @@ void parseReplyChains(JsonArray* array, guint index_, JsonNode* element_node, gp
 void parseMessages(JsonArray* array, guint index_, JsonNode* element_node, gpointer user_data){
     GPtrArray *data_arr = (GPtrArray*)user_data;
     int i = (int) index_;
-    /* std::cout << "Index: " << i << "\n";
-    std::vector<Message> *msgVect = (std::vector<Message> *)g_ptr_array_index(data_arr, 0);
-    std::cout << "parseVect: " << msgVect << "\n"; */
+
     std::string* channId = (std::string*)g_ptr_array_index(data_arr, 2); //Values at index: 0-vect, 1-loop, 2- just added the channel id in the middleLayer callback
-    
     Channel *currChannel = channelMap[*channId];
 
     Message t;
@@ -497,5 +494,4 @@ void parseMessages(JsonArray* array, guint index_, JsonNode* element_node, gpoin
     t.SetArrivalTime(json_node_get_string(value));
 
     currChannel->GetChannelMgs().push_back(t);
-    //msgVect->push_back(t);
 }
