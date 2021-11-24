@@ -24,6 +24,7 @@ int main(int argc, char *argv[]){
     //return testCreateTeam();
     //return testDeleteChannel();
     //return testDeleteTeam();
+    return testFetchTeams();
 }
 
 int testScript(){
@@ -199,7 +200,7 @@ int testSoup(){
     return 0;
 }
 
-//testing fetchTeams Sync/Async options
+//testing fetchTeams Async
 int testFetchTeams(){
     std::string skypeToken;
     std::string chatSvcAggToken;
@@ -210,10 +211,29 @@ int testFetchTeams(){
     GMainLoop *loop = g_main_loop_new (NULL, FALSE);
     SoupSession *session = soup_session_new();
 
-    //fetchTeamsSync(session,chatSvcAggToken); //for testing the Sync Version
-    fetchTeams(session,chatSvcAggToken, loop);
+    std::vector<Team> teamList;
+
+    GPtrArray *user_data = g_ptr_array_new();
+    g_ptr_array_add(user_data,&teamList);  //0 team vector (each team has its own channel vector, which will aslo be filled out)
+    g_ptr_array_add(user_data,loop);   //1 loop
+
+    fetchTeams(session,chatSvcAggToken, loop, fetchTeamsCallback , user_data);
+
+
+
+    //after teams is full, we will fill up the channelMessages using that API functionality, not exactly sure about the order in the loop etc
+
     g_main_loop_run (loop);
-    //g_main_loop_quit (loop); //for when testing the Sync Version
+
+
+    std::cout << "\n\n TOTAL NUMBER OF TEAMS IN LSIT: "<<teamList.size() <<std::endl;
+
+    for (Team temp: teamList){
+        temp.GetTeamSummary();
+    }
+
+    std::cout<<teamList[0].GetTeamDisplayName();
+
     g_main_loop_unref (loop);
 
     return 0;

@@ -77,7 +77,7 @@ void fetchChannelMessagesCallback(SoupSession *session, SoupMessage *msg, gpoint
     GPtrArray *data_arr = (GPtrArray*)user_data;
     std::string credFilename = "fetchChannelMessagesInfo.local.json";
     JsonParser *parser = json_parser_new();
-    GError *err;
+    GError *err = nullptr;
 
     if(json_parser_load_from_file(parser,credFilename.c_str(),&err)){
         //using JsonObject* to read the array from here rather than from a JsonNode* since array is a complex type
@@ -160,3 +160,125 @@ void jsonArrayGetChannelMessages(  JsonArray* array,  guint index_,  JsonNode* e
 
 
 
+
+
+
+void fetchTeamsCallback(SoupSession *session, SoupMessage *msg, gpointer user_data){
+
+    displayResponseInfo( msg, false, "fetchTeamsInfo.local.json");
+    GPtrArray *data_arr = (GPtrArray*)user_data;
+    
+    std::string credFilename = "fetchTeamsInfo.local.json";
+    JsonParser *parser = json_parser_new();
+    GError *err = nullptr;
+
+    if(json_parser_load_from_file(parser,credFilename.c_str(),&err)){
+        //using JsonObject* to read the array from here rather than from a JsonNode* since array is a complex type
+        JsonNode* root= json_parser_get_root(parser);
+        JsonObject* rootObj= json_node_get_object(root); 
+        JsonArray* arr= json_object_get_array_member(rootObj, "teams");  //just like this there s a whole other "chats" array afte the teams with information about group DMs
+
+        json_array_foreach_element(arr, jsonArrayFetchTeams, user_data);
+    }
+     else{
+        g_print ("Unable to parse '%s': %s\n", credFilename.c_str(), err->message);
+        g_error_free (err);
+        g_object_unref (parser);
+    }
+    
+    GMainLoop *loop = (GMainLoop*)g_ptr_array_index(data_arr, 1); //1- loop
+
+    g_main_loop_quit(loop);
+}
+
+
+void jsonArrayFetchTeams(  JsonArray* array,  guint index_,  JsonNode* element_node,  gpointer user_data){
+
+    GPtrArray *data_arr = (GPtrArray*)user_data;
+ 
+    std::vector<Team> *teamVect = (std::vector<Team> *)g_ptr_array_index(data_arr, 0); //0-team vect; 1-loop
+
+    //Constructing each individual team
+
+    Team t;
+
+    JsonObject* currObj =json_array_get_object_element(array, index_);  //current array object being disected
+    JsonNode* value =json_object_get_member(currObj, "displayName"); 
+    t.SetTeamDisplayName(json_node_get_string(value));
+
+    value =json_object_get_member(currObj, "id"); 
+    t.SetTeamId(json_node_get_string(value));
+
+    value =json_object_get_member(currObj, "creator");
+    t.SetCreatorMri(json_node_get_string(value));
+
+
+    JsonNode* teamValue =json_object_get_member(currObj, "teamSiteInformation");
+    JsonObject* teamSiteInfo =json_node_get_object(teamValue); //turing it into an object to get info from its members
+    JsonNode* member =json_object_get_member(teamSiteInfo, "groupId");
+    std::string groupId =json_node_get_string(member);
+    t.SetTeamGroupId(groupId);
+
+  
+    JsonNode* membershipValue =json_object_get_member(currObj, "membershipSummary");
+    JsonObject* memberObject =json_node_get_object(membershipValue); //turing it into an object to get info from its members
+    int count =json_object_get_int_member(memberObject, "totalMemberCount");
+    t.SetTotalMemberCount(count);
+
+
+    std::cout<< "Channel List for " + t.GetTeamDisplayName() + " :\n\n";
+
+    //passing a pointer ot the team to access its vector of channels from withing the next callback (jsonArrayChannelList)
+    g_ptr_array_add(data_arr, &t.GetChannelList()); //index 2 for Team channel list
+
+    JsonArray* channelArr= json_object_get_array_member(currObj, "channels");
+
+    json_array_foreach_element(channelArr, jsonArrayChannelList, (gpointer) data_arr);
+
+    teamVect->push_back(t);
+
+}
+
+
+void jsonArrayChannelList(  JsonArray* array,  guint index_,  JsonNode* element_node,  gpointer user_data){
+    //  IMPORTANT NOTE: At this time, this callback DOES NOT fill up the channel message array, this is to be done outside of this API call as a separate call 
+       
+    GPtrArray *data_arr = (GPtrArray*)user_data;
+    std::vector<Channel> * teamChannels= (std::vector<Channel> *)g_ptr_array_index(data_arr, 2);
+
+    Channel channel;
+
+    JsonObject* currObj =json_array_get_object_element(array, index_);  //current array object being disected
+
+
+    JsonNode* value =json_object_get_member(currObj, "displayName"); //member name here
+    //std::string channelNameStr = json_node_get_string(channelName);
+    channel.SetChannelDisplayName(json_node_get_string(value));
+
+    value = json_object_get_member(currObj, "id"); 
+    channel.SetChannelId(json_node_get_string(value));
+
+    value = json_object_get_member(currObj, "parentTeamId"); 
+    channel.SetChannelTeamId(json_node_get_string(value));
+
+    //"isMember": false,
+    bool isMember = json_object_get_boolean_member(currObj, "isMember");
+    channel.SetIsChannelMember(isMember);
+
+    if (isMember){
+        value = json_object_get_member(currObj, "creator"); 
+        channel.SetChannelCreatorMri(json_node_get_string(value));
+
+        value = json_object_get_member(currObj, "groupId"); 
+        channel.SetChannelGroupId(json_node_get_string(value));
+    }
+
+
+    // std::cout<< channel.GetChannelDisplayName() + "\n";
+
+    // std::cout<< "Id: " + channel.GetChannelId() + "\n";
+
+
+    teamChannels->push_back(channel);
+    
+}
