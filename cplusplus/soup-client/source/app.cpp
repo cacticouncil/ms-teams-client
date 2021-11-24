@@ -19,11 +19,14 @@
 //develop standardized solution for tokens in core API; currently ones called only from callbacks use prepended token
 //possibly switch all to just token; develop function which takes Authentication vs Authorization and prepended tokenstr, extracts just token to pass
 
+//globals
 //could maybe replace struct with singleton
 Auth appAuth; //holds auth tokens (and userId for kinda no reason)
 std::map<std::string,User*> usersMap;
 std::map<std::string,Team*> teamMap;
 std::map<std::string,Channel*> channelMap;
+std::string currTeamId;
+std::string currChannelId;
 
 //add logout
 //main console app run function
@@ -53,16 +56,19 @@ int runConsoleApp(){
     SoupSession *session = soup_session_new();
     GMainLoop *loop = g_main_loop_new(NULL,false);
 
+    currTeamId = "19:0MaeOcpNpAX-HchAP2Z8xnw6j_QYsq6htWoAsD94QxY1@thread.tacv2";
+    currChannelId = currTeamId;
+
     User currUser;
     currUser.SetUserOid(appAuth.currUserId);
     usersMap.emplace(appAuth.currUserId,&currUser);
 
     Team currTeam;
-    currTeam.SetTeamId("19:0MaeOcpNpAX-HchAP2Z8xnw6j_QYsq6htWoAsD94QxY1@thread.tacv2");
+    currTeam.SetTeamId(currTeamId);
     teamMap.emplace(currTeam.GetTeamId(),&currTeam);
 
     Channel currChannel;
-    currChannel.SetChannelId(currTeam.GetTeamId());
+    currChannel.SetChannelId(currChannelId);
     channelMap.emplace(currChannel.GetChannelId(),&currChannel);
     
     std::vector<User*> userList;
@@ -95,8 +101,8 @@ int runConsoleApp(){
 //switch to call from getMessages callback
 //add back function
 void displayMain(SoupSession *session, GMainLoop *loop){//, std::string &skypeToken){
-    Team currTeam = *teamMap["19:0MaeOcpNpAX-HchAP2Z8xnw6j_QYsq6htWoAsD94QxY1@thread.tacv2"];
-    Channel currChannel = *(channelMap["19:0MaeOcpNpAX-HchAP2Z8xnw6j_QYsq6htWoAsD94QxY1@thread.tacv2"]);
+    Team currTeam = *teamMap[currTeamId];
+    Channel currChannel = *channelMap[currChannelId];
     //std::string channelId = "19:5c7c73c0315144a4ab58108a897695a9@thread.tacv2";
 
     if(!currChannel.GetChannelMgs().empty()){
@@ -133,8 +139,8 @@ void displayMain(SoupSession *session, GMainLoop *loop){//, std::string &skypeTo
 
         /* std::string tokenPrefix = "skypetoken=";
         std::string unprefixedToken = skypeToken.substr(tokenPrefix.size(),std::string::npos); */
-        std::string targetId = currChannel.GetChannelId();
-        sendChannelMessage(session,loop,msgtext,appAuth.skypeToken/* unprefixedToken */,/* channelId */targetId,sendMessageCallback);
+        //std::string targetId = currChannel.GetChannelId();
+        sendChannelMessage(session,loop,msgtext,appAuth.skypeToken/* unprefixedToken */,/* channelId *//* targetId */currChannelId,sendMessageCallback);
         
         msgCt++;
     }
@@ -163,7 +169,7 @@ void displayMain(SoupSession *session, GMainLoop *loop){//, std::string &skypeTo
 
         std::cout << "Creating new channel...\n";
 
-        std::string currTeamId = currTeam.GetTeamId();
+        /* std::string currTeamId = currTeam.GetTeamId(); */
         createChannel(session,loop,appAuth.skypeSpacesToken,currTeamId,channelname,appAuth.skypeToken,teamCreatedCallback);
     }
     else{
