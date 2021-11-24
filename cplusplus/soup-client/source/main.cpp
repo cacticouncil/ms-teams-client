@@ -220,12 +220,19 @@ int testFetchTeams(){
     fetchTeams(session,chatSvcAggToken, loop, fetchTeamsCallback , user_data);
 
 
+
     //after teams is full, we will fill up the channelMessages using that API functionality, not exactly sure about the order in the loop etc
 
     g_main_loop_run (loop);
 
 
     std::cout << "\n\n TOTAL NUMBER OF TEAMS IN LSIT: "<<teamList.size() <<std::endl;
+
+    for (Team temp: teamList){
+        temp.GetTeamSummary();
+    }
+
+    std::cout<<teamList[0].GetTeamDisplayName();
 
     g_main_loop_unref (loop);
 

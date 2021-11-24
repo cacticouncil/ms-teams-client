@@ -176,7 +176,7 @@ void fetchTeamsCallback(SoupSession *session, SoupMessage *msg, gpointer user_da
         //using JsonObject* to read the array from here rather than from a JsonNode* since array is a complex type
         JsonNode* root= json_parser_get_root(parser);
         JsonObject* rootObj= json_node_get_object(root); 
-        JsonArray* arr= json_object_get_array_member(rootObj, "teams");
+        JsonArray* arr= json_object_get_array_member(rootObj, "teams");  //just like this there s a whole other "chats" array afte the teams with information about group DMs
 
         json_array_foreach_element(arr, jsonArrayFetchTeams, user_data);
     }
@@ -198,6 +198,8 @@ void jsonArrayFetchTeams(  JsonArray* array,  guint index_,  JsonNode* element_n
  
     std::vector<Team> *teamVect = (std::vector<Team> *)g_ptr_array_index(data_arr, 0); //0-team vect; 1-loop
 
+    //Constructing each individual team
+
     Team t;
 
     JsonObject* currObj =json_array_get_object_element(array, index_);  //current array object being disected
@@ -207,33 +209,31 @@ void jsonArrayFetchTeams(  JsonArray* array,  guint index_,  JsonNode* element_n
     value =json_object_get_member(currObj, "id"); 
     t.SetTeamId(json_node_get_string(value));
 
+    value =json_object_get_member(currObj, "creator");
+    t.SetCreatorMri(json_node_get_string(value));
 
 
+    JsonNode* teamValue =json_object_get_member(currObj, "teamSiteInformation");
+    JsonObject* teamSiteInfo =json_node_get_object(teamValue); //turing it into an object to get info from its members
+    JsonNode* member =json_object_get_member(teamSiteInfo, "groupId");
+    std::string groupId =json_node_get_string(member);
+    t.SetTeamGroupId(groupId);
 
-    // std::string displayName;
-    // std::string id;
-
-    // std::string creatorMri; //creator   (something of its own BUT also something of the channel in case we want to add it there as a property? YESSSSS)
-
-    // std::vector<Channel> channelList;
-
-    // std::string totalMemberCount; // totalMemberCount  (within a membership summary object), will handle this one last
-    // std::string groupId;  (wihtin the teamSiteInformation contianer will handle in same way as total membercount )
-
-
-    std::cout<< "\nTeam: " + t.GetTeamDisplayName() + "\n\n";
-
-    std::cout<< "Team Id: " + t.GetTeamId() + "\n";
-
-    //Next I will attempt to get a list of channels per Team as well
-
-    std::cout<< "Channel List:\n";
+  
+    JsonNode* membershipValue =json_object_get_member(currObj, "membershipSummary");
+    JsonObject* memberObject =json_node_get_object(membershipValue); //turing it into an object to get info from its members
+    int count =json_object_get_int_member(memberObject, "totalMemberCount");
+    t.SetTotalMemberCount(count);
 
 
-    //My attempt to go into the other array
+    std::cout<< "Channel List for " + t.GetTeamDisplayName() + " :\n\n";
+
+    //passing a pointer ot the team to access its vector of channels from withing the next callback (jsonArrayChannelList)
+    g_ptr_array_add(data_arr, &t); //index 2 for Team*
+
     JsonArray* channelArr= json_object_get_array_member(currObj, "channels");
 
-    json_array_foreach_element(channelArr, jsonArrayChannelList, user_data);
+    json_array_foreach_element(channelArr, jsonArrayChannelList, (gpointer) data_arr);
 
     teamVect->push_back(t);
 
@@ -241,19 +241,44 @@ void jsonArrayFetchTeams(  JsonArray* array,  guint index_,  JsonNode* element_n
 
 
 void jsonArrayChannelList(  JsonArray* array,  guint index_,  JsonNode* element_node,  gpointer user_data){
+    //  IMPORTANT NOTE: At this time, this callback DOES NOT fill up the channel message array, this is to be done outside of this API call as a separate call 
+       
+    GPtrArray *data_arr = (GPtrArray*)user_data;
+    Team * team= (Team*)g_ptr_array_index(data_arr, 2);
+
+    Channel channel;
+
     JsonObject* currObj =json_array_get_object_element(array, index_);  //current array object being disected
-    JsonNode* channelName =json_object_get_member(currObj, "displayName"); //member name here
-    std::string channelNameStr = json_node_get_string(channelName);
 
-    JsonNode* channelId =json_object_get_member(currObj, "id"); //member name here
-    std::string channelIdStr = json_node_get_string(channelId);
 
-    std::cout<< channelNameStr + "\n";
+    JsonNode* value =json_object_get_member(currObj, "displayName"); //member name here
+    //std::string channelNameStr = json_node_get_string(channelName);
+    channel.SetChannelDisplayName(json_node_get_string(value));
 
-    std::cout<< "Id: " + channelIdStr + "\n";
+    value = json_object_get_member(currObj, "id"); 
+    channel.SetChannelId(json_node_get_string(value));
 
-    //Not sure exactly which one of these does what so I'll have to do some testing of my own to see which one to use for new message vs for reply to last message
-    // "version": 1635343945368,
-    // "threadVersion": 1635300285998,
+    value = json_object_get_member(currObj, "parentTeamId"); 
+    channel.SetChannelTeamId(json_node_get_string(value));
+
+    //"isMember": false,
+    bool isMember = json_object_get_boolean_member(currObj, "isMember");
+    channel.SetIsChannelMember(isMember);
+
+    if (isMember){
+        value = json_object_get_member(currObj, "creator"); 
+        channel.SetChannelCreatorMri(json_node_get_string(value));
+
+        value = json_object_get_member(currObj, "groupId"); 
+        channel.SetChannelGroupId(json_node_get_string(value));
+    }
+
+
+    // std::cout<< channel.GetChannelDisplayName() + "\n";
+
+    // std::cout<< "Id: " + channel.GetChannelId() + "\n";
+
+
+    team->GetChannelList().push_back(channel);
     
 }

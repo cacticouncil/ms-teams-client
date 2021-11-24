@@ -12,6 +12,8 @@ class Channel{
     std::string id;
     std::string parentTeamId;
     std::string creatorMri;
+    std::string groupId;
+    bool isMember;
 
 
     //Team* to team it belongs in
@@ -22,9 +24,11 @@ class Channel{
         this->id="";
         this->parentTeamId="" ;
         this->creatorMri = "";  
+        this->groupId="";
+        this->isMember= false;
     }
 
-    Channel(std::vector<Message> channelMgs, std::string displayName, std::string ,  std::string parentTeamId, std::string creatorMri);
+    Channel(std::vector<Message> channelMgs, std::string displayName, std::string ,  std::string parentTeamId, std::string creatorMri, std::string groupId,  bool isMember);
     
     //Accessors
     std::string GetChannelDisplayName();
@@ -32,6 +36,8 @@ class Channel{
     std::string GetChannelTeamId();
     std::vector<Message>& GetChannelMgs();
     std::string GetChannelCreatorMri();
+    std::string GetChannelGroupId();
+    bool GetIsChannelMember();
 
     //Modifiers
     void SetChannelDisplayName(std::string);
@@ -39,6 +45,9 @@ class Channel{
     void SetChannelTeamId(std::string);
     void SetChannelMgs(std::vector<Message>&);
     void SetChannelCreatorMri(std::string);
+    void SetChannelGroupId(std::string);
+    void SetIsChannelMember(bool);
+    
 
     std::string GetChannelSummary();
 

@@ -12,7 +12,7 @@ class Team{
     
     std::string displayName;
     std::string id;
-    std::string totalMemberCount;
+    int totalMemberCount;
     std::string creatorMri;
     std::string groupId;
     std::vector<Channel> channelList; //change to a map of id to Channel
@@ -23,17 +23,17 @@ class Team{
     Team(){
         this->displayName = "";
         this->id = "";
-        this->totalMemberCount = "";
+        this->totalMemberCount = 0;
         this->creatorMri = "";
         this->groupId = "";
     }
 
-    Team(std::string displayName, std::string id, std::string totalMemberCount, std::string creatorMri, std::string groupId, std::vector<Channel> channels);
+    Team(std::string displayName, std::string id, int totalMemberCount, std::string creatorMri, std::string groupId, std::vector<Channel> channels);
     
     //Accessors
     std::string GetTeamDisplayName();
     std::string GetTeamId();
-    std::string GetTotalMemberCount();
+    int GetTotalMemberCount();
     std::string GetCreatorMri();
     std::string GetTeamGroupId();
     std::vector<Channel>& GetChannelList();
@@ -41,7 +41,7 @@ class Team{
     //Modifiers
     void SetTeamDisplayName(std::string);
     void SetTeamId(std::string);
-    void SetTotalMemberCount(std::string);
+    void SetTotalMemberCount(int);
     void SetCreatorMri(std::string);
     void SetTeamGroupId(std::string);
     void SetChannelList(std::vector<Channel>&);

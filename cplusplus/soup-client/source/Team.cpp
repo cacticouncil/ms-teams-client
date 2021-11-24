@@ -1,6 +1,6 @@
 #include "../include/Team.h"
 
-Team::Team(std::string displayName, std::string id, std::string totalMemberCount, std::string creatorMri, std::string groupId, std::vector<Channel> channels){
+Team::Team(std::string displayName, std::string id, int totalMemberCount, std::string creatorMri, std::string groupId, std::vector<Channel> channels){
     this->displayName = displayName;
     this->id = id;
     this->totalMemberCount = totalMemberCount;
@@ -17,7 +17,7 @@ std::string Team::GetTeamId(){
     return id;
 }
 
-std::string Team::GetTotalMemberCount(){
+int Team::GetTotalMemberCount(){
     return totalMemberCount;
 }
 
@@ -42,7 +42,7 @@ void Team::SetTeamId(std::string teamId){
     id=teamId;
 }
 
-void Team::SetTotalMemberCount(std::string total){
+void Team::SetTotalMemberCount(int total){
     totalMemberCount=total;
 }
 
@@ -59,19 +59,20 @@ void Team::SetChannelList(std::vector<Channel>& channels){
 }
 
 std::string Team::GetTeamSummary(){
+
     std::string result = "Team Summary for " + this->GetTeamDisplayName() + ": \n";
 
     result += "team id: " + this->id;
-    result += "member count: " + this->totalMemberCount;
+    result += "total member count (including bots): " + this->totalMemberCount;
     result += "creator mri: " + this->creatorMri;
     result += "group id:" + this->groupId;
 
     result += "Content of Channel List:\n";
 
-    result += "channel id \t\t - \t\t channel name";
+    //result += "isMember \t|\t channel id \t|\t channel name";
 
     for(Channel c : this->channelList){
-       result +=  c.GetChannelId() + " | " + c.GetChannelDisplayName() + "\n";
+       result += c.GetChannelSummary();// c.GetChannelId() + " | " + c.GetChannelDisplayName() + "\n";
     }
 
     result += "\n";
