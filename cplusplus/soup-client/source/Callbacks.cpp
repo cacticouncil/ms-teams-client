@@ -229,7 +229,7 @@ void jsonArrayFetchTeams(  JsonArray* array,  guint index_,  JsonNode* element_n
     std::cout<< "Channel List for " + t.GetTeamDisplayName() + " :\n\n";
 
     //passing a pointer ot the team to access its vector of channels from withing the next callback (jsonArrayChannelList)
-    g_ptr_array_add(data_arr, &t); //index 2 for Team*
+    g_ptr_array_add(data_arr, &t.GetChannelList()); //index 2 for Team channel list
 
     JsonArray* channelArr= json_object_get_array_member(currObj, "channels");
 
@@ -244,7 +244,7 @@ void jsonArrayChannelList(  JsonArray* array,  guint index_,  JsonNode* element_
     //  IMPORTANT NOTE: At this time, this callback DOES NOT fill up the channel message array, this is to be done outside of this API call as a separate call 
        
     GPtrArray *data_arr = (GPtrArray*)user_data;
-    Team * team= (Team*)g_ptr_array_index(data_arr, 2);
+    std::vector<Channel> * teamChannels= (std::vector<Channel> *)g_ptr_array_index(data_arr, 2);
 
     Channel channel;
 
@@ -279,6 +279,6 @@ void jsonArrayChannelList(  JsonArray* array,  guint index_,  JsonNode* element_
     // std::cout<< "Id: " + channel.GetChannelId() + "\n";
 
 
-    team->GetChannelList().push_back(channel);
+    teamChannels->push_back(channel);
     
 }
