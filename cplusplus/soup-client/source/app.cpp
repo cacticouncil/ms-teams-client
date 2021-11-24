@@ -33,11 +33,6 @@ int runConsoleApp(){
     std::cout << "\nSign In: [ENTER]\n";
     std::cout << "Quit: [q]\n";
 
-    /* std::string skypeToken;
-    std::string chatSvcAggToken;
-    std::string skypeSpacesToken;
-    std::string currUserId; */
-
     std::string input;
     std::cout << "\nInput: ";
     std::getline(std::cin,input);
@@ -114,6 +109,7 @@ void displayMain(SoupSession *session, GMainLoop *loop){//, std::string &skypeTo
     std::cout << "\nSend Message: [1]\n";
     std::cout << "Create New Team: [2]\n";
     std::cout << "Fetch Messages: [3]\n";
+    std::cout << "Create New Channel: [4]\n";
     std::cout << "Refresh: [ENTER]\n";
     std::cout << "Quit: [q]\n";
 
@@ -159,6 +155,16 @@ void displayMain(SoupSession *session, GMainLoop *loop){//, std::string &skypeTo
         g_ptr_array_add(msgs_callback_data,loop);//1
         std::cout << "Init vect: " << &msgVect << "\n";
         fetchChannelMessages(session,appAuth.chatSvcAggToken,loop,&currTeam,&currChannel,5,fetchMessagesCallback,msgs_callback_data);
+    }
+    else if(input == "4"){
+        std::cout << "Enter Channel name: ";
+        std::string channelname;
+        std::getline(std::cin,channelname);
+
+        std::cout << "Creating new channel...\n";
+
+        std::string currTeamId = currTeam.GetTeamId();
+        createChannel(session,loop,appAuth.skypeSpacesToken,currTeamId,channelname,appAuth.skypeToken,teamCreatedCallback);
     }
     else{
         return; //on "refresh", call getMessages/cached messages with custom event

@@ -42,7 +42,7 @@ void createTeam(SoupSession *session, GMainLoop *loop, std::string &skypeSpacesT
 }
 
 //unauth err fixed by adding x-skypetoken header
-void createChannel(SoupSession *session, GMainLoop *loop, std::string &skypeSpacesToken, std::string &teamId, std::string &name, std::string &skypeToken){
+void createChannel(SoupSession *session, GMainLoop *loop, std::string &skypeSpacesToken, std::string &teamId, std::string &name, std::string &skypeToken, SoupSessionCallback channelCreateCallback){
     std::string url = "https://teams.microsoft.com/api/mt/part/amer-02/beta/teams/"+teamId+"/channels";
     SoupMessage *msg = soup_message_new(SOUP_METHOD_POST,url.c_str());
 
@@ -55,7 +55,7 @@ void createChannel(SoupSession *session, GMainLoop *loop, std::string &skypeSpac
     soup_message_headers_append(msg->request_headers,"authorization",tokenstr.c_str());
     soup_message_headers_append(msg->request_headers,"x-skypetoken",skypeToken.c_str());
 
-    soup_session_queue_message(session,msg,teamCreateCallback,loop);
+    soup_session_queue_message(session,msg,/* teamCreateCallback */channelCreateCallback,loop);
 }
 
 void deleteChannel(SoupSession *session, GMainLoop *loop, std::string &skypeSpacesToken, std::string &skypeToken, std::string &teamId, std::string &channelId){

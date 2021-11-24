@@ -24,7 +24,7 @@ int main(int argc, char *argv[]){
     //return testCreateTeam();
     //return testDeleteChannel();
     //return testDeleteTeam();
-    return testFetchTeams();
+    //return testFetchTeams();
 }
 
 int testScript(){
@@ -391,7 +391,7 @@ int testCreateTeam(){
     std::string name = "Testiest of testis";
     //createTeamName(session,loop,skypeSpacesToken,name,validateNameCallback);
 	//createTeam(session,loop,skypeSpacesToken,name,description);
-    createChannel(session,loop,skypeSpacesToken,teamId,name,skypeToken);
+    createChannel(session,loop,skypeSpacesToken,teamId,name,skypeToken,teamCreateCallback);
 
     g_main_loop_run (loop);
 
