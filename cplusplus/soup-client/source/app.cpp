@@ -32,7 +32,6 @@ std::string currChannelId;
 //main console app run function
 int runConsoleApp(){
     std::cout << "Welcome to MS-Teams!\n";
-    std::cout << "[NOTE] If running this app via WSL on Windows, make sure that you are running an active XServer to login!\n";
     std::cout << "\nSign In: [ENTER]\n";
     std::cout << "Quit: [q]\n";
 
@@ -56,20 +55,20 @@ int runConsoleApp(){
     SoupSession *session = soup_session_new();
     GMainLoop *loop = g_main_loop_new(NULL,false);
 
-    currTeamId = "19:0MaeOcpNpAX-HchAP2Z8xnw6j_QYsq6htWoAsD94QxY1@thread.tacv2";
-    currChannelId = currTeamId;
+    /* currTeamId = "19:0MaeOcpNpAX-HchAP2Z8xnw6j_QYsq6htWoAsD94QxY1@thread.tacv2";
+    currChannelId = currTeamId; */
 
     User currUser;
     currUser.SetUserOid(appAuth.currUserId);
     usersMap.emplace(appAuth.currUserId,&currUser);
 
-    Team currTeam;
+    /* Team currTeam;
     currTeam.SetTeamId(currTeamId);
     teamMap.emplace(currTeam.GetTeamId(),&currTeam);
 
     Channel currChannel;
     currChannel.SetChannelId(currChannelId);
-    channelMap.emplace(currChannel.GetChannelId(),&currChannel);
+    channelMap.emplace(currChannel.GetChannelId(),&currChannel); */
     
     std::vector<User*> userList;
     userList.push_back(&currUser);
@@ -101,6 +100,22 @@ int runConsoleApp(){
 //switch to call from getMessages callback
 //add back function
 void displayMain(SoupSession *session, GMainLoop *loop){//, std::string &skypeToken){
+    if(currTeamId.empty()){
+
+        std::string input;
+        do{
+            auto iter = teamMap.begin();
+            while(iter != teamMap.end()){
+                std::cout << iter->second->GetTeamSummary();
+                iter++;
+            }
+        }
+        while(std::getline(std::cin,input));
+
+        return;
+    }
+
+
     Team currTeam = *teamMap[currTeamId];
     Channel currChannel = *channelMap[currChannelId];
     //std::string channelId = "19:5c7c73c0315144a4ab58108a897695a9@thread.tacv2";
@@ -283,7 +298,7 @@ void initCallback(SoupSession *session, SoupMessage *msg, gpointer user_data){
         //poll next endpoint for changes
         poll(session,(GMainLoop *)user_data,skypeToken,endpointUrl,newEventCallback);
         //trigger main display function
-        displayMain(session,(GMainLoop*)user_data);//,skypeToken);
+        //displayMain(session,(GMainLoop*)user_data);//,skypeToken);
     }
     else{
         g_printerr("ERROR: Unable to parse polling response: %s! Exiting ...\n", err->message);
@@ -365,6 +380,15 @@ void populateUserData(SoupSession *session, SoupMessage *msg, gpointer user_data
             std::string skypeToken = *((std::string*)g_ptr_array_index(data_arr,2));
 
             initPolling(session,loop,skypeToken,initCallback);
+
+            std::cout << "Current Teams:\n";
+
+            //remove team vector
+            std::vector<Team> teamList;
+            GPtrArray *user_data = g_ptr_array_new();
+            g_ptr_array_add(user_data,&teamList);  //0 team vector (each team has its own channel vector, which will aslo be filled out)
+            g_ptr_array_add(user_data,loop);   //1 loop
+            fetchTeams(session,appAuth.chatSvcAggToken,loop,populateTeamsCallback,user_data);
         }
     }
     else{
@@ -506,4 +530,117 @@ void parseMessages(JsonArray* array, guint index_, JsonNode* element_node, gpoin
     t.SetArrivalTime(json_node_get_string(value));
 
     currChannel->GetChannelMgs().push_back(t);
+}
+
+void populateTeamsCallback(SoupSession *session, SoupMessage *msg, gpointer user_data){
+    if(msg->status_code >= 200 && msg->status_code < 300){
+        g_print("Messages Retrieved\n");
+    }
+    else{
+        g_printerr("ERROR: Code: %d\n",msg->status_code);
+    }
+
+    JsonParser *parser = json_parser_new();
+    GError *err = nullptr;
+
+    GPtrArray *data_arr = (GPtrArray*)user_data;
+    GMainLoop *loop = (GMainLoop*)g_ptr_array_index(data_arr, 1); //1- loop
+
+    if(json_parser_load_from_data(parser,msg->response_body->data,strlen(msg->response_body->data),&err)){
+        //using JsonObject* to read the array from here rather than from a JsonNode* since array is a complex type
+        JsonNode* root= json_parser_get_root(parser);
+        JsonObject* rootObj= json_node_get_object(root); 
+        JsonArray* arr= json_object_get_array_member(rootObj, "teams");  //just like this there s a whole other "chats" array afte the teams with information about group DMs
+
+        json_array_foreach_element(arr, parseTeamsResponse, user_data);
+
+        //trigger main display function
+        displayMain(session,loop);
+    }
+     else{
+        g_printerr("ERROR: Unable to parse response: %s\n", err->message);
+        g_error_free (err);
+        g_object_unref (parser);
+        
+        g_main_loop_quit(loop);
+    }
+}
+
+void parseTeamsResponse(  JsonArray* array,  guint index_,  JsonNode* element_node,  gpointer user_data){
+
+    GPtrArray *data_arr = (GPtrArray*)user_data;
+ 
+    std::vector<Team> *teamVect = (std::vector<Team> *)g_ptr_array_index(data_arr, 0); //0-team vect; 1-loop
+
+    //Constructing each individual team
+
+    Team *t = new Team();
+
+    JsonObject* currObj = json_array_get_object_element(array, index_);  //current array object being disected
+    JsonNode* value = json_object_get_member(currObj, "displayName"); 
+    t->SetTeamDisplayName(json_node_get_string(value));
+
+    value = json_object_get_member(currObj, "id"); 
+    t->SetTeamId(json_node_get_string(value));
+
+    value = json_object_get_member(currObj, "creator");
+    t->SetCreatorMri(json_node_get_string(value));
+
+
+    JsonNode* teamValue = json_object_get_member(currObj, "teamSiteInformation");
+    JsonObject* teamSiteInfo = json_node_get_object(teamValue); //turing it into an object to get info from its members
+    JsonNode* member = json_object_get_member(teamSiteInfo, "groupId");
+    std::string groupId = json_node_get_string(member);
+    t->SetTeamGroupId(groupId);
+
+  
+    JsonNode* membershipValue = json_object_get_member(currObj, "membershipSummary");
+    JsonObject* memberObject = json_node_get_object(membershipValue); //turing it into an object to get info from its members
+    int count = json_object_get_int_member(memberObject, "totalMemberCount");
+    t->SetTotalMemberCount(count);
+
+
+    JsonArray* channelArr = json_object_get_array_member(currObj, "channels");
+
+    json_array_foreach_element(channelArr, parseChannelList, (gpointer) t); //pointer to the team
+
+    //teamVect->push_back(t);
+
+    teamMap.emplace(t->GetTeamId(),t);
+}
+
+void parseChannelList(JsonArray* array, guint index_, JsonNode* element_node, gpointer user_data){
+    //  IMPORTANT NOTE: At this time, this callback DOES NOT fill up the channel message array, this is to be done outside of this API call as a separate call 
+
+    Channel *channel = new Channel();
+
+    JsonObject* currObj = json_array_get_object_element(array, index_);  //current array object being disected
+
+
+    JsonNode* value = json_object_get_member(currObj, "displayName"); //member name here
+
+    channel->SetChannelDisplayName(json_node_get_string(value));
+
+    value = json_object_get_member(currObj, "id"); 
+    channel->SetChannelId(json_node_get_string(value));
+
+    value = json_object_get_member(currObj, "parentTeamId"); 
+    channel->SetChannelTeamId(json_node_get_string(value));
+
+    //"isMember": false,
+    bool isMember = json_object_get_boolean_member(currObj, "isMember");
+    channel->SetIsChannelMember(isMember);
+
+    if (isMember){
+        value = json_object_get_member(currObj, "creator"); 
+        channel->SetChannelCreatorMri(json_node_get_string(value));
+
+        value = json_object_get_member(currObj, "groupId"); 
+        channel->SetChannelGroupId(json_node_get_string(value));
+    }
+
+    Team* createdTeam = (Team*)user_data;
+    createdTeam->GetChannelList().push_back(*channel);
+    
+    channelMap.emplace(channel->GetChannelId(),channel);
 }
