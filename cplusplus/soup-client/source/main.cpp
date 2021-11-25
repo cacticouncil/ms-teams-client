@@ -228,13 +228,14 @@ int testFetchTeams(){
 
     std::cout << "\n\n TOTAL NUMBER OF TEAMS IN LSIT: "<<teamList.size() <<std::endl;
 
+
     for (Team temp: teamList){
-        temp.GetTeamSummary();
+        std::cout<<temp.GetTeamSummary();
     }
 
-    std::cout<<teamList[0].GetTeamDisplayName();
 
     g_main_loop_unref (loop);
+
 
     return 0;
 }
