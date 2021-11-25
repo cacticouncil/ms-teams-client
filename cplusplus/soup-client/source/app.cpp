@@ -93,6 +93,19 @@ int runConsoleApp(){
     //a little map experimentation
     std::cout << "Goodbye, " << usersMap[appAuth.currUserId]->GetUserDisplayName() << "!\n";
 
+    for(auto iter : teamMap){
+        delete teamMap[iter.first];
+    }
+    teamMap.clear();
+    for(auto iter : channelMap){
+        delete channelMap[iter.first];
+    }
+    channelMap.clear();
+    for(auto iter : usersMap){
+        delete usersMap[iter.first];
+    }
+    usersMap.clear();
+
     return 0;
 }
 
@@ -100,19 +113,58 @@ int runConsoleApp(){
 //switch to call from getMessages callback
 //add back function
 void displayMain(SoupSession *session, GMainLoop *loop){//, std::string &skypeToken){
-    if(currTeamId.empty()){
-
+    if(currTeamId.empty() || currChannelId.empty()){
+        bool isTeams = currTeamId.empty();
         std::string input;
         do{
-            auto iter = teamMap.begin();
-            while(iter != teamMap.end()){
-                std::cout << iter->second->GetTeamSummary();
-                iter++;
+            //print names
+            std::cout << "\nAvailable " << (isTeams ? "Teams" : "Channels") << ":\n";
+            int index = 0;
+            if(isTeams){
+                for(auto iter : teamMap){
+                    std::cout << iter.second->GetTeamDisplayName() << " [" << index++ << "]\n";
+                }
             }
+            else{
+                for(auto iter : channelMap){
+                    std::cout << iter.second->GetChannelDisplayName() << " [" << index++ << "]\n";
+                }
+            }
+            
+            
+            //convert input to int for processing
+            int inVal;
+            try{
+                inVal = std::stoi(input);
+            } catch(const std::invalid_argument& ){
+                inVal = -1;
+            }
+
+            //if input valid, select and break loop
+            if(inVal >= 0 && inVal < (isTeams ? teamMap.size() : channelMap.size())){
+                if(isTeams){
+                    auto iter = teamMap.begin();
+                    for(int i = 0; i < inVal; i++){
+                        iter++;
+                    }
+                    currTeamId = teamMap[iter->first]->GetTeamId();
+                }
+                else{
+                    auto iter = channelMap.begin();
+                    for(int i = 0; i < inVal; i++){
+                        iter++;
+                    }
+                    currChannelId = channelMap[iter->first]->GetChannelId();
+                }
+                break;
+            }
+
+            //display prompt
+            std::cout << "Select a " << (isTeams ? "Team" : "Channel") << " to view: ";
         }
         while(std::getline(std::cin,input));
 
-        return;
+        displayMain(session,loop);
     }
 
 
@@ -380,8 +432,6 @@ void populateUserData(SoupSession *session, SoupMessage *msg, gpointer user_data
             std::string skypeToken = *((std::string*)g_ptr_array_index(data_arr,2));
 
             initPolling(session,loop,skypeToken,initCallback);
-
-            std::cout << "Current Teams:\n";
 
             //remove team vector
             std::vector<Team> teamList;
