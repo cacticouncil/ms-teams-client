@@ -55,24 +55,17 @@ int runConsoleApp(){
     SoupSession *session = soup_session_new();
     GMainLoop *loop = g_main_loop_new(NULL,false);
 
-    /* User currUser;
-    currUser.SetUserOid(appAuth.currUserId);
-    usersMap.emplace(appAuth.currUserId,&currUser); */
-    
-    /* std::vector<User*> userList;
-    userList.push_back(&currUser); */
+    //initialize userid list with currUserId to create curr User
     std::vector<std::string> userIdList;
     userIdList.push_back(appAuth.currUserId);
 
     //callback data to pass fetchUsersInfo->populateUserData
     GPtrArray *user_callback_data = g_ptr_array_new();
-    //g_ptr_array_add(user_callback_data,/* &userList */&userIdList);
     g_ptr_array_add(user_callback_data,loop);
-    //g_ptr_array_add(user_callback_data,&appAuth.skypeToken);
     bool isLogin = true;
     g_ptr_array_add(user_callback_data,&isLogin);
 
-    fetchUsersInfo(session,appAuth.chatSvcAggToken,loop,/* &userList */userIdList,populateUserData,user_callback_data);
+    fetchUsersInfo(session,appAuth.chatSvcAggToken,loop,userIdList,populateUserData,user_callback_data);
 
     g_main_loop_run(loop);
 
@@ -103,6 +96,12 @@ void displayMain(SoupSession *session, GMainLoop *loop){
         bool isTeams = currTeamId.empty();
         std::string input;
         do{
+            //handle exit
+            if(input == "q"){
+                g_main_loop_quit(loop);
+                return;
+            }
+
             //print names
             std::cout << "\nAvailable " << (isTeams ? "Teams" : "Channels") << ":\n";
             int index = 0;
@@ -142,6 +141,7 @@ void displayMain(SoupSession *session, GMainLoop *loop){
             }
 
             //display prompt
+            std::cout << "Quit: [q]\n";
             std::cout << "\nSelect a " << (isTeams ? "Team" : "Channel") << " to view: ";
         }
         while(std::getline(std::cin,input));
