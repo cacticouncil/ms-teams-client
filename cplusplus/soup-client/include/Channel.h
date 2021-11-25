@@ -7,7 +7,7 @@
 class Channel{
    
     //ReplyChain channelMsgs;
-    std::vector<Message> channelMgs; 
+    std::vector<Message*> channelMgs; 
     std::string displayName;
     std::string id;
     std::string parentTeamId;
@@ -28,13 +28,13 @@ class Channel{
         this->isMember= false;
     }
 
-    Channel(std::vector<Message> channelMgs, std::string displayName, std::string ,  std::string parentTeamId, std::string creatorMri, std::string groupId,  bool isMember);
+    Channel(std::vector<Message*> channelMgs, std::string displayName, std::string ,  std::string parentTeamId, std::string creatorMri, std::string groupId,  bool isMember);
     
     //Accessors
     std::string GetChannelDisplayName();
     std::string GetChannelId();
     std::string GetChannelTeamId();
-    std::vector<Message>& GetChannelMgs();
+    std::vector<Message*>& GetChannelMgs();
     std::string GetChannelCreatorMri();
     std::string GetChannelGroupId();
     bool GetIsChannelMember();
@@ -43,7 +43,7 @@ class Channel{
     void SetChannelDisplayName(std::string);
     void SetChannelId(std::string);
     void SetChannelTeamId(std::string);
-    void SetChannelMgs(std::vector<Message>&);
+    void SetChannelMgs(std::vector<Message*>&);
     void SetChannelCreatorMri(std::string);
     void SetChannelGroupId(std::string);
     void SetIsChannelMember(bool);

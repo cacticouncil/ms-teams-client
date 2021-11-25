@@ -1,6 +1,6 @@
 #include "../include/Channel.h"
 
-Channel::Channel(std::vector<Message> channelMgs, std::string displayName, std::string id, std::string parentTeamId, std::string creatorMri, std::string groupId, bool isMember){
+Channel::Channel(std::vector<Message*> channelMgs, std::string displayName, std::string id, std::string parentTeamId, std::string creatorMri, std::string groupId, bool isMember){
     this->channelMgs=channelMgs;
     this->displayName=displayName;
     this->id=id;
@@ -23,7 +23,7 @@ std::string Channel::GetChannelTeamId(){
     return parentTeamId;
 }
 
-std::vector<Message>& Channel::GetChannelMgs(){
+std::vector<Message*>& Channel::GetChannelMgs(){
    return this->channelMgs;
 }
 
@@ -53,7 +53,7 @@ void Channel::SetChannelTeamId(std::string teamId){
     parentTeamId= teamId;
 }
 
-void Channel::SetChannelMgs(std::vector<Message>& vect){
+void Channel::SetChannelMgs(std::vector<Message*>& vect){
     this->channelMgs = vect;
 }
 
@@ -84,8 +84,8 @@ std::string Channel::GetChannelSummary(){
 
         result += "msgId \t|\t content";
 
-        for(Message m : this->channelMgs){
-            result +=  m.GetMsgId() + " | " + m.GetMsgContent() + "\n";
+        for(Message *m : this->channelMgs){
+            result +=  m->GetMsgId() + " | " + m->GetMsgContent() + "\n";
         }
 
     }

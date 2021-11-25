@@ -301,8 +301,8 @@ int testFetchChannelMessages(){
 
     std::cout<< "\n\n AFTER THE API CALLS: \n"<<std::endl;
     
-    for (Message i : channel.GetChannelMgs() ){
-        std::cout<<i.GetMessageSummary()<<std::endl;
+    for (Message *i : channel.GetChannelMgs() ){
+        std::cout<<i->GetMessageSummary()<<std::endl;
     }
 
     g_main_loop_unref (loop);

@@ -94,13 +94,17 @@ int runConsoleApp(){
     std::cout << "Goodbye, " << usersMap[appAuth.currUserId]->GetUserDisplayName() << "!\n";
 
     for(auto iter : teamMap){
+        for(Channel *c : teamMap[iter.first]->GetChannelList()){
+            for(Message* m: c->GetChannelMgs()){
+                delete m;
+            }
+            delete c;
+        }
         delete teamMap[iter.first];
     }
     teamMap.clear();
-    for(auto iter : channelMap){
-        delete channelMap[iter.first];
-    }
     channelMap.clear();
+
     for(auto iter : usersMap){
         delete usersMap[iter.first];
     }
@@ -126,8 +130,8 @@ void displayMain(SoupSession *session, GMainLoop *loop){//, std::string &skypeTo
                 }
             }
             else{
-                for(auto iter : channelMap){
-                    std::cout << iter.second->GetChannelDisplayName() << " [" << index++ << "]\n";
+                for(Channel *c : teamMap[currTeamId]->GetChannelList()){
+                    std::cout << c->GetChannelDisplayName() << " [" << index++ << "]\n";
                 }
             }
             
@@ -141,7 +145,7 @@ void displayMain(SoupSession *session, GMainLoop *loop){//, std::string &skypeTo
             }
 
             //if input valid, select and break loop
-            if(inVal >= 0 && inVal < (isTeams ? teamMap.size() : channelMap.size())){
+            if(inVal >= 0 && inVal < (isTeams ? teamMap.size() : teamMap[currTeamId]->GetChannelList().size())){
                 if(isTeams){
                     auto iter = teamMap.begin();
                     for(int i = 0; i < inVal; i++){
@@ -150,17 +154,14 @@ void displayMain(SoupSession *session, GMainLoop *loop){//, std::string &skypeTo
                     currTeamId = teamMap[iter->first]->GetTeamId();
                 }
                 else{
-                    auto iter = channelMap.begin();
-                    for(int i = 0; i < inVal; i++){
-                        iter++;
-                    }
-                    currChannelId = channelMap[iter->first]->GetChannelId();
+                    auto channelList = teamMap[currTeamId]->GetChannelList();
+                    currChannelId = channelList[inVal]->GetChannelId();
                 }
                 break;
             }
 
             //display prompt
-            std::cout << "Select a " << (isTeams ? "Team" : "Channel") << " to view: ";
+            std::cout << "\nSelect a " << (isTeams ? "Team" : "Channel") << " to view: ";
         }
         while(std::getline(std::cin,input));
 
@@ -173,9 +174,9 @@ void displayMain(SoupSession *session, GMainLoop *loop){//, std::string &skypeTo
     //std::string channelId = "19:5c7c73c0315144a4ab58108a897695a9@thread.tacv2";
 
     if(!currChannel.GetChannelMgs().empty()){
-        for(Message m : currChannel.GetChannelMgs()){
-            std::cout << "\nFrom: " << m.GetSenderOid() << "\n";
-            std::cout << "Content: " << m.GetMsgContent() << "\n";
+        for(Message *m : currChannel.GetChannelMgs()){
+            std::cout << "\nFrom: " << m->GetSenderOid() << "\n";
+            std::cout << "Content: " << m->GetMsgContent() << "\n";
         }
     }
     
@@ -223,7 +224,7 @@ void displayMain(SoupSession *session, GMainLoop *loop){//, std::string &skypeTo
     }
     else if(input == "3"){
         GPtrArray *msgs_callback_data = g_ptr_array_new();
-        std::vector<Message> msgVect = currChannel.GetChannelMgs();
+        std::vector<Message*> msgVect = currChannel.GetChannelMgs();
         g_ptr_array_add(msgs_callback_data,&msgVect); //0
         g_ptr_array_add(msgs_callback_data,loop);//1
         std::cout << "Init vect: " << &msgVect << "\n";
@@ -556,28 +557,28 @@ void parseMessages(JsonArray* array, guint index_, JsonNode* element_node, gpoin
     std::string* channId = (std::string*)g_ptr_array_index(data_arr, 2); //Values at index: 0-vect, 1-loop, 2- just added the channel id in the middleLayer callback
     Channel *currChannel = channelMap[*channId];
 
-    Message t;
-    t.SetMsgContainerChannelId(*(channId));
+    Message *t = new Message();
+    t->SetMsgContainerChannelId(*(channId));
 
     JsonObject* currObj = json_array_get_object_element(array, index_);  //current array object being disected
 
     JsonNode* value = json_object_get_member(currObj, "content");
-    t.SetMsgContent(json_node_get_string(value));
+    t->SetMsgContent(json_node_get_string(value));
     
     value = json_object_get_member(currObj, "id");
-    t.SetMsgId(json_node_get_string(value));
+    t->SetMsgId(json_node_get_string(value));
 
     value = json_object_get_member(currObj, "parentMessageId");
-    t.SetMsgParentId(json_node_get_string(value));
+    t->SetMsgParentId(json_node_get_string(value));
 
     int seqId = json_object_get_int_member (currObj, "sequenceId");
-    t.SetMsgSequenceId(seqId);
+    t->SetMsgSequenceId(seqId);
 
     value = json_object_get_member(currObj, "from");
-    t.SetSenderMri(json_node_get_string(value));
+    t->SetSenderMri(json_node_get_string(value));
 
     value = json_object_get_member(currObj, "originalArrivalTime");
-    t.SetArrivalTime(json_node_get_string(value));
+    t->SetArrivalTime(json_node_get_string(value));
 
     currChannel->GetChannelMgs().push_back(t);
 }
@@ -620,7 +621,7 @@ void parseTeamsResponse(  JsonArray* array,  guint index_,  JsonNode* element_no
 
     GPtrArray *data_arr = (GPtrArray*)user_data;
  
-    std::vector<Team> *teamVect = (std::vector<Team> *)g_ptr_array_index(data_arr, 0); //0-team vect; 1-loop
+    //std::vector<Team> *teamVect = (std::vector<Team> *)g_ptr_array_index(data_arr, 0); //0-team vect; 1-loop
 
     //Constructing each individual team
 
@@ -690,7 +691,7 @@ void parseChannelList(JsonArray* array, guint index_, JsonNode* element_node, gp
     }
 
     Team* createdTeam = (Team*)user_data;
-    createdTeam->GetChannelList().push_back(*channel);
+    createdTeam->GetChannelList().push_back(channel);
     
     channelMap.emplace(channel->GetChannelId(),channel);
 }
