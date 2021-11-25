@@ -21,7 +21,7 @@
 
 //globals
 //could maybe replace struct with singleton
-Auth appAuth; //holds auth tokens (and userId for kinda no reason)
+Auth appAuth;
 std::map<std::string,User*> usersMap;
 std::map<std::string,Team*> teamMap;
 std::map<std::string,Channel*> channelMap;
@@ -55,20 +55,9 @@ int runConsoleApp(){
     SoupSession *session = soup_session_new();
     GMainLoop *loop = g_main_loop_new(NULL,false);
 
-    /* currTeamId = "19:0MaeOcpNpAX-HchAP2Z8xnw6j_QYsq6htWoAsD94QxY1@thread.tacv2";
-    currChannelId = currTeamId; */
-
     User currUser;
     currUser.SetUserOid(appAuth.currUserId);
     usersMap.emplace(appAuth.currUserId,&currUser);
-
-    /* Team currTeam;
-    currTeam.SetTeamId(currTeamId);
-    teamMap.emplace(currTeam.GetTeamId(),&currTeam);
-
-    Channel currChannel;
-    currChannel.SetChannelId(currChannelId);
-    channelMap.emplace(currChannel.GetChannelId(),&currChannel); */
     
     std::vector<User*> userList;
     userList.push_back(&currUser);
@@ -93,6 +82,7 @@ int runConsoleApp(){
     //a little map experimentation
     std::cout << "Goodbye, " << usersMap[appAuth.currUserId]->GetUserDisplayName() << "!\n";
 
+    //cleanup
     for(auto iter : teamMap){
         for(Channel *c : teamMap[iter.first]->GetChannelList()){
             for(Message* m: c->GetChannelMgs()){
@@ -114,9 +104,9 @@ int runConsoleApp(){
 }
 
 //main display function - call from callbacks currrently
-//switch to call from getMessages callback
 //add back function
-void displayMain(SoupSession *session, GMainLoop *loop){//, std::string &skypeToken){
+void displayMain(SoupSession *session, GMainLoop *loop){
+    //handle Team/Channel selection
     if(currTeamId.empty() || currChannelId.empty()){
         bool isTeams = currTeamId.empty();
         std::string input;
@@ -134,7 +124,6 @@ void displayMain(SoupSession *session, GMainLoop *loop){//, std::string &skypeTo
                     std::cout << c->GetChannelDisplayName() << " [" << index++ << "]\n";
                 }
             }
-            
             
             //convert input to int for processing
             int inVal;
@@ -166,13 +155,15 @@ void displayMain(SoupSession *session, GMainLoop *loop){//, std::string &skypeTo
         while(std::getline(std::cin,input));
 
         displayMain(session,loop);
+
+        return;
     }
 
-
+    //capture current Team/Channel objects
     Team currTeam = *teamMap[currTeamId];
     Channel currChannel = *channelMap[currChannelId];
-    //std::string channelId = "19:5c7c73c0315144a4ab58108a897695a9@thread.tacv2";
 
+    //print messages 
     if(!currChannel.GetChannelMgs().empty()){
         for(Message *m : currChannel.GetChannelMgs()){
             std::cout << "\nFrom: " << m->GetSenderOid() << "\n";
@@ -180,6 +171,7 @@ void displayMain(SoupSession *session, GMainLoop *loop){//, std::string &skypeTo
         }
     }
     
+    //display menu
     std::cout << "\nSend Message: [1]\n";
     std::cout << "Create New Team: [2]\n";
     std::cout << "Fetch Messages: [3]\n";
@@ -187,8 +179,10 @@ void displayMain(SoupSession *session, GMainLoop *loop){//, std::string &skypeTo
     std::cout << "Refresh: [ENTER]\n";
     std::cout << "Quit: [q]\n";
 
+    //temp sent message counter
     static int msgCt = 1;
 
+    //handle user input
     std::string input;
     std::cout << "\nInput: ";
     std::getline(std::cin,input);
@@ -205,10 +199,7 @@ void displayMain(SoupSession *session, GMainLoop *loop){//, std::string &skypeTo
 
         std::cout << "Sending message...\n";
 
-        /* std::string tokenPrefix = "skypetoken=";
-        std::string unprefixedToken = skypeToken.substr(tokenPrefix.size(),std::string::npos); */
-        //std::string targetId = currChannel.GetChannelId();
-        sendChannelMessage(session,loop,msgtext,appAuth.skypeToken/* unprefixedToken */,/* channelId *//* targetId */currChannelId,sendMessageCallback);
+        sendChannelMessage(session,loop,msgtext,appAuth.skypeToken,currChannelId,sendMessageCallback);
         
         msgCt++;
     }
@@ -219,7 +210,6 @@ void displayMain(SoupSession *session, GMainLoop *loop){//, std::string &skypeTo
 
         std::cout << "Verifying name...\n";
 
-        //populate skypeSpacesToken, pass all tokens to displayMain maybe
         createTeamName(session,loop,appAuth.skypeSpacesToken,teamname,teamNameValidatedCallback);
     }
     else if(input == "3"){
@@ -237,11 +227,10 @@ void displayMain(SoupSession *session, GMainLoop *loop){//, std::string &skypeTo
 
         std::cout << "Creating new channel...\n";
 
-        /* std::string currTeamId = currTeam.GetTeamId(); */
         createChannel(session,loop,appAuth.skypeSpacesToken,currTeamId,channelname,appAuth.skypeToken,teamCreatedCallback);
     }
     else{
-        return; //on "refresh", call getMessages/cached messages with custom event
+        return;
     }
 }
 
@@ -265,7 +254,6 @@ bool checkCredentialsValid(){
         g_object_unref(parser);
 
         bool valid = timeRemaining > 0;
-        //std::cout << "Valid: " << valid << " (" << expirationTime << "-" << currTime << ")" << "\n";
         return valid;
     }
     else{
@@ -325,9 +313,7 @@ void sendMessageCallback(SoupSession *session, SoupMessage *msg, gpointer user_d
         g_printerr("ERROR: Code: %d\n",msg->status_code);
     }
 
-    //std::string skypeToken = soup_message_headers_get_one(msg->request_headers,"Authentication");
-
-    displayMain(session,(GMainLoop*)user_data);//,skypeToken);
+    displayMain(session,(GMainLoop*)user_data);
 }
 
 //callback after polling endpoint is fetched, intiates polling chain
@@ -350,8 +336,6 @@ void initCallback(SoupSession *session, SoupMessage *msg, gpointer user_data){
 
         //poll next endpoint for changes
         poll(session,(GMainLoop *)user_data,skypeToken,endpointUrl,newEventCallback);
-        //trigger main display function
-        //displayMain(session,(GMainLoop*)user_data);//,skypeToken);
     }
     else{
         g_printerr("ERROR: Unable to parse polling response: %s! Exiting ...\n", err->message);
@@ -618,10 +602,7 @@ void populateTeamsCallback(SoupSession *session, SoupMessage *msg, gpointer user
 }
 
 void parseTeamsResponse(  JsonArray* array,  guint index_,  JsonNode* element_node,  gpointer user_data){
-
     GPtrArray *data_arr = (GPtrArray*)user_data;
- 
-    //std::vector<Team> *teamVect = (std::vector<Team> *)g_ptr_array_index(data_arr, 0); //0-team vect; 1-loop
 
     //Constructing each individual team
 
@@ -654,8 +635,6 @@ void parseTeamsResponse(  JsonArray* array,  guint index_,  JsonNode* element_no
     JsonArray* channelArr = json_object_get_array_member(currObj, "channels");
 
     json_array_foreach_element(channelArr, parseChannelList, (gpointer) t); //pointer to the team
-
-    //teamVect->push_back(t);
 
     teamMap.emplace(t->GetTeamId(),t);
 }
