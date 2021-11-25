@@ -131,7 +131,7 @@ void displayMain(SoupSession *session, GMainLoop *loop){
                     for(int i = 0; i < inVal; i++){
                         iter++;
                     }
-                    currTeamId = teamMap[iter->first]->GetTeamId();
+                    currTeamId = iter->second->GetTeamId();
                 }
                 else{
                     auto channelList = teamMap[currTeamId]->GetChannelList();
@@ -410,11 +410,11 @@ void populateUserData(SoupSession *session, SoupMessage *msg, gpointer user_data
             initPolling(session,loop,skypeToken,initCallback);
 
             //remove team vector
-            std::vector<Team> teamList;
+            /* std::vector<Team> teamList;
             GPtrArray *user_data = g_ptr_array_new();
             g_ptr_array_add(user_data,&teamList);  //0 team vector (each team has its own channel vector, which will aslo be filled out)
-            g_ptr_array_add(user_data,loop);   //1 loop
-            fetchTeams(session,appAuth.chatSvcAggToken,loop,populateTeamsCallback,user_data);
+            g_ptr_array_add(user_data,loop);   //1 loop */
+            fetchTeams(session,appAuth.chatSvcAggToken,loop,populateTeamsCallback,nullptr);//user_data);
         }
     }
     else{
@@ -569,8 +569,8 @@ void populateTeamsCallback(SoupSession *session, SoupMessage *msg, gpointer user
     JsonParser *parser = json_parser_new();
     GError *err = nullptr;
 
-    GPtrArray *data_arr = (GPtrArray*)user_data;
-    GMainLoop *loop = (GMainLoop*)g_ptr_array_index(data_arr, 1); //1- loop
+    // *data_arr = (GPtrArray*)user_data;
+    GMainLoop *loop = (GMainLoop*)user_data;//g_ptr_array_index(data_arr, 1); //1- loop
 
     if(json_parser_load_from_data(parser,msg->response_body->data,strlen(msg->response_body->data),&err)){
         //using JsonObject* to read the array from here rather than from a JsonNode* since array is a complex type
@@ -593,7 +593,7 @@ void populateTeamsCallback(SoupSession *session, SoupMessage *msg, gpointer user
 }
 
 void parseTeamsResponse(  JsonArray* array,  guint index_,  JsonNode* element_node,  gpointer user_data){
-    GPtrArray *data_arr = (GPtrArray*)user_data;
+    //GPtrArray *data_arr = (GPtrArray*)user_data;
 
     //Constructing each individual team
 
