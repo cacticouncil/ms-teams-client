@@ -292,7 +292,7 @@ int testFetchChannelMessages(){
     //This API call is specific for channel message populaiton.
     //Any testing done here with the Team and Channel object are focusing on that, the rest of the fields for these claases (Channel and Team) are empty for this testing
     //Only testing channel messages gets populated
-	fetchChannelMessages(session,chatSvcAggToken, loop, &team, &channel, 5, fetchChannelMessagesCallback, msgs_callback_data );
+	//fetchChannelMessages(session,chatSvcAggToken, loop, &team, &channel, 5, fetchChannelMessagesCallback, msgs_callback_data );
 
 
 

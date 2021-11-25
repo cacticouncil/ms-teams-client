@@ -51,9 +51,9 @@ void fetchTeams(SoupSession *session, std::string &chatSvcAggToken, GMainLoop* l
 //This can be used to figure out which is the latest message in the channel etc
 
 //void fetchChannelMessages(SoupSession* session, std::string& chatSvcAggToken,  GMainLoop* loop, std::string& teamId, std::string& channelId, int pageSize) //old
-void fetchChannelMessages(SoupSession* session, std::string& chatSvcAggToken, GMainLoop* loop, Team* team, Channel* channel, int pageSize,  SoupSessionCallback callback, GPtrArray* callback_data){
-    std::string teamId= team->GetTeamId();
-    std::string channelId=channel->GetChannelId();
+void fetchChannelMessages(SoupSession* session, std::string& chatSvcAggToken, GMainLoop* loop, /* Team* team */std::string &teamId, /* Channel* channel */std::string &channelId, int pageSize,  SoupSessionCallback callback, GPtrArray* callback_data){
+    /* std::string teamId= team->GetTeamId();
+    std::string channelId=channel->GetChannelId(); */
     //formulating the url
     std::string url = "https://teams.microsoft.com/api/csa/api/v2/teams/" + teamId + "/channels/" + channelId;
     url += "?";
@@ -67,7 +67,7 @@ void fetchChannelMessages(SoupSession* session, std::string& chatSvcAggToken, GM
     std::string tokenstr = "Bearer " + chatSvcAggToken;
     std::cout << "Token: " << tokenstr << "\n";
     soup_message_headers_append(msg->request_headers,"Authorization",tokenstr.c_str());
-    soup_session_queue_message(session,msg,callback,(gpointer)callback_data);//fetchChannelMessagesCallback
+    soup_session_queue_message(session,msg,callback,(gpointer)loop);//callback_data);//fetchChannelMessagesCallback
 
 }
 
