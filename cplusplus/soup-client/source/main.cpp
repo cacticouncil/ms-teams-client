@@ -392,7 +392,7 @@ int testCreateTeam(){
     std::string name = "Testiest of testis";
     //createTeamName(session,loop,skypeSpacesToken,name,validateNameCallback);
 	//createTeam(session,loop,skypeSpacesToken,name,description);
-    createChannel(session,loop,skypeSpacesToken,teamId,name,skypeToken,teamCreateCallback);
+    //createChannel(session,loop,skypeSpacesToken,teamId,name,skypeToken,teamCreateCallback);
 
     g_main_loop_run (loop);
 
