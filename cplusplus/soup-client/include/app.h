@@ -19,6 +19,7 @@ void initCallback(SoupSession *session, SoupMessage *msg, gpointer user_data);
 void newEventCallback(SoupSession *session, SoupMessage *msg, gpointer user_data);
 
 void populateUserData(SoupSession *session, SoupMessage *msg, gpointer user_data);
+void parseUsersResponse(JsonArray* array, guint index_, JsonNode* element_node, gpointer user_data);
 
 void teamNameValidatedCallback(SoupSession *session, SoupMessage *msg, gpointer user_data);
 void teamCreatedCallback(SoupSession *session, SoupMessage *msg, gpointer user_data);

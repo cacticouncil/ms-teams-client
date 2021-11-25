@@ -55,23 +55,24 @@ int runConsoleApp(){
     SoupSession *session = soup_session_new();
     GMainLoop *loop = g_main_loop_new(NULL,false);
 
-    User currUser;
+    /* User currUser;
     currUser.SetUserOid(appAuth.currUserId);
-    usersMap.emplace(appAuth.currUserId,&currUser);
+    usersMap.emplace(appAuth.currUserId,&currUser); */
     
-    std::vector<User*> userList;
-    userList.push_back(&currUser);
+    /* std::vector<User*> userList;
+    userList.push_back(&currUser); */
+    std::vector<std::string> userIdList;
+    userIdList.push_back(appAuth.currUserId);
 
     //callback data to pass fetchUsersInfo->populateUserData
     GPtrArray *user_callback_data = g_ptr_array_new();
-    g_ptr_array_add(user_callback_data,&userList);
+    //g_ptr_array_add(user_callback_data,/* &userList */&userIdList);
     g_ptr_array_add(user_callback_data,loop);
-    //can replace with appAuth.skypeToken
-    g_ptr_array_add(user_callback_data,&appAuth.skypeToken);
+    //g_ptr_array_add(user_callback_data,&appAuth.skypeToken);
     bool isLogin = true;
     g_ptr_array_add(user_callback_data,&isLogin);
 
-    fetchUsersInfo(session,appAuth.chatSvcAggToken,loop,&userList,populateUserData,user_callback_data);
+    fetchUsersInfo(session,appAuth.chatSvcAggToken,loop,/* &userList */userIdList,populateUserData,user_callback_data);
 
     g_main_loop_run(loop);
 
@@ -388,26 +389,24 @@ void populateUserData(SoupSession *session, SoupMessage *msg, gpointer user_data
     GError *err = NULL;
 
     GPtrArray *data_arr = (GPtrArray*)user_data;
+    GMainLoop* loop = (GMainLoop*)g_ptr_array_index(data_arr,0);//1);
 
     if(json_parser_load_from_data(parser,msg->response_body->data,strlen(msg->response_body->data),&err)){
         JsonNode* root = json_parser_get_root(parser);
         JsonObject* rootObj = json_node_get_object(root); 
         JsonArray* arr = json_object_get_array_member(rootObj, "value");
 
-        json_array_foreach_element(arr, jsonArrayGetUsers, user_data);
+        json_array_foreach_element(arr, parseUsersResponse, /* user_data */nullptr);
 
         g_object_unref (parser);
 
-        bool isLogin = *((bool*)g_ptr_array_index(data_arr,3));
+        bool isLogin = *((bool*)g_ptr_array_index(data_arr,1));//3));
         if(isLogin){
-            std::vector<User*> userList = *((std::vector<User*>*)g_ptr_array_index(data_arr,0));
-            std::cout << "Hello, " << userList[0]->GetUserDisplayName() << "!\n";
+            /* std::vector<User*> userList = *((std::vector<User*>*)g_ptr_array_index(data_arr,0));
+            std::cout << "Hello, " << userList[0]->GetUserDisplayName() << "!\n"; */
+            std::cout << "Hello, " << usersMap[appAuth.currUserId]->GetUserDisplayName() << "!\n";
 
-            GMainLoop* loop = (GMainLoop*)g_ptr_array_index(data_arr,1);
-            //can replace with appAuth.skypeToken
-            std::string skypeToken = *((std::string*)g_ptr_array_index(data_arr,2));
-
-            initPolling(session,loop,skypeToken,initCallback);
+            initPolling(session,loop,appAuth.skypeToken,initCallback);
 
             //remove team vector
             /* std::vector<Team> teamList;
@@ -422,9 +421,46 @@ void populateUserData(SoupSession *session, SoupMessage *msg, gpointer user_data
         g_error_free (err);
         g_object_unref (parser);
 
-        GMainLoop *loop = (GMainLoop*)g_ptr_array_index(data_arr,1);
         g_main_loop_quit(loop);
     }
+}
+
+//Function that gets executed for each element of the Json Array
+void parseUsersResponse(JsonArray* array, guint index_, JsonNode* element_node, gpointer user_data){  
+    /* GPtrArray *data_arr = (GPtrArray*)user_data;
+    int i = (int) index_;
+
+    std::vector<User*>* userVect = (std::vector<User*>*)g_ptr_array_index(data_arr,0); */
+
+    JsonObject* currObj = json_array_get_object_element(array, index_);  //current array object being disected
+
+    JsonNode* userInfo = json_object_get_member(currObj, "objectId");
+    std::string objectId = json_node_get_string(userInfo);
+
+    userInfo = json_object_get_member(currObj, "displayName");
+    std::string displayName = json_node_get_string(userInfo);
+
+    userInfo = json_object_get_member(currObj, "email");
+    std::string email = json_node_get_string(userInfo);
+
+    userInfo = json_object_get_member(currObj, "mri");
+    std::string mri = json_node_get_string(userInfo);
+
+    // userVect->at(i)->SetUserOid(objectId); //don't need this since oid is passed through the User object
+    /* userVect->at(i)->SetUserDisplayName(displayName);
+    userVect->at(i)->SetUserEmail(email);
+    userVect->at(i)->SetUserMri(mri); */
+
+    User *newUser = new User();
+
+    newUser->SetUserOid(objectId);
+    newUser->SetUserDisplayName(displayName);
+    newUser->SetUserEmail(email);
+    newUser->SetUserMri(mri);
+
+    usersMap.emplace(objectId,newUser);
+
+    // std::cout<< "User object version: " + userVect->at(i)->GetUserDisplayName() + " \n\n";
 }
 
 //parse name validation response (if 2xx code) and call createTeam with response alias name (if parse successful)
@@ -593,8 +629,6 @@ void populateTeamsCallback(SoupSession *session, SoupMessage *msg, gpointer user
 }
 
 void parseTeamsResponse(  JsonArray* array,  guint index_,  JsonNode* element_node,  gpointer user_data){
-    //GPtrArray *data_arr = (GPtrArray*)user_data;
-
     //Constructing each individual team
 
     Team *t = new Team();

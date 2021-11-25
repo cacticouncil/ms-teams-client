@@ -354,7 +354,7 @@ int testingFetchUsers(){
     g_ptr_array_add(user_data,loop);  //1
 
 
-    fetchUsersInfo(session,chatSvcAggToken, loop, &userVector, fetchUsersInfoCallback, user_data);
+    //fetchUsersInfo(session,chatSvcAggToken, loop, &userVector, fetchUsersInfoCallback, user_data);
 
 
     

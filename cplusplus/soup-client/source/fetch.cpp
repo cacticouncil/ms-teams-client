@@ -71,34 +71,20 @@ void fetchChannelMessages(SoupSession* session, std::string& chatSvcAggToken, GM
 
 }
 
-//Given an array of oid values, this function returns the information associated with 
-//Might be used for fetching teh information from users in a channel?
-void fetchUsersInfo(SoupSession *session, std::string &chatSvcAggToken, GMainLoop* loop, std::vector<User*>* userVect , SoupSessionCallback callback, GPtrArray* callback_data){//, JsonArrayForeach jArrCallback ){ //will receive the callback here 
-   
+//Given an array of oid values, this function returns the information associated with
+void fetchUsersInfo(SoupSession *session, std::string &chatSvcAggToken, GMainLoop* loop, /* std::vector<User*>* userVect */std::vector<std::string> &userIds, SoupSessionCallback callback, GPtrArray* callback_data){
     std::string url = "https://teams.microsoft.com/api/mt/part/amer-02/beta/users/fetchShortProfile?isMailAddress=false&enableGuest=true&includeIBBarredUsers=true&skypeTeamsInfo=true";
     
     //Constructing the string array with the users' oids
     std::string userIdsStr= "[";
-
-    for (int i=0; i< userVect->size(); i++){
-        
-        std::string v =  userVect->at(i)->GetUserOid();// GetUserOid();
-     
-
+    for (int i=0; i< /* userVect->size() */userIds.size(); i++){
+        std::string v =  userIds[i];//userVect->at(i)->GetUserOid();// GetUserOid();
         userIdsStr+= "\"" + v + "\"" ;
-
-        if(i!=userVect->size()-1){
+        if(i!=/* userVect->size() */userIds.size()-1){
             userIdsStr+=",";
         }
-
     }
     userIdsStr+= "]";
-
-    //This logic is replaced by creating the array outside this function and passing it in
-    /* GPtrArray *user_data = g_ptr_array_new();
-    g_ptr_array_add(user_data,userVect);  //0
-    g_ptr_array_add(user_data,loop);  //1 */
-
    
     SoupMessage *msg = soup_message_new(SOUP_METHOD_POST, url.c_str());
     std::string payload = userIdsStr;
@@ -106,6 +92,7 @@ void fetchUsersInfo(SoupSession *session, std::string &chatSvcAggToken, GMainLoo
 
     std::string tokenstr = "Bearer " + chatSvcAggToken;
     soup_message_headers_append(msg->request_headers,"Authorization",tokenstr.c_str());
+
     soup_session_queue_message(session,msg,callback,(gpointer)callback_data);
 }
 

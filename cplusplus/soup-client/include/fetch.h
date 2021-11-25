@@ -13,7 +13,7 @@
 void fetchTeamsSync(SoupSession *session, std::string &chatSvcAggToken);
 void fetchTeams(SoupSession *session, std::string &chatSvcAggToken, GMainLoop* loop_param,  SoupSessionCallback callback, GPtrArray* callback_data); //need to add the class parameters here etc
 void fetchChannelMessages(SoupSession* session, std::string& chatSvcAggToken, GMainLoop* loop, Team* t, Channel* channel, int pageSize, SoupSessionCallback callback, GPtrArray* callback_data);//,GPtrArray* callback_data);
-void fetchUsersInfo(SoupSession *session, std::string &chatSvcAggToken, GMainLoop* loop, std::vector<User*>* userVect,SoupSessionCallback callback,GPtrArray* callback_data);//, JsonArrayForeach jArrCallback ); //JsonArrayForeach* jArrCallback
+void fetchUsersInfo(SoupSession *session, std::string &chatSvcAggToken, GMainLoop* loop, /* std::vector<User*>* userVect */std::vector<std::string> &userIds,SoupSessionCallback callback,GPtrArray* callback_data);//, JsonArrayForeach jArrCallback ); //JsonArrayForeach* jArrCallback
 
 //Moving all of these functions to the callbacks file rather than the API fucntions file
 
