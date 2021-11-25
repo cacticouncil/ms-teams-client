@@ -29,6 +29,7 @@ class Team{
     }
 
     Team(std::string displayName, std::string id, int totalMemberCount, std::string creatorMri, std::string groupId, std::vector<Channel*> channels);
+    ~Team();
     
     //Accessors
     std::string GetTeamDisplayName();

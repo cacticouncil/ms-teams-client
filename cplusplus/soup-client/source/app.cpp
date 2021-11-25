@@ -84,21 +84,12 @@ int runConsoleApp(){
 
     //cleanup
     for(auto iter : teamMap){
-        for(Channel *c : teamMap[iter.first]->GetChannelList()){
-            for(Message* m: c->GetChannelMgs()){
-                delete m;
-            }
-            delete c;
-        }
-        delete teamMap[iter.first];
+        delete iter.second;
     }
-    teamMap.clear();
-    channelMap.clear();
 
     for(auto iter : usersMap){
-        delete usersMap[iter.first];
+        delete iter.second;
     }
-    usersMap.clear();
 
     return 0;
 }

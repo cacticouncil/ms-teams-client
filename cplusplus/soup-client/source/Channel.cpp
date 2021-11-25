@@ -10,6 +10,12 @@ Channel::Channel(std::vector<Message*> channelMgs, std::string displayName, std:
     this->isMember= isMember;
 }
 
+Channel::~Channel(){
+    for(Message *m : this->channelMgs){
+        delete m;
+    }
+}
+
 //Accessors
 std::string Channel::GetChannelDisplayName(){
     return displayName;

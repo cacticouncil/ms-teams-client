@@ -8,6 +8,12 @@ Team::Team(std::string displayName, std::string id, int totalMemberCount, std::s
     this->groupId = groupId;
 }
 
+Team::~Team(){
+    for(Channel *c : this->channelList){
+        delete c;
+    }
+}
+
 //Accessors
 std::string Team::GetTeamDisplayName(){
     return displayName;

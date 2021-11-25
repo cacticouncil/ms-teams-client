@@ -29,6 +29,8 @@ class Channel{
     }
 
     Channel(std::vector<Message*> channelMgs, std::string displayName, std::string ,  std::string parentTeamId, std::string creatorMri, std::string groupId,  bool isMember);
+
+    ~Channel();
     
     //Accessors
     std::string GetChannelDisplayName();
