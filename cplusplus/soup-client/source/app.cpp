@@ -103,20 +103,6 @@ void displayMain(SoupSession *session, GMainLoop *loop){
 
             bool isTeams = currTeamId.empty();
 
-            //print names
-            std::cout << "\nAvailable " << (isTeams ? "Teams" : "Channels") << ":\n";
-            int index = 0;
-            if(isTeams){
-                for(auto iter : teamMap){
-                    std::cout << iter.second->GetTeamDisplayName() << " [" << index++ << "]\n";
-                }
-            }
-            else{
-                for(Channel *c : teamMap[currTeamId]->GetChannelList()){
-                    std::cout << c->GetChannelDisplayName() << " [" << index++ << "]\n";
-                }
-            }
-            
             //convert input to int for processing
             int inVal;
             try{
@@ -141,8 +127,22 @@ void displayMain(SoupSession *session, GMainLoop *loop){
                 break;
             }
 
-            //display prompt
+            //print menu display
+            std::cout << "\nAvailable " << (isTeams ? "Teams" : "Channels") << ":\n";
+            int index = 0;
+            if(isTeams){
+                for(auto iter : teamMap){
+                    std::cout << iter.second->GetTeamDisplayName() << " [" << index++ << "]\n";
+                }
+            }
+            else{
+                for(Channel *c : teamMap[currTeamId]->GetChannelList()){
+                    std::cout << c->GetChannelDisplayName() << " [" << index++ << "]\n";
+                }
+            }
             std::cout << "Quit: [q]\n";
+
+            //display prompt
             std::cout << "\nSelect a " << (isTeams ? "Team" : "Channel") << " to view: ";
         }
         while(std::getline(std::cin,input));
@@ -153,12 +153,12 @@ void displayMain(SoupSession *session, GMainLoop *loop){
     }
 
     //capture current Team/Channel objects
-    Team currTeam = *teamMap[currTeamId];
-    Channel currChannel = *channelMap[currChannelId];
+    /* Team currTeam = *teamMap[currTeamId];
+    Channel currChannel = *channelMap[currChannelId]; */
 
     //print messages 
-    if(!currChannel.GetChannelMgs().empty()){
-        for(Message *m : currChannel.GetChannelMgs()){
+    if(!channelMap[currChannelId]->GetChannelMgs().empty()){
+        for(Message *m : channelMap[currChannelId]->GetChannelMgs()){
             std::cout << "\nFrom: " << m->GetSenderOid() << "\n";
             std::cout << "Content: " << m->GetMsgContent() << "\n";
         }
@@ -295,7 +295,7 @@ bool readCredentialsOnly(std::string &skypeToken,std::string &chatSvcAggToken,st
 //callback after message sent, triggers main display
 void sendMessageCallback(SoupSession *session, SoupMessage *msg, gpointer user_data){
     if(msg->status_code >= 200 && msg->status_code < 300){
-        g_print("Message sent! Time: %s\n",msg->response_body->data);
+        g_print("Message sent! %s\n",msg->response_body->data);
     }
     else{
         g_printerr("ERROR: Code: %d\n",msg->status_code);
@@ -566,7 +566,7 @@ void parseMessages(JsonArray* array, guint index_, JsonNode* element_node, gpoin
 
 void populateTeamsCallback(SoupSession *session, SoupMessage *msg, gpointer user_data){
     if(msg->status_code >= 200 && msg->status_code < 300){
-        g_print("Messages Retrieved\n");
+        g_print("Teams Retrieved\n");
     }
     else{
         g_printerr("ERROR: Code: %d\n",msg->status_code);
@@ -581,7 +581,7 @@ void populateTeamsCallback(SoupSession *session, SoupMessage *msg, gpointer user
         //using JsonObject* to read the array from here rather than from a JsonNode* since array is a complex type
         JsonNode* root= json_parser_get_root(parser);
         JsonObject* rootObj= json_node_get_object(root); 
-        JsonArray* arr= json_object_get_array_member(rootObj, "teams");  //just like this there s a whole other "chats" array afte the teams with information about group DMs
+        JsonArray* arr= json_object_get_array_member(rootObj, "teams");  //just like this, there is another whole "chats" array after the teams with information about group DMs
 
         json_array_foreach_element(arr, parseTeamsResponse, user_data);
 
