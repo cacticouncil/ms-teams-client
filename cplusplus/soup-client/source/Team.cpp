@@ -62,10 +62,10 @@ std::string Team::GetTeamSummary(){
 
     std::string result = "Team Summary for " + this->GetTeamDisplayName() + ": \n";
 
-    result += "team id: " + this->id;
-    result += "total member count (including bots): " + this->totalMemberCount;
-    result += "creator mri: " + this->creatorMri;
-    result += "group id:" + this->groupId;
+    result += "team id: " + this->id + "\n";
+    result += "total member count (including bots): " + std::to_string(this->totalMemberCount) + "\n";
+    result += "creator mri: " + this->creatorMri + "\n";
+    result += "group id:" + this->groupId + "\n";
 
     result += "Content of Channel List:\n";
 
@@ -73,6 +73,7 @@ std::string Team::GetTeamSummary(){
 
     for(Channel c : this->channelList){
        result += c.GetChannelSummary();// c.GetChannelId() + " | " + c.GetChannelDisplayName() + "\n";
+       result += "\n";
     }
 
     result += "\n";

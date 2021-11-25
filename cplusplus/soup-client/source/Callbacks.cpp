@@ -159,10 +159,6 @@ void jsonArrayGetChannelMessages(  JsonArray* array,  guint index_,  JsonNode* e
 }
 
 
-
-
-
-
 void fetchTeamsCallback(SoupSession *session, SoupMessage *msg, gpointer user_data){
 
     displayResponseInfo( msg, false, "fetchTeamsInfo.local.json");
@@ -226,14 +222,9 @@ void jsonArrayFetchTeams(  JsonArray* array,  guint index_,  JsonNode* element_n
     t.SetTotalMemberCount(count);
 
 
-    std::cout<< "Channel List for " + t.GetTeamDisplayName() + " :\n\n";
-
-    //passing a pointer ot the team to access its vector of channels from withing the next callback (jsonArrayChannelList)
-    g_ptr_array_add(data_arr, &t.GetChannelList()); //index 2 for Team channel list
-
     JsonArray* channelArr= json_object_get_array_member(currObj, "channels");
 
-    json_array_foreach_element(channelArr, jsonArrayChannelList, (gpointer) data_arr);
+    json_array_foreach_element(channelArr, jsonArrayChannelList, (gpointer) &t); //pointer to the team
 
     teamVect->push_back(t);
 
@@ -242,9 +233,6 @@ void jsonArrayFetchTeams(  JsonArray* array,  guint index_,  JsonNode* element_n
 
 void jsonArrayChannelList(  JsonArray* array,  guint index_,  JsonNode* element_node,  gpointer user_data){
     //  IMPORTANT NOTE: At this time, this callback DOES NOT fill up the channel message array, this is to be done outside of this API call as a separate call 
-       
-    GPtrArray *data_arr = (GPtrArray*)user_data;
-    std::vector<Channel> * teamChannels= (std::vector<Channel> *)g_ptr_array_index(data_arr, 2);
 
     Channel channel;
 
@@ -252,7 +240,7 @@ void jsonArrayChannelList(  JsonArray* array,  guint index_,  JsonNode* element_
 
 
     JsonNode* value =json_object_get_member(currObj, "displayName"); //member name here
-    //std::string channelNameStr = json_node_get_string(channelName);
+
     channel.SetChannelDisplayName(json_node_get_string(value));
 
     value = json_object_get_member(currObj, "id"); 
@@ -273,12 +261,7 @@ void jsonArrayChannelList(  JsonArray* array,  guint index_,  JsonNode* element_
         channel.SetChannelGroupId(json_node_get_string(value));
     }
 
-
-    // std::cout<< channel.GetChannelDisplayName() + "\n";
-
-    // std::cout<< "Id: " + channel.GetChannelId() + "\n";
-
-
-    teamChannels->push_back(channel);
+    Team* createdTeam= (Team*) user_data;
+    createdTeam->GetChannelList().push_back(channel);
     
 }
