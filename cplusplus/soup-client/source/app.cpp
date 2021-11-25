@@ -163,7 +163,6 @@ void displayMain(SoupSession *session, GMainLoop *loop){
             std::cout << "Quit: [q]\n";
 
             //display prompt
-            //std::cout << "\nSelect a " << (isTeams ? "Team" : "Channel") << " to view: ";
             std::cout << "\nInput: ";
         }
         while(std::getline(std::cin,input));
@@ -183,9 +182,7 @@ void displayMain(SoupSession *session, GMainLoop *loop){
     
     //display menu
     std::cout << "\nSend Message: [1]\n";
-    //std::cout << "Create New Team: [2]\n";
     std::cout << "Fetch Messages: [2]\n";
-    //std::cout << "Create New Channel: [4]\n";
     std::cout << "Refresh: [ENTER]\n";
     std::cout << "Quit: [q]\n";
 
@@ -213,27 +210,9 @@ void displayMain(SoupSession *session, GMainLoop *loop){
         
         msgCt++;
     }
-    /* else if(input == "2"){
-        std::cout << "Enter Team name: ";
-        std::string teamname;
-        std::getline(std::cin,teamname);
-
-        std::cout << "Verifying name...\n";
-
-        createTeamName(session,loop,appAuth.skypeSpacesToken,teamname,teamNameValidatedCallback);
-    } */
     else if(input == "2"){
         fetchChannelMessages(session,appAuth.chatSvcAggToken,loop,currTeamId,currChannelId,5,fetchMessagesCallback,nullptr);
     }
-    /* else if(input == "4"){
-        std::cout << "Enter Channel name: ";
-        std::string channelname;
-        std::getline(std::cin,channelname);
-
-        std::cout << "Creating new channel...\n";
-
-        createChannel(session,loop,appAuth.skypeSpacesToken,currTeamId,channelname,appAuth.skypeToken,teamCreatedCallback);
-    } */
     else{
         return;
     }
