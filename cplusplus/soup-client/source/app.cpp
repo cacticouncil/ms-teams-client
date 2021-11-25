@@ -19,6 +19,8 @@
 //develop standardized solution for tokens in core API; currently ones called only from callbacks use prepended token
 //possibly switch all to just token; develop function which takes Authentication vs Authorization and prepended tokenstr, extracts just token to pass
 
+//update object stores from polling notification
+
 //globals
 //could maybe replace struct with singleton
 Auth appAuth;
@@ -31,10 +33,12 @@ std::string currChannelId;
 //add logout
 //main console app run function
 int runConsoleApp(){
+    //print login menu
     std::cout << "Welcome to MS-Teams!\n";
     std::cout << "\nSign In: [ENTER]\n";
     std::cout << "Quit: [q]\n";
 
+    //handle user input
     std::string input;
     std::cout << "\nInput: ";
     std::getline(std::cin,input);
@@ -43,6 +47,7 @@ int runConsoleApp(){
         return 0;
     }
     else{
+        //load/check credentials
         bool status = checkCredentialsValid();
         if(!status) system("./trigger-login.sh");
         status = readCredentialsOnly(appAuth.skypeToken, appAuth.chatSvcAggToken, appAuth.skypeSpacesToken, appAuth.currUserId);
@@ -65,19 +70,21 @@ int runConsoleApp(){
     bool isLogin = true;
     g_ptr_array_add(user_callback_data,&isLogin);
 
+    //fetch display name for curr user and trigger initial event chain
     fetchUsersInfo(session,appAuth.chatSvcAggToken,loop,userIdList,populateUserData,user_callback_data);
 
+    //run event loop
     g_main_loop_run(loop);
 
+    //free glib memory
     g_ptr_array_unref(user_callback_data);
-
     g_main_loop_unref(loop);
     g_object_unref(session);
 
     //a little map experimentation
     std::cout << "Goodbye, " << usersMap[appAuth.currUserId]->GetUserDisplayName() << "!\n";
 
-    //cleanup
+    //memory cleanup
     for(auto iter : teamMap){
         delete iter.second;
     }
@@ -102,6 +109,7 @@ void displayMain(SoupSession *session, GMainLoop *loop){
                 g_main_loop_quit(loop);
                 return;
             }
+            //handle Team/Channel creation
             else if(input == "c"){
                 std::cout << "Enter new " << (isTeams ? "Team" : "Channel") << " name: ";
                 std::string name;
@@ -179,10 +187,14 @@ void displayMain(SoupSession *session, GMainLoop *loop){
             std::cout << "Content: " << m->GetMsgContent() << "\n";
         }
     }
+    else{
+        fetchChannelMessages(session,appAuth.chatSvcAggToken,loop,currTeamId,currChannelId,5,fetchMessagesCallback,nullptr);
+        return;
+    }
     
     //display menu
     std::cout << "\nSend Message: [1]\n";
-    std::cout << "Fetch Messages: [2]\n";
+    //std::cout << "Fetch Messages: [2]\n";
     std::cout << "Refresh: [ENTER]\n";
     std::cout << "Quit: [q]\n";
 
@@ -210,9 +222,9 @@ void displayMain(SoupSession *session, GMainLoop *loop){
         
         msgCt++;
     }
-    else if(input == "2"){
+    /* else if(input == "2"){
         fetchChannelMessages(session,appAuth.chatSvcAggToken,loop,currTeamId,currChannelId,5,fetchMessagesCallback,nullptr);
-    }
+    } */
     else{
         return;
     }

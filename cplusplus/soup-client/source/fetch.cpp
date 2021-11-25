@@ -59,14 +59,13 @@ void fetchChannelMessages(SoupSession* session, std::string& chatSvcAggToken, GM
     url += "?";
     url += "pageSize=" + std::to_string(pageSize);
     if(teamId == channelId) url += "&filterSystemMessage=true";
-    std::cout << "Url: " << url << "\n";
     //Initializing the mesage after url is fully constructed
     SoupMessage *msg = soup_message_new(SOUP_METHOD_GET, url.c_str());
 
     //auth
     std::string tokenstr = "Bearer " + chatSvcAggToken;
-    std::cout << "Token: " << tokenstr << "\n";
     soup_message_headers_append(msg->request_headers,"Authorization",tokenstr.c_str());
+    
     soup_session_queue_message(session,msg,callback,(gpointer)loop);//callback_data);//fetchChannelMessagesCallback
 
 }
