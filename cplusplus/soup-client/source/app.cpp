@@ -705,7 +705,9 @@ void deletionResponse(SoupSession *session, SoupMessage *msg, gpointer user_data
         if(didDelete == "true"){
             g_print("Deletetion Successful!\n");
             if(currChannelId.empty()){
-                delete teamMap[currTeamId];
+                Team *t = teamMap[currTeamId];
+                teamMap.erase(currTeamId);
+                delete t;
                 currTeamId = "";
             }
             else{
