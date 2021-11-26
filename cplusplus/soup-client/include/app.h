@@ -31,3 +31,5 @@ void parseMessages(JsonArray* array, guint index_, JsonNode* element_node, gpoin
 void populateTeamsCallback(SoupSession *session, SoupMessage *msg, gpointer user_data);
 void parseTeamsResponse(JsonArray* array, guint index_, JsonNode* element_node, gpointer user_data);
 void parseChannelList(JsonArray* array, guint index_, JsonNode* element_node, gpointer user_data);
+
+void deletionResponse(SoupSession *session, SoupMessage *msg, gpointer user_data);

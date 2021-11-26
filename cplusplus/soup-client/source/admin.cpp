@@ -58,7 +58,7 @@ void createChannel(SoupSession *session, GMainLoop *loop, std::string &skypeSpac
     soup_session_queue_message(session,msg,/* teamCreateCallback */channelCreateCallback,loop);
 }
 
-void deleteChannel(SoupSession *session, GMainLoop *loop, std::string &skypeSpacesToken, std::string &skypeToken, std::string &teamId, std::string &channelId){
+void deleteChannel(SoupSession *session, GMainLoop *loop, std::string &skypeSpacesToken, std::string &skypeToken, std::string &teamId, std::string &channelId, SoupSessionCallback deleteCallback){
     std::string url = "https://teams.microsoft.com/api/mt/part/amer-02/beta/teams/"+teamId+"/channels/"+channelId+"/";
     SoupMessage *msg = soup_message_new(SOUP_METHOD_DELETE,url.c_str());
 
@@ -66,10 +66,10 @@ void deleteChannel(SoupSession *session, GMainLoop *loop, std::string &skypeSpac
     soup_message_headers_append(msg->request_headers,"authorization",tokenstr.c_str());
     soup_message_headers_append(msg->request_headers,"x-skypetoken",skypeToken.c_str());
 
-    soup_session_queue_message(session,msg,teamCreateCallback,loop);
+    soup_session_queue_message(session,msg,deleteCallback,loop);
 }
 
-void deleteTeam(SoupSession *session, GMainLoop *loop, std::string &skypeSpacesToken, std::string &skypeToken, std::string &teamId){
+void deleteTeam(SoupSession *session, GMainLoop *loop, std::string &skypeSpacesToken, std::string &skypeToken, std::string &teamId, SoupSessionCallback deleteCallback){
     std::string url = "https://teams.microsoft.com/api/mt/part/amer-02/beta/teams/"+teamId+"/delete";
     SoupMessage *msg = soup_message_new(SOUP_METHOD_DELETE,url.c_str());
 
@@ -77,7 +77,7 @@ void deleteTeam(SoupSession *session, GMainLoop *loop, std::string &skypeSpacesT
     soup_message_headers_append(msg->request_headers,"authorization",tokenstr.c_str());
     soup_message_headers_append(msg->request_headers,"x-skypetoken",skypeToken.c_str());
 
-    soup_session_queue_message(session,msg,teamCreateCallback,loop);
+    soup_session_queue_message(session,msg,deleteCallback,loop);
 }
 
 //parse name validation response (if 2xx code) and call createTeam with response alias name (if parse successful)

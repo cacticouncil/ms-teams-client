@@ -95,8 +95,7 @@ int runConsoleApp(){
     return 0;
 }
 
-//main display function - call from callbacks currrently
-//add back function
+//main display function - triggered from callbacks currrently
 void displayMain(SoupSession *session, GMainLoop *loop){
     //handle Team/Channel selection
     if(currTeamId.empty() || currChannelId.empty()){
@@ -124,6 +123,10 @@ void displayMain(SoupSession *session, GMainLoop *loop){
                     std::string groupId = teamMap[currTeamId]->GetTeamGroupId();
                     createChannel(session,loop,appAuth.skypeSpacesToken,currTeamId,name,appAuth.skypeToken,groupId,teamCreatedCallback);
                 }
+                return;
+            }
+            else if(input == "d"){
+                deleteTeam(session,loop,appAuth.skypeSpacesToken,appAuth.skypeToken,currTeamId,deletionResponse);
                 return;
             }
             else if(!isTeams && input == "b"){
@@ -173,7 +176,10 @@ void displayMain(SoupSession *session, GMainLoop *loop){
                 }
             }
             std::cout << "Create new " << (isTeams ? "Team" : "Channel") << ": [c]\n";
-            if(!isTeams) std::cout << "Back to Teams: [b]\n";
+            if(!isTeams){
+                std::cout << "Delete Team: [d]\n";
+                std::cout << "Back to Teams: [b]\n";
+            }
             std::cout << "Quit: [q]\n";
 
             //display prompt
@@ -199,9 +205,9 @@ void displayMain(SoupSession *session, GMainLoop *loop){
     }
     
     //display menu
-    std::cout << "\nSend Message: [1]\n";
+    std::cout << "\nSend Message: [m]\n";
     std::cout << "Back to Channels: [b]\n";
-    std::cout << "Refresh: [ENTER]\n";
+    //std::cout << "Refresh: [ENTER]\n";
     std::cout << "Quit: [q]\n";
 
     //temp sent message counter
@@ -215,7 +221,7 @@ void displayMain(SoupSession *session, GMainLoop *loop){
         g_main_loop_quit(loop);
         return;
     }
-    else if(input == "1"){
+    else if(input == "m"){
         std::cout << "Enter message text: ";
         std::string msgtext;
         std::getline(std::cin,msgtext);
@@ -228,12 +234,17 @@ void displayMain(SoupSession *session, GMainLoop *loop){
         
         msgCt++;
     }
+    else if(input == "d"){
+        deleteChannel(session,loop,appAuth.skypeSpacesToken,appAuth.skypeToken,currTeamId,currChannelId,deletionResponse);
+    }
     else if(input == "b"){
         currChannelId = "";
 
         displayMain(session,loop);
     }
     else{
+        std::cout << "Invalid input! Please select from the menu.\n";
+        displayMain(session,loop);
         return;
     }
 }
@@ -683,4 +694,15 @@ void parseChannelList(JsonArray* array, guint index_, JsonNode* element_node, gp
     
     //insert new chhannel into map
     channelMap.emplace(channel->GetChannelId(),channel);
+}
+
+void deletionResponse(SoupSession *session, SoupMessage *msg, gpointer user_data){
+    if(msg->status_code >= 200 && msg->status_code < 300){
+        g_print("Deletion Successful?: %s\n",msg->response_body->data);
+    }
+    else{
+        g_printerr("ERROR: Code: %d\n",msg->status_code);
+    }
+
+    displayMain(session,(GMainLoop*)user_data);
 }
