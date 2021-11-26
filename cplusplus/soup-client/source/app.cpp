@@ -509,19 +509,61 @@ void teamNameValidatedCallback(SoupSession *session, SoupMessage *msg, gpointer 
 //callback to execute after team created (well response returned at least), then trigger displayMain
 void teamCreatedCallback(SoupSession *session, SoupMessage *msg, gpointer user_data){
     if(msg->status_code >= 200 && msg->status_code < 300){
-        g_print("Response: %s\n",msg->response_body->data);
+        //g_print("Response: %s\n",msg->response_body->data);
+        g_print("New Team Created!");
     }
     else{
         g_printerr("ERROR: Code: %d\nResponse: %s\n",msg->status_code,msg->response_body->data);
     }
 
-    displayMain(session,(GMainLoop*)user_data);
+    JsonParser *parser = json_parser_new();
+    GError *err = NULL;
+
+    if(json_parser_load_from_data(parser,msg->response_body->data,strlen(msg->response_body->data),&err)){
+        JsonNode* root = json_parser_get_root(parser);
+        JsonObject* rootObj = json_node_get_object(root); 
+        JsonObject* valueObj = json_object_get_object_member(rootObj, "value");
+
+        Team *newTeam = new Team();
+
+        //I think this is all that is needed at present
+        std::string teamId = json_object_get_string_member(valueObj,"objectId");
+        newTeam->SetTeamId(teamId);
+
+        std::string dispName = json_object_get_string_member(valueObj,"displayName");
+        newTeam->SetTeamDisplayName(dispName);
+
+        JsonObject* siteInfo = json_object_get_object_member(valueObj,"siteInfo");
+        std::string groupId = json_object_get_string_member(siteInfo,"groupId");
+        newTeam->SetTeamGroupId(groupId);
+
+        teamMap.emplace(teamId,newTeam);
+
+        //create General channel
+        Channel *newChannel = new Channel();
+        newChannel->SetChannelId(teamId);
+        newChannel->SetChannelTeamId(teamId);
+        newChannel->SetChannelDisplayName("General");
+
+        newTeam->GetChannelList().push_back(newChannel);
+        channelMap.emplace(teamId,newChannel);
+
+        displayMain(session,(GMainLoop*)user_data);
+    }
+     else{
+        g_printerr("ERROR: Unable to parse response: %s\n", err->message);
+        g_error_free (err);
+        g_object_unref (parser);
+
+        g_main_loop_quit((GMainLoop*)user_data);
+    }
 }
 
 //called after channel is created
 void channelCreatedCallback(SoupSession *session, SoupMessage *msg, gpointer user_data){
     if(msg->status_code >= 200 && msg->status_code < 300){
-        g_print("Response: %s\n",msg->response_body->data);
+        //g_print("Response: %s\n",msg->response_body->data);
+        g_print("New Channel Created!");
     }
     else{
         g_printerr("ERROR: Code: %d\nResponse: %s\n",msg->status_code,msg->response_body->data);
