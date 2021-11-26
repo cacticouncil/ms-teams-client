@@ -121,7 +121,7 @@ void displayMain(SoupSession *session, GMainLoop *loop){
                 }
                 else{
                     std::string groupId = teamMap[currTeamId]->GetTeamGroupId();
-                    createChannel(session,loop,appAuth.skypeSpacesToken,currTeamId,name,appAuth.skypeToken,groupId,teamCreatedCallback);
+                    createChannel(session,loop,appAuth.skypeSpacesToken,currTeamId,name,appAuth.skypeToken,groupId,/* teamCreatedCallback */channelCreatedCallback);
                 }
                 return;
             }
@@ -211,9 +211,6 @@ void displayMain(SoupSession *session, GMainLoop *loop){
     //std::cout << "Refresh: [ENTER]\n";
     std::cout << "Quit: [q]\n";
 
-    //temp sent message counter
-    static int msgCt = 1;
-
     //handle user input
     std::string input;
     std::cout << "\nInput: ";
@@ -226,14 +223,10 @@ void displayMain(SoupSession *session, GMainLoop *loop){
         std::cout << "Enter message text: ";
         std::string msgtext;
         std::getline(std::cin,msgtext);
-        
-        msgtext += " (" + std::to_string(msgCt) + ")";
 
         std::cout << "Sending message...\n";
 
         sendChannelMessage(session,loop,msgtext,appAuth.skypeToken,currChannelId,sendMessageCallback);
-        
-        msgCt++;
     }
     else if(input == "d"){
         deleteChannel(session,loop,appAuth.skypeSpacesToken,appAuth.skypeToken,currTeamId,currChannelId,deletionResponse);
@@ -522,7 +515,47 @@ void teamCreatedCallback(SoupSession *session, SoupMessage *msg, gpointer user_d
         g_printerr("ERROR: Code: %d\nResponse: %s\n",msg->status_code,msg->response_body->data);
     }
 
-    displayMain(session,(GMainLoop *)user_data);
+    displayMain(session,(GMainLoop*)user_data);
+}
+
+//called after channel is created
+void channelCreatedCallback(SoupSession *session, SoupMessage *msg, gpointer user_data){
+    if(msg->status_code >= 200 && msg->status_code < 300){
+        g_print("Response: %s\n",msg->response_body->data);
+    }
+    else{
+        g_printerr("ERROR: Code: %d\nResponse: %s\n",msg->status_code,msg->response_body->data);
+    }
+
+    JsonParser *parser = json_parser_new();
+    GError *err = NULL;
+
+    if(json_parser_load_from_data(parser,msg->response_body->data,strlen(msg->response_body->data),&err)){
+        JsonNode* root = json_parser_get_root(parser);
+        JsonObject* rootObj = json_node_get_object(root); 
+        JsonObject* valueObj = json_object_get_object_member(rootObj, "value");
+
+        Channel *newChannel = new Channel();
+
+        //I think this is all that is needed at present
+        std::string channelId = json_object_get_string_member(valueObj,"objectId");
+        newChannel->SetChannelId(channelId);
+
+        std::string dispName = json_object_get_string_member(valueObj,"displayName");
+        newChannel->SetChannelDisplayName(dispName);
+
+        teamMap[currTeamId]->GetChannelList().push_back(newChannel);
+        channelMap.emplace(channelId,newChannel);
+
+        displayMain(session,(GMainLoop*)user_data);
+    }
+     else{
+        g_printerr("ERROR: Unable to parse response: %s\n", err->message);
+        g_error_free (err);
+        g_object_unref (parser);
+
+        g_main_loop_quit((GMainLoop*)user_data);
+    }
 }
 
 void fetchMessagesCallback(SoupSession *session, SoupMessage *msg, gpointer user_data){
@@ -555,7 +588,7 @@ void fetchMessagesCallback(SoupSession *session, SoupMessage *msg, gpointer user
         g_object_unref (parser);
 
         g_main_loop_quit(loop);
-    } 
+    }
 }
 
 void parseReplyChains(JsonArray* array, guint index_, JsonNode* element_node, gpointer user_data){
@@ -705,12 +738,14 @@ void deletionResponse(SoupSession *session, SoupMessage *msg, gpointer user_data
         if(didDelete == "true"){
             g_print("Deletetion Successful!\n");
             if(currChannelId.empty()){
+                //remove from Team map and delete
                 Team *t = teamMap[currTeamId];
                 teamMap.erase(currTeamId);
                 delete t;
                 currTeamId = "";
             }
             else{
+                //remove from Team channelList
                 std::vector<Channel*> &channelList = teamMap[currTeamId]->GetChannelList();
                 auto iter = channelList.begin();
                 while(iter != channelList.end()){
@@ -720,6 +755,7 @@ void deletionResponse(SoupSession *session, SoupMessage *msg, gpointer user_data
                     }
                     iter++;
                 }
+
                 delete channelMap[currChannelId];
                 currChannelId = "";
             }

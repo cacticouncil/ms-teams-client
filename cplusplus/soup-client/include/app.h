@@ -23,6 +23,7 @@ void parseUsersResponse(JsonArray* array, guint index_, JsonNode* element_node, 
 
 void teamNameValidatedCallback(SoupSession *session, SoupMessage *msg, gpointer user_data);
 void teamCreatedCallback(SoupSession *session, SoupMessage *msg, gpointer user_data);
+void channelCreatedCallback(SoupSession *session, SoupMessage *msg, gpointer user_data);
 
 void fetchMessagesCallback(SoupSession *session, SoupMessage *msg, gpointer user_data);
 void parseReplyChains(JsonArray* array, guint index_, JsonNode* element_node, gpointer user_data);
