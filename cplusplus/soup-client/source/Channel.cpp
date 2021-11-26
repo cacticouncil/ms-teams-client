@@ -1,6 +1,6 @@
 #include "../include/Channel.h"
 
-Channel::Channel(std::vector<Message> channelMgs, std::string displayName, std::string id, std::string parentTeamId, std::string creatorMri, std::string groupId, bool isMember){
+Channel::Channel(std::vector<Message*> channelMgs, std::string displayName, std::string id, std::string parentTeamId, std::string creatorMri, std::string groupId, bool isMember){
     this->channelMgs=channelMgs;
     this->displayName=displayName;
     this->id=id;
@@ -8,6 +8,12 @@ Channel::Channel(std::vector<Message> channelMgs, std::string displayName, std::
     this->creatorMri=creatorMri;
     this->groupId=groupId;
     this->isMember= isMember;
+}
+
+Channel::~Channel(){
+    for(Message *m : this->channelMgs){
+        delete m;
+    }
 }
 
 //Accessors
@@ -23,7 +29,7 @@ std::string Channel::GetChannelTeamId(){
     return parentTeamId;
 }
 
-std::vector<Message>& Channel::GetChannelMgs(){
+std::vector<Message*>& Channel::GetChannelMgs(){
    return this->channelMgs;
 }
 
@@ -40,6 +46,10 @@ bool Channel::GetIsChannelMember(){
     return this->isMember;
 }
 
+bool Channel::GetMessagesRetrievedStatus(){
+    return this->messagesRetrieved;
+}
+
 //Modifiers
 void Channel::SetChannelDisplayName(std::string name){
     displayName= name;
@@ -53,7 +63,7 @@ void Channel::SetChannelTeamId(std::string teamId){
     parentTeamId= teamId;
 }
 
-void Channel::SetChannelMgs(std::vector<Message>& vect){
+void Channel::SetChannelMgs(std::vector<Message*>& vect){
     this->channelMgs = vect;
 }
 
@@ -67,6 +77,10 @@ void Channel::SetChannelGroupId(std::string gId){
 
 void Channel::SetIsChannelMember(bool member){
     this->isMember=member;
+}
+
+void Channel::SetMessagesRetrievedStatus(bool status){
+    this->messagesRetrieved = status;
 }
 
 std::string Channel::GetChannelSummary(){
@@ -84,8 +98,8 @@ std::string Channel::GetChannelSummary(){
 
         result += "msgId \t|\t content";
 
-        for(Message m : this->channelMgs){
-            result +=  m.GetMsgId() + " | " + m.GetMsgContent() + "\n";
+        for(Message *m : this->channelMgs){
+            result +=  m->GetMsgId() + " | " + m->GetMsgContent() + "\n";
         }
 
     }

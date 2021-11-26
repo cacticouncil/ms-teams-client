@@ -18,13 +18,13 @@
 
 int main(int argc, char *argv[]){
 
-    //return runConsoleApp();
+    return runConsoleApp();
     //return testingFetchUsers();
     //return testFetchChannelMessages();
     //return testCreateTeam();
     //return testDeleteChannel();
     //return testDeleteTeam();
-    return testFetchTeams();
+    //return testFetchTeams();
 }
 
 int testScript(){
@@ -292,7 +292,7 @@ int testFetchChannelMessages(){
     //This API call is specific for channel message populaiton.
     //Any testing done here with the Team and Channel object are focusing on that, the rest of the fields for these claases (Channel and Team) are empty for this testing
     //Only testing channel messages gets populated
-	fetchChannelMessages(session,chatSvcAggToken, loop, &team, &channel, 5, fetchChannelMessagesCallback, msgs_callback_data );
+	//fetchChannelMessages(session,chatSvcAggToken, loop, &team, &channel, 5, fetchChannelMessagesCallback, msgs_callback_data );
 
 
 
@@ -301,8 +301,8 @@ int testFetchChannelMessages(){
 
     std::cout<< "\n\n AFTER THE API CALLS: \n"<<std::endl;
     
-    for (Message i : channel.GetChannelMgs() ){
-        std::cout<<i.GetMessageSummary()<<std::endl;
+    for (Message *i : channel.GetChannelMgs() ){
+        std::cout<<i->GetMessageSummary()<<std::endl;
     }
 
     g_main_loop_unref (loop);
@@ -354,7 +354,7 @@ int testingFetchUsers(){
     g_ptr_array_add(user_data,loop);  //1
 
 
-    fetchUsersInfo(session,chatSvcAggToken, loop, &userVector, fetchUsersInfoCallback, user_data);
+    //fetchUsersInfo(session,chatSvcAggToken, loop, &userVector, fetchUsersInfoCallback, user_data);
 
 
     
@@ -392,7 +392,7 @@ int testCreateTeam(){
     std::string name = "Testiest of testis";
     //createTeamName(session,loop,skypeSpacesToken,name,validateNameCallback);
 	//createTeam(session,loop,skypeSpacesToken,name,description);
-    createChannel(session,loop,skypeSpacesToken,teamId,name,skypeToken);
+    //createChannel(session,loop,skypeSpacesToken,teamId,name,skypeToken,teamCreateCallback);
 
     g_main_loop_run (loop);
 
@@ -414,7 +414,7 @@ int testDeleteChannel(){
 
     std::string teamId = "19:0MaeOcpNpAX-HchAP2Z8xnw6j_QYsq6htWoAsD94QxY1@thread.tacv2";
     std::string channelId = "19:955c605b9bdb428a846f4e7246c813e6@thread.tacv2";
-    deleteChannel(session,loop,skypeSpacesToken,skypeToken,teamId,channelId);
+    deleteChannel(session,loop,skypeSpacesToken,skypeToken,teamId,channelId,teamCreateCallback);
 
     g_main_loop_run (loop);
 
@@ -435,7 +435,7 @@ int testDeleteTeam(){
     SoupSession *session = soup_session_new();
 
     std::string teamId = "19:JLj0jdpffy_WxMmxRpkVEYJXsvzIdwhxqOzGvU9OrpM1@thread.tacv2";
-    deleteTeam(session,loop,skypeSpacesToken,skypeToken,teamId);
+    deleteTeam(session,loop,skypeSpacesToken,skypeToken,teamId,teamCreateCallback);
 
     g_main_loop_run (loop);
 

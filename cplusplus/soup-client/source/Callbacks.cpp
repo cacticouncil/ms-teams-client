@@ -234,31 +234,31 @@ void jsonArrayFetchTeams(  JsonArray* array,  guint index_,  JsonNode* element_n
 void jsonArrayChannelList(  JsonArray* array,  guint index_,  JsonNode* element_node,  gpointer user_data){
     //  IMPORTANT NOTE: At this time, this callback DOES NOT fill up the channel message array, this is to be done outside of this API call as a separate call 
 
-    Channel channel;
+    Channel *channel = new Channel();
 
     JsonObject* currObj =json_array_get_object_element(array, index_);  //current array object being disected
 
 
     JsonNode* value =json_object_get_member(currObj, "displayName"); //member name here
 
-    channel.SetChannelDisplayName(json_node_get_string(value));
+    channel->SetChannelDisplayName(json_node_get_string(value));
 
     value = json_object_get_member(currObj, "id"); 
-    channel.SetChannelId(json_node_get_string(value));
+    channel->SetChannelId(json_node_get_string(value));
 
     value = json_object_get_member(currObj, "parentTeamId"); 
-    channel.SetChannelTeamId(json_node_get_string(value));
+    channel->SetChannelTeamId(json_node_get_string(value));
 
     //"isMember": false,
     bool isMember = json_object_get_boolean_member(currObj, "isMember");
-    channel.SetIsChannelMember(isMember);
+    channel->SetIsChannelMember(isMember);
 
     if (isMember){
         value = json_object_get_member(currObj, "creator"); 
-        channel.SetChannelCreatorMri(json_node_get_string(value));
+        channel->SetChannelCreatorMri(json_node_get_string(value));
 
         value = json_object_get_member(currObj, "groupId"); 
-        channel.SetChannelGroupId(json_node_get_string(value));
+        channel->SetChannelGroupId(json_node_get_string(value));
     }
 
     Team* createdTeam= (Team*) user_data;

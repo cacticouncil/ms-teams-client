@@ -1,11 +1,17 @@
 #include "../include/Team.h"
 
-Team::Team(std::string displayName, std::string id, int totalMemberCount, std::string creatorMri, std::string groupId, std::vector<Channel> channels){
+Team::Team(std::string displayName, std::string id, int totalMemberCount, std::string creatorMri, std::string groupId, std::vector<Channel*> channels){
     this->displayName = displayName;
     this->id = id;
     this->totalMemberCount = totalMemberCount;
     this->creatorMri = creatorMri;
     this->groupId = groupId;
+}
+
+Team::~Team(){
+    for(Channel *c : this->channelList){
+        delete c;
+    }
 }
 
 //Accessors
@@ -29,7 +35,7 @@ std::string Team::GetTeamGroupId(){
     return groupId;
 }
 
-std::vector<Channel>& Team::GetChannelList(){
+std::vector<Channel*>& Team::GetChannelList(){
     return this->channelList;
 }
 
@@ -54,7 +60,7 @@ void Team::SetTeamGroupId(std::string group){
     groupId=group;
 }
 
-void Team::SetChannelList(std::vector<Channel>& channels){
+void Team::SetChannelList(std::vector<Channel*>& channels){
     this->channelList=channels;
 }
 
@@ -71,8 +77,8 @@ std::string Team::GetTeamSummary(){
 
     //result += "isMember \t|\t channel id \t|\t channel name";
 
-    for(Channel c : this->channelList){
-       result += c.GetChannelSummary();// c.GetChannelId() + " | " + c.GetChannelDisplayName() + "\n";
+    for(Channel *c : this->channelList){
+       result += c->GetChannelSummary();// c.GetChannelId() + " | " + c.GetChannelDisplayName() + "\n";
        result += "\n";
     }
 
