@@ -510,7 +510,7 @@ void teamNameValidatedCallback(SoupSession *session, SoupMessage *msg, gpointer 
 void teamCreatedCallback(SoupSession *session, SoupMessage *msg, gpointer user_data){
     if(msg->status_code >= 200 && msg->status_code < 300){
         //g_print("Response: %s\n",msg->response_body->data);
-        g_print("New Team Created!");
+        g_print("New Team Created!\n");
     }
     else{
         g_printerr("ERROR: Code: %d\nResponse: %s\n",msg->status_code,msg->response_body->data);
@@ -563,7 +563,7 @@ void teamCreatedCallback(SoupSession *session, SoupMessage *msg, gpointer user_d
 void channelCreatedCallback(SoupSession *session, SoupMessage *msg, gpointer user_data){
     if(msg->status_code >= 200 && msg->status_code < 300){
         //g_print("Response: %s\n",msg->response_body->data);
-        g_print("New Channel Created!");
+        g_print("New Channel Created!\n");
     }
     else{
         g_printerr("ERROR: Code: %d\nResponse: %s\n",msg->status_code,msg->response_body->data);
