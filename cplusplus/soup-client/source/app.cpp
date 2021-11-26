@@ -126,6 +126,11 @@ void displayMain(SoupSession *session, GMainLoop *loop){
                 }
                 return;
             }
+            else if(!isTeams && input == "b"){
+                currTeamId = "";
+                displayMain(session,loop);
+                return;
+            }
 
             //convert input to int for processing
             int inVal;
@@ -168,6 +173,7 @@ void displayMain(SoupSession *session, GMainLoop *loop){
                 }
             }
             std::cout << "Create new " << (isTeams ? "Team" : "Channel") << ": [c]\n";
+            if(!isTeams) std::cout << "Back to Teams: [b]\n";
             std::cout << "Quit: [q]\n";
 
             //display prompt
@@ -194,7 +200,7 @@ void displayMain(SoupSession *session, GMainLoop *loop){
     
     //display menu
     std::cout << "\nSend Message: [1]\n";
-    //std::cout << "Fetch Messages: [2]\n";
+    std::cout << "Back to Channels: [b]\n";
     std::cout << "Refresh: [ENTER]\n";
     std::cout << "Quit: [q]\n";
 
@@ -222,9 +228,11 @@ void displayMain(SoupSession *session, GMainLoop *loop){
         
         msgCt++;
     }
-    /* else if(input == "2"){
-        fetchChannelMessages(session,appAuth.chatSvcAggToken,loop,currTeamId,currChannelId,5,fetchMessagesCallback,nullptr);
-    } */
+    else if(input == "b"){
+        currChannelId = "";
+
+        displayMain(session,loop);
+    }
     else{
         return;
     }
