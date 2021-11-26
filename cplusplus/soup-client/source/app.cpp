@@ -193,7 +193,7 @@ void displayMain(SoupSession *session, GMainLoop *loop){
     }
 
     //print messages 
-    if(!channelMap[currChannelId]->GetChannelMgs().empty()){
+    if(!channelMap[currChannelId]->GetMessagesRetrievedStatus()){//!channelMap[currChannelId]->GetChannelMgs().empty()){
         for(Message *m : channelMap[currChannelId]->GetChannelMgs()){
             std::cout << "\nFrom: " << m->GetSenderOid() << "\n";
             std::cout << "Content: " << m->GetMsgContent() << "\n";
@@ -206,6 +206,7 @@ void displayMain(SoupSession *session, GMainLoop *loop){
     
     //display menu
     std::cout << "\nSend Message: [m]\n";
+    std::cout << "Delete Channel: [d]\n";
     std::cout << "Back to Channels: [b]\n";
     //std::cout << "Refresh: [ENTER]\n";
     std::cout << "Quit: [q]\n";
@@ -544,6 +545,8 @@ void fetchMessagesCallback(SoupSession *session, SoupMessage *msg, gpointer user
 
         json_array_foreach_element(arr, parseReplyChains, user_data); //middle level callback
 
+        channelMap[currChannelId]->SetMessagesRetrievedStatus(true);
+
         displayMain(session,loop);
     }
      else{
@@ -698,7 +701,30 @@ void parseChannelList(JsonArray* array, guint index_, JsonNode* element_node, gp
 
 void deletionResponse(SoupSession *session, SoupMessage *msg, gpointer user_data){
     if(msg->status_code >= 200 && msg->status_code < 300){
-        g_print("Deletion Successful?: %s\n",msg->response_body->data);
+        std::string didDelete = msg->response_body->data;
+        if(didDelete == "true"){
+            g_print("Deletetion Successful!\n");
+            if(currChannelId.empty()){
+                delete teamMap[currTeamId];
+                currTeamId = "";
+            }
+            else{
+                std::vector<Channel*> &channelList = teamMap[currTeamId]->GetChannelList();
+                auto iter = channelList.begin();
+                while(iter != channelList.end()){
+                    if((*iter)->GetChannelId() == currChannelId){
+                        channelList.erase(iter);
+                        break;
+                    }
+                    iter++;
+                }
+                delete channelMap[currChannelId];
+                currChannelId = "";
+            }
+        }
+        else{
+            std::cout << "Unable to delete: " << (currChannelId.empty() ? teamMap[currTeamId]->GetTeamDisplayName() : channelMap[currChannelId]->GetChannelDisplayName()) << "\n";
+        }
     }
     else{
         g_printerr("ERROR: Code: %d\n",msg->status_code);

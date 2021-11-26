@@ -14,7 +14,7 @@ class Channel{
     std::string creatorMri;
     std::string groupId;
     bool isMember;
-
+    bool messagesRetrieved;
 
     //Team* to team it belongs in
     public:
@@ -26,6 +26,7 @@ class Channel{
         this->creatorMri = "";  
         this->groupId="";
         this->isMember= false;
+        this->messagesRetrieved = false;
     }
 
     Channel(std::vector<Message*> channelMgs, std::string displayName, std::string ,  std::string parentTeamId, std::string creatorMri, std::string groupId,  bool isMember);
@@ -40,6 +41,7 @@ class Channel{
     std::string GetChannelCreatorMri();
     std::string GetChannelGroupId();
     bool GetIsChannelMember();
+    bool GetMessagesRetrievedStatus();
 
     //Modifiers
     void SetChannelDisplayName(std::string);
@@ -49,7 +51,7 @@ class Channel{
     void SetChannelCreatorMri(std::string);
     void SetChannelGroupId(std::string);
     void SetIsChannelMember(bool);
-    
+    void SetMessagesRetrievedStatus(bool);
 
     std::string GetChannelSummary();
 

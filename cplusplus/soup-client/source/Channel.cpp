@@ -46,6 +46,10 @@ bool Channel::GetIsChannelMember(){
     return this->isMember;
 }
 
+bool Channel::GetMessagesRetrievedStatus(){
+    return this->messagesRetrieved;
+}
+
 //Modifiers
 void Channel::SetChannelDisplayName(std::string name){
     displayName= name;
@@ -73,6 +77,10 @@ void Channel::SetChannelGroupId(std::string gId){
 
 void Channel::SetIsChannelMember(bool member){
     this->isMember=member;
+}
+
+void Channel::SetMessagesRetrievedStatus(bool status){
+    this->messagesRetrieved = status;
 }
 
 std::string Channel::GetChannelSummary(){
