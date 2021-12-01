@@ -125,7 +125,7 @@ void displayMain(SoupSession *session, GMainLoop *loop){
                 }
                 return;
             }
-            else if(input == "d"){
+            else if(!isTeams && input == "d"){
                 deleteTeam(session,loop,appAuth.skypeSpacesToken,appAuth.skypeToken,currTeamId,deletionResponse);
                 return;
             }
@@ -193,7 +193,7 @@ void displayMain(SoupSession *session, GMainLoop *loop){
     }
 
     //print messages 
-    if(!channelMap[currChannelId]->GetMessagesRetrievedStatus()){//!channelMap[currChannelId]->GetChannelMgs().empty()){
+    if(channelMap[currChannelId]->GetMessagesRetrievedStatus()){//!channelMap[currChannelId]->GetChannelMgs().empty()){
         for(Message *m : channelMap[currChannelId]->GetChannelMgs()){
             std::cout << "\nFrom: " << m->GetSenderOid() << "\n";
             std::cout << "Content: " << m->GetMsgContent() << "\n";
