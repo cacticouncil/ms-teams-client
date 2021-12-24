@@ -14,7 +14,6 @@
 #include "../include/admin.h"
 #include "../include/app.h"
 #include "../include/User.h"
-#include "../include/Callbacks.h"
 
 //develop standardized solution for tokens in core API; currently ones called only from callbacks use prepended token
 //possibly switch all to just token; develop function which takes Authentication vs Authorization and prepended tokenstr, extracts just token to pass
@@ -29,6 +28,10 @@ std::map<std::string,Team*> teamMap;
 std::map<std::string,Channel*> channelMap;
 std::string currTeamId;
 std::string currChannelId;
+
+int main(){
+    return runConsoleApp();
+}
 
 //add logout
 //main console app run function
@@ -336,7 +339,7 @@ void initCallback(SoupSession *session, SoupMessage *msg, gpointer user_data){
         JsonArray *subsArr = json_object_get_array_member(rootObj,"subscriptions");
         
         std::string endpointUrl;
-        json_array_foreach_element(subsArr,ArrayCallback,&endpointUrl);
+        json_array_foreach_element(subsArr,arrayCallback,&endpointUrl);
 
         g_object_unref(parser);
 
@@ -811,4 +814,14 @@ void deletionResponse(SoupSession *session, SoupMessage *msg, gpointer user_data
     }
 
     displayMain(session,(GMainLoop*)user_data);
+}
+
+void arrayCallback(JsonArray* arr,guint index,JsonNode *elem,gpointer user_data){
+    JsonObject* obj = json_node_get_object(elem);
+    std::string channelType = json_object_get_string_member(obj,"channelType");
+    if(channelType == "HttpLongPoll"){
+        std::string endpointUrl = json_object_get_string_member(obj,"longPollUrl");
+        //g_print("URL: %s\n",endpointUrl.c_str());
+        *(std::string*)user_data = endpointUrl.c_str();
+    }
 }
