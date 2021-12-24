@@ -2,6 +2,12 @@
 
 This library helps interact with Microsoft Teams via undocumented APIs.
 
+# CPP Client
+
+Located in /cplusplus/soupclient/
+
+# Javascript client
+
 ## Installation
 
 This is not published on npm or any other package registry. Therefore, you must clone this repository to your computer and installing using a file path instead of a package name.
