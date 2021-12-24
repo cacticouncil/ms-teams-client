@@ -6,6 +6,3 @@ void createChannel(SoupSession *session, GMainLoop *loop, std::string &skypeSpac
 
 void deleteChannel(SoupSession *session, GMainLoop *loop, std::string &skypeSpacesToken, std::string &skypeToken, std::string &teamId, std::string &channelId, SoupSessionCallback deleteCallback);
 void deleteTeam(SoupSession *session, GMainLoop *loop, std::string &skypeSpacesToken, std::string &skypeToken, std::string &teamId, SoupSessionCallback deleteCallback);
-
-void validateNameCallback(SoupSession *session, SoupMessage *msg, gpointer user_data);
-void teamCreateCallback(SoupSession *session, SoupMessage *msg, gpointer user_data);

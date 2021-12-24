@@ -3,39 +3,6 @@
 
 #include "../include/fetch.h"
 
-
-//synchronously fetch teams data
-void fetchTeamsSync(SoupSession *session, std::string &chatSvcAggToken){
-    //init message with url
-    SoupMessage *msg = soup_message_new(SOUP_METHOD_GET,"https://teams.microsoft.com/api/csa/api/v1/teams/users/me?isPrefetch=false&enableMembershipSummary=true");
-
-    //append bearer auth token to header
-    std::string tokenstr = "Bearer " + chatSvcAggToken;
-    soup_message_headers_append(msg->request_headers,"Authorization",tokenstr.c_str());
-
-    GError *error = NULL;
-    GInputStream *stream = soup_session_send(session,msg,NULL,&error);
-
-    void *resbuff = malloc(8192);
-    g_input_stream_read(stream,resbuff,8192,NULL,&error);
-
-    if (error) {
-        g_printerr ("ERROR: %s\n", error->message);
-        g_error_free (error);
-    }
-    else{
-        g_print("Success! Code: %d\n",msg->status_code);
-
-        g_print("Response Buffer: %s\n",(char*)resbuff);
-
-        g_input_stream_close(stream,NULL,&error);
-        g_object_unref (msg);
-        g_object_unref (session);
-    }
-
-    free(resbuff);
-}
-
 //fetch teams data asynchronously working
 //In the future a function pointer would be passed here to the callback rather than having the callback here. this is temporary.
 void fetchTeams(SoupSession *session, std::string &chatSvcAggToken, GMainLoop* loop, SoupSessionCallback callback, GPtrArray* callback_data){
@@ -93,30 +60,4 @@ void fetchUsersInfo(SoupSession *session, std::string &chatSvcAggToken, GMainLoo
     soup_message_headers_append(msg->request_headers,"Authorization",tokenstr.c_str());
 
     soup_session_queue_message(session,msg,callback,(gpointer)callback_data);
-}
-
-
-//This function extracts information from the response object 
-//It displays the response to the console if shouldPrint is true
-//It also supports the option to print to a file given its name with extension
-//To only print to console pass in an empty string
-void displayResponseInfo( SoupMessage *msg,  bool shouldPrint, std::string filename){
-    if(shouldPrint){
-        if (msg->status_code >= 200 && msg->status_code < 300){
-            g_print("Response: %s\n",msg->response_body->data);
-        }
-        else{
-            g_printerr("ERROR: Code: %d\n",msg->status_code);
-        }
-    }
-    
-    if(filename != ""){ //if it's not an empty string means you want info printed to a file
-        std::ofstream responseFile(filename);
-        if (responseFile.is_open()) {
-                responseFile << msg->response_body->data;
-                responseFile.close();
-                std::cout<<"\nWrote response to file: " + filename + "\n";
-        }
-       
-    }
 }

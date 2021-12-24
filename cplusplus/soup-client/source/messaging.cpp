@@ -37,16 +37,3 @@ void sendDirectMessage(SoupSession *session, GMainLoop *loop, std::string &text,
     std::string params = "19:" + receiverUserId + "_" + senderUserId + "@unq.gbl.spaces";
     sendMessage(session,loop,text,skypeToken,params,msgCallback);
 }
-
-//example callback to execute after message sent
-void queueMessageCallback(SoupSession *session, SoupMessage *msg, gpointer user_data){
-    if(msg->status_code >= 200 && msg->status_code < 300){
-        g_print("Response: %s\n",msg->response_body->data);
-    }
-    else{
-        g_printerr("ERROR: Code: %d\n",msg->status_code);
-    }
-
-    GMainLoop *loop = (GMainLoop *)user_data;
-    g_main_loop_quit(loop);
-}
